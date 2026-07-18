@@ -204,12 +204,12 @@ export const SURAH_DATA: Surah[] = [
 /**
  * Reciters with full-surah audio support.
  *
- * Primary source: mp3quran.net (server8) — highly reliable, fast CDN
- * Fallback source: cdn.islamic.network — backup
+ * Audio sources (resolved at request time by /api/audio-url):
+ *   1. cdn.islamic.network/quran/audio-surah/128/{reciterId}/{surah}.mp3 (primary — reliable)
+ *   2. mp3quran.net per-reciter server+folder (fallback — authoritative base URLs in MP3QURAN_BASE)
  *
- * mp3quran.net folder codes map to well-known reciter directories.
- * Surah files: https://server8.mp3quran.net/{folder}/{NNN}.mp3
- * where NNN is zero-padded surah number (001-114)
+ * The reciter objects below carry an mp3quranFolder field retained for compatibility;
+ * the actual server+folder mapping lives in MP3QURAN_BASE.
  */
 export const RECITERS: Reciter[] = [
   // ─── Popular ───────────────────────────────────────────────────────────
@@ -247,36 +247,60 @@ export const RECITERS: Reciter[] = [
   { id: "ar.abdulbariaththubaity", name: "Abdul Bari Ath-Thubaity", arabicName: "عبدالباري الثبيتي", country: "Saudi Arabia", category: "Other", style: "Murattal", mp3quranFolder: "thbyty" },
 ];
 
-/** Pad surah number to 3 digits for mp3quran.net URL */
-function padSurah(num: number): string {
+/** Zero-pad a surah number to 3 digits (001-114). */
+export function padSurah(num: number): string {
   return num.toString().padStart(3, "0");
 }
 
 /**
- * Get the primary audio URL for a full surah.
- * Uses jsDelivr CDN - fast and reliable.
+ * Authoritative mp3quran.net base URLs (server + folder) per reciter,
+ * sourced from https://www.mp3quran.net/api/v3/reciters. Each value is the
+ * base path; the zero-padded surah number + ".mp3" is appended.
+ */
+export const MP3QURAN_BASE: Record<string, string> = {
+  "ar.alafasy": "https://server8.mp3quran.net/afs",
+  "ar.abdulbasitmurattal": "https://server7.mp3quran.net/basit",
+  "ar.abdulbasitmujawwad": "https://server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad",
+  "ar.husary": "https://server13.mp3quran.net/husr",
+  "ar.minshawi": "https://server10.mp3quran.net/minsh/Almusshaf-Al-Mo-lim",
+  "ar.yasseraldossari": "https://server11.mp3quran.net/yasser",
+  "ar.saudalshuraim": "https://server7.mp3quran.net/shur",
+  "ar.mahershakhashiro": "https://server12.mp3quran.net/maher/Almusshaf-Al-Mojawwad",
+  "ar.abdurrahmaansudais": "https://server11.mp3quran.net/sds",
+  "ar.muhammadayyub": "https://server16.mp3quran.net/ayyoub2/Rewayat-Hafs-A-n-Assem",
+  "ar.haniarrifai": "https://server8.mp3quran.net/hani",
+  "ar.ahmedalajmi": "https://server10.mp3quran.net/ajm",
+  "ar.mahmoudalialbanna": "https://server8.mp3quran.net/bna/Almusshaf-Al-Mojawwad",
+  "ar.muhammadanwarshahat": "https://server12.mp3quran.net/shah",
+  "ar.mustafaismail": "https://server8.mp3quran.net/mustafa/Almusshaf-Al-Mojawwad",
+  "ar.aliabdurrahmanalhuthaify": "https://server9.mp3quran.net/hthfi/Rewayat-Sho-bah-A-n-Asim",
+  "ar.abdullahbasfar": "https://server6.mp3quran.net/bsfr",
+  "ar.faresabbad": "https://server8.mp3quran.net/frs_a",
+  "ar.ibrahimalakhdar": "https://server6.mp3quran.net/akdr",
+  "ar.abdullahalmatrood": "https://server8.mp3quran.net/mtrod",
+  "ar.salahalbudair": "https://server6.mp3quran.net/s_bud",
+  "ar.muhammadalluhaidan": "https://server8.mp3quran.net/lhdan",
+  "ar.ibrahimaldossari": "https://server10.mp3quran.net/ibrahim_dosri/Rewayat-Hafs-A-n-Assem",
+  "ar.nasseralqatami": "https://server6.mp3quran.net/qtm",
+  "ar.khaledalqahtani": "https://server10.mp3quran.net/qht",
+  "ar.abdulbariaththubaity": "https://server6.mp3quran.net/thubti",
+};
+
+/**
+ * Primary audio URL for a full surah — mp3quran.net CDN.
+ * Returns "" when no base is configured for the reciter.
  */
 export function getSurahAudioUrl(reciterId: string, surahNumber: number): string {
-  const reciterFolderMap: Record<string, string> = {
-    'ar.alafasy': 'MishariAlafasy',
-    'ar.abdulbasitmurattal': 'AbdulBasit/murattal',
-    'ar.abdulbasitmujawwad': 'AbdulBasit/mujawwad',
-    'ar.husary': 'Husary',
-    'ar.saudalshuraim': 'Shuraim',
-    'ar.mahershakhashiro': 'MaherAlMuaiqly',
-  };
-  const folder = reciterFolderMap[reciterId];
-  if (folder) {
-    const padded = surahNumber.toString().padStart(3, '0');
-    return `https://cdn.jsdelivr.net/gh/mfeti/quran-audio@1.0.0/${folder}/${padded}.mp3`;
+  const base = MP3QURAN_BASE[reciterId];
+  if (base) {
+    return `${base}/${padSurah(surahNumber)}.mp3`;
   }
-  return '';
+  return "";
 }
 
 /**
- * Get the fallback audio URL for a full surah.
- * Returns empty string - we use API for audio URLs now.
+ * Fallback audio URL for a full surah — cdn.islamic.network.
  */
 export function getFallbackAudioUrl(reciterId: string, surahNumber: number): string {
-  return '';
+  return `https://cdn.islamic.network/quran/audio-surah/128/${reciterId}/${surahNumber}.mp3`;
 }

@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "npx next build --webpack && powershell -Command \"Copy-Item -Recurse .next/static .next/standalone/.next/; Copy-Item -Recurse public .next/standalone/\"",
+    "pages:build": "npx @cloudflare/next-on-pages@1",
+    "pages:dev": "npx wrangler pages dev .vercel/output/static --compatibility-flags=nodejs_compat",
+    "pages:deploy": "npm run pages:build && npx wrangler pages project create quran-kareem --production-branch main 2>$null; npx wrangler pages deploy .vercel/output/static --project-name=quran-kareem",
     "start": "NODE_ENV=production bun .next/standalone/server.js",
     "lint": "eslint .",
     "db:push": "prisma db push",
@@ -90,6 +93,7 @@
     "eslint-config-next": "^15.0.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.5",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.112.0"
   }
 }

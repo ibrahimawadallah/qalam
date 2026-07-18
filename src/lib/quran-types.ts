@@ -17,11 +17,11 @@ export interface Reciter {
   style: "Murattal" | "Mujawwad";
   /** Audio source type: "ayah" = per-ayah files from cdn.islamic.network, "surah" = per-surah files from mp3quran.net */
   audioSource?: "ayah" | "surah";
-  /** For surah-source reciters: the CDN base URL (e.g., "https://server8.mp3quran.net/afs") */
+  /** For surah-source reciters: the CDN base URL (authoritative values live in quran-data.ts MP3QURAN_BASE) */
   audioBaseUrl?: string;
-  /** For surah-source reciters: the surah file prefix (e.g., "afs") */
+  /** For surah-source reciters: retained for compatibility; actual mapping is in quran-data.ts MP3QURAN_BASE */
   audioPrefix?: string;
-  /** mp3quran.net folder code for direct full-surah audio access */
+  /** mp3quran.net folder code retained for compatibility; actual server+folder mapping is in quran-data.ts MP3QURAN_BASE */
   mp3quranFolder?: string;
 }
 

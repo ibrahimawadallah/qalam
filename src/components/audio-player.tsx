@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useAudioStore } from "@/lib/audio-store";
 import { getSurahInfo } from "@/lib/quran-utils";
+import { getAyahTimings } from "@/lib/quran-data";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -231,6 +232,15 @@ export default function AudioPlayer() {
     loadAudio(audioSrc, isPlaying);
   }, [audioSrc, isPlaying, loadAudio, setAudioError, setIsBuffering, currentSurah, currentReciter]);
 
+  // Populate ayah timings when surah or reciter changes
+  useEffect(() => {
+    if (!currentSurah) return;
+    const timings = getAyahTimings(currentSurah.number, currentReciter);
+    ayahTimingsRef.current = timings;
+    lastAyahRef.current = 1;
+    setAyahProgress(0);
+  }, [currentSurah, currentReciter]);
+
   // Play/pause based on store state
   useEffect(() => {
     const audio = audioRef.current;
@@ -250,6 +260,10 @@ export default function AudioPlayer() {
 
     const onCanPlay = () => {
       setIsBuffering(false);
+
+      if (isPlaying) {
+        audio.play().catch(() => {});
+      }
 
       if (currentSurah && currentReciter) {
         const key = `${currentSurah.number}-${currentReciter}`;
@@ -324,8 +338,7 @@ export default function AudioPlayer() {
             );
             if (newAyah !== lastAyahRef.current) {
               lastAyahRef.current = newAyah;
-              //     // Removed per-ayah tracking logic
-    // setCurrentAyah(newAyah); // disabled per‑ayah tracking
+              setCurrentAyah(newAyah);
               setAyahProgress(0);
             } else {
               const timings = ayahTimingsRef.current;
