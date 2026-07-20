@@ -51,12 +51,12 @@ export default function FilterBar() {
               onClick={() => setRevelationFilter(filter.value)}
               className={
                 revelationFilter === filter.value
-                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30 gap-1 h-9 sm:h-9 text-xs sm:text-sm px-2 sm:px-3 min-w-[44px] touch-manipulation active:scale-95'
-                  : 'border-purple-500/20 bg-transparent text-muted-foreground hover:bg-purple-500/10 hover:text-purple-200 gap-1 h-9 sm:h-9 text-xs sm:text-sm px-2 sm:px-3 min-w-[44px] touch-manipulation active:scale-95'
+                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30 gap-1 h-9 sm:h-9 text-xs sm:text-sm px-1.5 sm:px-3 touch-manipulation active:scale-95'
+                  : 'border-purple-500/20 bg-transparent text-muted-foreground hover:bg-purple-500/10 hover:text-purple-200 gap-1 h-9 sm:h-9 text-xs sm:text-sm px-1.5 sm:px-3 touch-manipulation active:scale-95'
               }
             >
-              <span className="hidden xs:inline">{filter.label}</span>
-              <span className="xs:hidden">{filter.label.charAt(0)}</span>
+              <span className="hidden sm:inline">{filter.label}</span>
+              <span className="sm:hidden">{filter.label.charAt(0)}</span>
               <Badge
                 variant="secondary"
                 className={`px-1 sm:px-1.5 py-0 text-[9px] sm:text-[10px] ${

@@ -51,14 +51,14 @@ export default function Header() {
                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-amber-400 hover:bg-amber-500/10 transition-all whitespace-nowrap"
              >
                <BookOpen className="w-4 h-4 flex-shrink-0" />
-               <span className="hidden xs:inline">Quran</span>
+                <span className="hidden sm:inline">Quran</span>
              </button>
              <button
                onClick={() => setShowAbout(true)}
                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-amber-400 hover:bg-amber-500/10 transition-all whitespace-nowrap"
              >
                <Info className="w-4 h-4 flex-shrink-0" />
-               <span className="hidden xs:inline">About</span>
+                <span className="hidden sm:inline">About</span>
              </button>
              <button
                onClick={toggleReciterPanel}
@@ -72,7 +72,7 @@ export default function Header() {
                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
                </svg>
-               <span className="hidden xs:inline">Reciters</span>
+                <span className="hidden sm:inline">Reciters</span>
              </button>
            </nav>
 

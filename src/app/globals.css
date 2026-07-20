@@ -427,9 +427,9 @@ input[type="range"]::-moz-range-thumb:hover {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Smooth scrolling on mobile */
+/* Smooth scrolling on mobile — only for scrollable containers */
 @media (max-width: 640px) {
-  * {
+  .overflow-auto, .overflow-y-auto, main {
     -webkit-overflow-scrolling: touch;
   }
 }
@@ -441,10 +441,9 @@ input[type="range"]::-moz-range-thumb:hover {
 
 /* Mobile-specific improvements */
 @media (max-width: 640px) {
-  /* Larger touch targets for mobile */
-  button, .touch-manipulation {
+  /* Larger touch targets for interactive elements only */
+  button[aria-label], .touch-manipulation, nav button {
     min-height: 44px;
-    min-width: 44px;
   }
   
   /* Prevent pull-to-refresh on audio player area */
@@ -492,13 +491,5 @@ input[type="range"]::-moz-range-thumb:hover {
   .fixed.bottom-0 {
     /* Add extra padding for iOS home indicator */
     padding-bottom: max(0px, env(safe-area-inset-bottom));
-  }
-  
-  .h-16 {
-    height: calc(4rem + env(safe-area-inset-bottom));
-  }
-  
-  .h-20 {
-    height: calc(5rem + env(safe-area-inset-bottom));
   }
 }

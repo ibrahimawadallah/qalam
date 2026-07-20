@@ -108,6 +108,9 @@ export default function AudioPlayer() {
     clearBookmark,
   } = useAudioStore();
 
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
   };
@@ -138,6 +141,10 @@ export default function AudioPlayer() {
   const [ayahProgress, setAyahProgress] = useState(0);
   const [audioSrc, setAudioSrc] = useState('');
   const ayahTimingsRef = useRef<number[]>([]);
+  const prevSurahNumberRef = useRef<number | null>(null);
+  const prevReciterRef = useRef<string>('');
+  const seekToTimeRef = useRef<{ ratio: number } | null>(null);
+  const timingsCacheRef = useRef<Map<string, number[]>>(new Map());
 
   // Fetch audio URL with caching and proper abort handling
   useEffect(() => {
@@ -215,6 +222,7 @@ export default function AudioPlayer() {
   );
 
   // Load new audio when audioSrc changes — with race condition guard
+  // NOTE: isPlaying is NOT a dependency here — toggling play/pause must NOT re-trigger audio load
   useEffect(() => {
     if (!audioSrc) return;
 
@@ -222,23 +230,61 @@ export default function AudioPlayer() {
     const currentCacheKey = currentSurah ? `${currentReciter}-${currentSurah.number}` : "";
     if (expectedSurahKeyRef.current !== currentCacheKey) return;
 
-    timeRef.current = 0;
+    const isReciterChangeOnly =
+      prevSurahNumberRef.current === currentSurah?.number &&
+      prevReciterRef.current !== currentReciter &&
+      prevReciterRef.current !== '';
+
+    if (isReciterChangeOnly && audioRef.current && isFinite(audioRef.current.duration) && audioRef.current.duration > 0) {
+      const ratio = audioRef.current.currentTime / audioRef.current.duration;
+      seekToTimeRef.current = { ratio };
+    } else {
+      timeRef.current = 0;
+      seekToTimeRef.current = null;
+    }
+
     durationRef.current = 0;
     lastAyahRef.current = 1;
 
     setAudioError(null);
     setIsBuffering(true);
 
-    loadAudio(audioSrc, isPlaying);
-  }, [audioSrc, isPlaying, loadAudio, setAudioError, setIsBuffering, currentSurah, currentReciter]);
+    loadAudio(audioSrc, isPlayingRef.current);
+  }, [audioSrc, loadAudio, setAudioError, setIsBuffering, currentSurah, currentReciter]);
 
-  // Populate ayah timings when surah or reciter changes
+  // Populate ayah timings when surah or reciter changes — fetch real timing from API, fallback to estimates
   useEffect(() => {
     if (!currentSurah) return;
-    const timings = getAyahTimings(currentSurah.number, currentReciter);
-    ayahTimingsRef.current = timings;
+
+    prevSurahNumberRef.current = currentSurah.number;
+    prevReciterRef.current = currentReciter;
+
+    const cacheKey = `${currentSurah.number}-${currentReciter}`;
+    const cachedTimings = timingsCacheRef.current.get(cacheKey);
+    if (cachedTimings) {
+      ayahTimingsRef.current = cachedTimings;
+      lastAyahRef.current = 1;
+      setAyahProgress(0);
+      return;
+    }
+
+    const fallbackTimings = getAyahTimings(currentSurah.number, currentReciter);
+    ayahTimingsRef.current = fallbackTimings;
     lastAyahRef.current = 1;
     setAyahProgress(0);
+
+    const controller = new AbortController();
+    fetch(`/api/timing/${currentSurah.number}?reciter=${currentReciter}`, { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (controller.signal.aborted || !data?.timings?.length) return;
+        const apiTimings = data.timings.map((t: { timestamp: number }) => t.timestamp / 1000);
+        timingsCacheRef.current.set(cacheKey, apiTimings);
+        ayahTimingsRef.current = apiTimings;
+      })
+      .catch(() => {});
+
+    return () => controller.abort();
   }, [currentSurah, currentReciter]);
 
   // Play/pause based on store state
@@ -253,7 +299,7 @@ export default function AudioPlayer() {
     }
   }, [isPlaying]);
 
-  // Audio event handlers
+  // Audio event handlers — use isPlayingRef to avoid stale closure values
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -261,7 +307,20 @@ export default function AudioPlayer() {
     const onCanPlay = () => {
       setIsBuffering(false);
 
-      if (isPlaying) {
+      if (seekToTimeRef.current !== null) {
+        const { ratio } = seekToTimeRef.current;
+        const newDuration = audio.duration;
+        if (isFinite(newDuration) && newDuration > 0) {
+          audio.currentTime = ratio * newDuration;
+        }
+        seekToTimeRef.current = null;
+        if (isPlayingRef.current) {
+          audio.play().catch(() => {});
+        }
+        return;
+      }
+
+      if (isPlayingRef.current) {
         audio.play().catch(() => {});
       }
 
@@ -277,7 +336,6 @@ export default function AudioPlayer() {
     const onPlaying = () => {
       setIsBuffering(false);
       setAudioError(null);
-      setIsPlaying(true);
     };
 
     const onEnded = () => {
@@ -302,7 +360,7 @@ export default function AudioPlayer() {
       audio.removeEventListener("ended", onEnded);
       audio.removeEventListener("error", onError);
     };
-  }, [nextSurah, setIsBuffering, setIsPlaying, setAudioError, loadBookmark, currentSurah, currentReciter]);
+  }, [nextSurah, setIsBuffering, setAudioError, loadBookmark, currentSurah, currentReciter]);
 
   // Apply volume and mute
   useEffect(() => {
@@ -581,7 +639,7 @@ export default function AudioPlayer() {
       >
         <div
           ref={progressRef}
-          className="w-full h-3 sm:h-2 cursor-pointer group relative touch-none select-none"
+          className="w-full h-3 sm:h-2 cursor-pointer group relative touch-none select-none overflow-hidden"
           onClick={handleProgressClick}
           onPointerMove={(e) => {
             if (e.buttons > 0) handleProgressDrag(e);

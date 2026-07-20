@@ -154,7 +154,7 @@ export default function SurahList() {
                   {/* Revelation badge — hidden on very small screens */}
                   <Badge
                     variant="outline"
-                    className={`text-[10px] sm:text-[10px] px-1.5 sm:px-2 py-0 hidden xs:inline-flex ${
+                    className={`text-[10px] sm:text-[10px] px-1.5 sm:px-2 py-0                     hidden sm:inline-flex ${
                       surah.revelationType === 'Meccan'
                         ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
                         : 'border-blue-500/30 bg-blue-500/10 text-blue-400'

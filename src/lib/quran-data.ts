@@ -73,9 +73,10 @@ export function getAyahTimings(surahNumber: number, reciterId: string): number[]
     avgAyahDuration *= 1.2; // 20% slower for very short surahs
   }
 
-  // Add natural variation (±20%) to make it more realistic
+  // Add deterministic variation (±10%) based on surah+ayah so timings are consistent across calls
   for (let i = 1; i <= totalAyahs; i++) {
-    const variation = (Math.random() - 0.5) * 0.4; // ±20%
+    const seed = (surahNumber * 7919 + i * 6271) % 1000;
+    const variation = ((seed / 1000) - 0.5) * 0.2; // ±10%
     const duration = avgAyahDuration * (1 + variation);
     const cumulativeTime = timings[i - 1] + duration;
     timings.push(Math.round(cumulativeTime * 10) / 10);

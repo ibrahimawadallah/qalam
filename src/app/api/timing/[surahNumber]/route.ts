@@ -1,5 +1,3 @@
-export const runtime = 'edge';
-
 import { NextResponse } from 'next/server';
 
 const RECITER_MAP: Record<string, string> = {
@@ -15,6 +13,22 @@ const RECITER_MAP: Record<string, string> = {
   '8': 'ar.minshawi',
   '10': 'ar.shuraym',
   '11': 'ar.tablawi',
+};
+
+const REVERSE_RECITER_MAP: Record<string, string> = {
+  'ar.alafasy': 'ar.alafasy',
+  'ar.abdulbasitmurattal': 'ar.abdulbasit',
+  'ar.abdulbasitmujawwad': 'ar.abdulbasit',
+  'ar.husary': 'ar.husary',
+  'ar.minshawi': 'ar.minshawi',
+  'ar.yasseraldossari': 'ar.yasseraldossari',
+  'ar.saudalshuraim': 'ar.shuraym',
+  'ar.mahershakhashiro': 'ar.hanirifai',
+  'ar.abdurrahmaansudais': 'ar.sudais',
+  'ar.muhammadayyub': 'ar.muhammadayyub',
+  'ar.haniarrifai': 'ar.hanirifai',
+  'ar.ahmedalajmi': 'ar.ahmedalajmi',
+  'ar.shaatree': 'ar.shatri',
 };
 
 export async function GET(
@@ -34,7 +48,7 @@ export async function GET(
       );
     }
 
-    const alquranReciter = RECITER_MAP[reciterId] || 'ar.alafasy';
+    const alquranReciter = RECITER_MAP[reciterId] || REVERSE_RECITER_MAP[reciterId] || reciterId;
 
     const res = await fetch(
       `https://api.alquran.cloud/v1/surah/${surahNumber}/${alquranReciter}`,
