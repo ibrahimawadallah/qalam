@@ -10,26 +10,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing surah or reciter parameter' }, { status: 400 });
   }
 
+  // Return both URLs; client-side caching handles the rest.
+  // Server-side HEAD check is omitted — Workers may have outbound fetch issues
+  // and the browser is better positioned to handle audio loading.
+  const primaryUrl = getSurahAudioUrl(reciterId, Number(surahNumber));
   const fallbackUrl = getFallbackAudioUrl(reciterId, Number(surahNumber));
 
-  // Primary source: cdn.islamic.network — reliable for most reciters.
-  try {
-    const check = await fetch(fallbackUrl, {
-      method: 'HEAD',
-      signal: AbortSignal.timeout(4000),
-    });
-    if (check.ok) {
-      return NextResponse.json({ audioUrl: fallbackUrl, format: 'mp3', source: 'islamic-network' });
-    }
-  } catch {
-    // fall through to mp3quran.net
-  }
-
-  // Fallback source: mp3quran.net — covers the remaining reciters.
-  const primaryUrl = getSurahAudioUrl(reciterId, Number(surahNumber));
-  if (primaryUrl) {
-    return NextResponse.json({ audioUrl: primaryUrl, format: 'mp3', source: 'mp3quran' });
-  }
-
-  return NextResponse.json({ audioUrl: fallbackUrl, format: 'mp3', source: 'islamic-network' });
+  return NextResponse.json({
+    audioUrl: primaryUrl || fallbackUrl,
+    format: 'mp3',
+    source: primaryUrl ? 'mp3quran' : 'islamic-network',
+  });
 }

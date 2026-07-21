@@ -492,7 +492,7 @@ export default function SurahReadingModal() {
             <div className="flex flex-col items-center justify-center py-8 gap-3">
               <p className="text-red-400 text-sm text-center px-4">{error}</p>
               <button
-                onClick={fetchSurahText}
+                onClick={() => fetchSurahText()}
                 className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors text-sm touch-manipulation"
               >
                 <RefreshCw className="w-4 h-4" />

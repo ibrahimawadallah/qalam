@@ -30,6 +30,7 @@ export default function ReciterPanel() {
     setShowReciterPanel,
     isReciterPanelOpen,
     toggleReciterPanel,
+    closeReciterPanel,
     currentReciter,
     setCurrentReciter,
     setReciter,
@@ -74,19 +75,11 @@ export default function ReciterPanel() {
   const handleSelectReciter = (r: Reciter) => {
     setCurrentReciter(r.id);
     setReciter(r);
-
-    // Close panel after selection
-    setShowReciterPanel(false);
-    if (isReciterPanelOpen) {
-      toggleReciterPanel();
-    }
+    closeReciterPanel();
   };
 
   const handleClose = (open: boolean) => {
-    if (!open) {
-      setShowReciterPanel(false);
-      if (isReciterPanelOpen) toggleReciterPanel();
-    }
+    if (!open) closeReciterPanel();
   };
 
   return (

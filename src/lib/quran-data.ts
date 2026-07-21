@@ -1,4 +1,4 @@
-import { Surah, Reciter } from "./quran-types";
+import { Surah, Reciter, RadioStation } from "./quran-types";
 
 // Quran Ayah timing data - approximate timings in seconds for different reciters
 // Based on typical recitation speeds and known ayah lengths
@@ -263,7 +263,7 @@ export const MP3QURAN_BASE: Record<string, string> = {
   "ar.abdulbasitmurattal": "https://server7.mp3quran.net/basit",
   "ar.abdulbasitmujawwad": "https://server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad",
   "ar.husary": "https://server13.mp3quran.net/husr",
-  "ar.minshawi": "https://server10.mp3quran.net/minsh/Almusshaf-Al-Mo-lim",
+  "ar.minshawi": "https://server10.mp3quran.net/minsh",
   "ar.yasseraldossari": "https://server11.mp3quran.net/yasser",
   "ar.saudalshuraim": "https://server7.mp3quran.net/shur",
   "ar.mahershakhashiro": "https://server12.mp3quran.net/maher/Almusshaf-Al-Mojawwad",
@@ -286,6 +286,163 @@ export const MP3QURAN_BASE: Record<string, string> = {
   "ar.khaledalqahtani": "https://server10.mp3quran.net/qht",
   "ar.abdulbariaththubaity": "https://server6.mp3quran.net/thubti",
 };
+
+/**
+ * Live Quran radio stations — 24/7 streaming from major broadcasters.
+ * Stream URLs sourced from mp3quran.net radio API & radiojar.com.
+ */
+export const RADIO_STATIONS: RadioStation[] = [
+  // ── Quran Radio ────────────────────────────────────────
+  {
+    id: "cairo",
+    name: "Cairo Holy Quran Radio",
+    arabicName: "إذاعة القرآن الكريم من القاهرة",
+    description: "The official Egyptian Quran Radio (98.2 FM) — 24/7 recitation from the renowned reciters of Egypt",
+    streamUrl: "https://stream.radiojar.com/8s5u5tpdtwzuv",
+    location: "Cairo, Egypt",
+    timezone: "Africa/Cairo",
+    category: "quran",
+  },
+  {
+    id: "saudi",
+    name: "Holy Quran Radio — Saudi Arabia",
+    arabicName: "إذاعة القرآن الكريم - السعودية",
+    description: "Official Saudi Quran Radio — continuous recitation from the imams of the Two Holy Mosques",
+    streamUrl: "https://stream.radiojar.com/0tpy1h0kxtzuv",
+    location: "Riyadh, Saudi Arabia",
+    timezone: "Asia/Riyadh",
+    category: "quran",
+  },
+
+  // ── Ruqyah al-Shariah ──────────────────────────────────
+  {
+    id: "ruqyah-general",
+    name: "Ruqyah al-Shariah — Various Reciters",
+    arabicName: "الرقية الشرعية من عدة قراء",
+    description: "Comprehensive ruqyah recitations from multiple renowned sheikhs — Quranic healing and protection incantations",
+    streamUrl: "https://backup.qurango.net/radio/roqiah",
+    location: "Various",
+    timezone: "Asia/Riyadh",
+    category: "ruqyah",
+    reciterName: "Various Reciters",
+    reciterArabicName: "عدة قراء",
+  },
+  {
+    id: "ruqyah-minshawi",
+    name: "Ruqyah — Muhammad Siddiq Al-Minshawi",
+    arabicName: "الرقية الشرعية — محمد صديق المنشاوي",
+    description: "Ruqyah and healing recitations by the legendary Egyptian Qari Al-Minshawi",
+    streamUrl: "https://backup.qurango.net/radio/mohammed_siddiq_alminshawi",
+    location: "Egypt",
+    timezone: "Africa/Cairo",
+    category: "ruqyah",
+    reciterName: "Muhammad Siddiq Al-Minshawi",
+    reciterArabicName: "محمد صديق المنشاوي",
+  },
+  {
+    id: "ruqyah-basit",
+    name: "Ruqyah — Abdulbasit Abdusamad",
+    arabicName: "الرقية الشرعية — عبدالباسط عبدالصمد",
+    description: "Powerful ruqyah and Quranic healing by the legendary Sheikh Abdulbasit Abdusamad",
+    streamUrl: "https://backup.qurango.net/radio/abdulbasit_abdulsamad",
+    location: "Egypt",
+    timezone: "Africa/Cairo",
+    category: "ruqyah",
+    reciterName: "Abdulbasit Abdusamad",
+    reciterArabicName: "عبدالباسط عبدالصمد",
+  },
+  {
+    id: "ruqyah-hussary",
+    name: "Ruqyah — Mahmoud Khalil Al-Hussary",
+    arabicName: "الرقية الشرعية — محمود خليل الحصري",
+    description: "Ruqyah recitations by the renowned Egyptian Qari Sheikh Al-Hussary",
+    streamUrl: "https://backup.qurango.net/radio/mahmoud_khalil_alhussary",
+    location: "Egypt",
+    timezone: "Africa/Cairo",
+    category: "ruqyah",
+    reciterName: "Mahmoud Khalil Al-Hussary",
+    reciterArabicName: "محمود خليل الحصري",
+  },
+  {
+    id: "ruqyah-afasy",
+    name: "Ruqyah — Mishary Al-Afasy",
+    arabicName: "الرقية الشرعية — مشاري العفاسي",
+    description: "Soothing ruqyah recitations by Sheikh Mishary Al-Afasy",
+    streamUrl: "https://backup.qurango.net/radio/mishary_alafasi",
+    location: "Kuwait",
+    timezone: "Asia/Kuwait",
+    category: "ruqyah",
+    reciterName: "Mishary Al-Afasy",
+    reciterArabicName: "مشاري العفاسي",
+  },
+  {
+    id: "ruqyah-shuraym",
+    name: "Ruqyah — Saud Al-Shuraym",
+    arabicName: "الرقية الشرعية — سعود الشريم",
+    description: "Ruqyah and healing recitations by Imam of Masjid al-Haram Sheikh Saud Al-Shuraym",
+    streamUrl: "https://backup.qurango.net/radio/saud_alshuraim",
+    location: "Mecca, Saudi Arabia",
+    timezone: "Asia/Riyadh",
+    category: "ruqyah",
+    reciterName: "Saud Al-Shuraym",
+    reciterArabicName: "سعود الشريم",
+  },
+  {
+    id: "ruqyah-sudais",
+    name: "Ruqyah — Abdulrahman Al-Sudais",
+    arabicName: "الرقية الشرعية — عبدالرحمن السديس",
+    description: "Ruqyah and healing recitations by Imam of Masjid al-Haram Sheikh Al-Sudais",
+    streamUrl: "https://backup.qurango.net/radio/abdulrahman_alsudaes",
+    location: "Mecca, Saudi Arabia",
+    timezone: "Asia/Riyadh",
+    category: "ruqyah",
+    reciterName: "Abdulrahman Al-Sudais",
+    reciterArabicName: "عبدالرحمن السديس",
+  },
+
+  // ── Adhkar (Remembrances) ─────────────────────────────
+  {
+    id: "athkar-sabah",
+    name: "Morning Adhkar",
+    arabicName: "أذكار الصباح",
+    description: "Morning remembrances and supplications — adhkar for the start of the day, including protection and blessings",
+    streamUrl: "https://backup.qurango.net/radio/athkar_sabah",
+    location: "Morning",
+    timezone: "Asia/Riyadh",
+    category: "adhkar",
+  },
+  {
+    id: "athkar-masa",
+    name: "Evening Adhkar",
+    arabicName: "أذكار المساء",
+    description: "Evening remembrances and supplications — adhkar for the end of the day, including protection and gratitude",
+    streamUrl: "https://backup.qurango.net/radio/athkar_masa",
+    location: "Evening",
+    timezone: "Asia/Riyadh",
+    category: "adhkar",
+  },
+];
+
+/** Get all stations for a given category */
+export function getStationsByCategory(category: RadioStation["category"]): RadioStation[] {
+  return RADIO_STATIONS.filter((s) => s.category === category);
+}
+
+/** Get next station in the same category (for cycling) */
+export function getNextStation(current: RadioStation): RadioStation | null {
+  const same = getStationsByCategory(current.category);
+  const idx = same.findIndex((s) => s.id === current.id);
+  if (idx < 0 || same.length <= 1) return null;
+  return same[(idx + 1) % same.length];
+}
+
+/** Get previous station in the same category */
+export function getPrevStation(current: RadioStation): RadioStation | null {
+  const same = getStationsByCategory(current.category);
+  const idx = same.findIndex((s) => s.id === current.id);
+  if (idx < 0 || same.length <= 1) return null;
+  return same[(idx - 1 + same.length) % same.length];
+}
 
 /**
  * Primary audio URL for a full surah — mp3quran.net CDN.

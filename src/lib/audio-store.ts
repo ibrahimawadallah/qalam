@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { RECITERS, SURAH_DATA } from "./quran-data";
-import type { Surah, Reciter, TranslationLanguage } from "./quran-types";
+import { RECITERS, SURAH_DATA, RADIO_STATIONS, getStationsByCategory } from "./quran-data";
+import type { Surah, Reciter, TranslationLanguage, RadioStation } from "./quran-types";
 import { getSurahInfo } from "./quran-utils";
 
 type RevelationFilter = "All" | "Meccan" | "Medinan";
@@ -84,9 +84,21 @@ interface AudioState {
   closeReadingModal: () => void;
   readingModalSurah: Surah | null;
 
+  // Radio
+  isRadioMode: boolean;
+  currentRadioId: string | null;
+  currentRadio: RadioStation | null;
+  isRadioPlaying: boolean;
+  showRadioPanel: boolean;
+  setRadioMode: (radio: RadioStation | null) => void;
+  stopRadio: () => void;
+  cycleRadioStation: (direction: 1 | -1) => void;
+  toggleRadioPanel: () => void;
+
   // Reciter panel
   setShowReciterPanel: (show: boolean) => void;
   toggleReciterPanel: () => void;
+  closeReciterPanel: () => void;
 }
 
 
@@ -180,6 +192,13 @@ export const useAudioStore = create<AudioState>((set, get) => {
     searchQuery: "",
     revelationFilter: "All" as RevelationFilter,
     viewMode: "list" as ViewMode,
+
+    // Radio state
+    isRadioMode: false,
+    currentRadioId: null,
+    currentRadio: null,
+    isRadioPlaying: false,
+    showRadioPanel: false,
 
     // UI state - panels
     isPlayerVisible: false,
@@ -413,6 +432,64 @@ export const useAudioStore = create<AudioState>((set, get) => {
       }),
     readingModalSurah: null,
 
+    // Radio
+    setRadioMode: (radio) =>
+      set((state) => {
+        if (!radio) {
+          return {
+            isRadioMode: false,
+            currentRadioId: null,
+            currentRadio: null,
+            isRadioPlaying: false,
+            isPlayerVisible: false,
+            isPlaying: false,
+            showRadioPanel: false,
+          };
+        }
+        return {
+          isRadioMode: true,
+          currentRadioId: radio.id,
+          currentRadio: radio,
+          isRadioPlaying: true,
+          isPlayerVisible: true,
+          isPlaying: false,
+          currentSurah: null,
+          audioError: null,
+          isBuffering: true,
+          showRadioPanel: false,
+        };
+      }),
+    stopRadio: () =>
+      set({
+        isRadioMode: false,
+        currentRadioId: null,
+        currentRadio: null,
+        isRadioPlaying: false,
+        isPlayerVisible: false,
+        isPlaying: false,
+        showRadioPanel: false,
+      }),
+    cycleRadioStation: (direction) =>
+      set((state) => {
+        const { currentRadio } = state;
+        if (!currentRadio) return {};
+        const same = getStationsByCategory(currentRadio.category);
+        const idx = same.findIndex((s) => s.id === currentRadio.id);
+        if (idx < 0 || same.length <= 1) return {};
+        const next = same[(idx + direction + same.length) % same.length];
+        return {
+          currentRadio: next,
+          currentRadioId: next.id,
+          isRadioPlaying: true,
+          isBuffering: true,
+          audioError: null,
+        };
+      }),
+    toggleRadioPanel: () =>
+      set((state) => ({
+        showRadioPanel: !state.showRadioPanel,
+      })),
+
     // Reciter panel
     setShowReciterPanel: (show) => set({ showReciterPanel: show }),
     toggleReciterPanel: () =>
@@ -420,5 +497,6 @@ export const useAudioStore = create<AudioState>((set, get) => {
         showReciterPanel: !state.showReciterPanel,
         isReciterPanelOpen: !state.isReciterPanelOpen,
       })),
+    closeReciterPanel: () => set({ showReciterPanel: false, isReciterPanelOpen: false }),
   };
 });

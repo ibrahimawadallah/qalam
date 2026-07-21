@@ -25,6 +25,23 @@ export interface Reciter {
   mp3quranFolder?: string;
 }
 
+export type RadioCategory = "quran" | "ruqyah" | "adhkar";
+
+export interface RadioStation {
+  id: string;
+  name: string;
+  arabicName: string;
+  description: string;
+  streamUrl: string;
+  location: string;
+  timezone: string;
+  category: RadioCategory;
+  /** Reciter name for ruqyah stations */
+  reciterName?: string;
+  /** Reciter Arabic name for ruqyah stations */
+  reciterArabicName?: string;
+}
+
 export interface AyahText {
   number: number;
   numberInSurah: number;

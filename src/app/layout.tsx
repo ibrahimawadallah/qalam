@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "@/components/error-boundary";
 import StoreHydrator from "@/components/store-hydrator";
+import RadioPlayer from "@/components/radio-player";
+import RadioPanel from "@/components/radio-panel";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -62,8 +64,7 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Quran Kareem",
   },
-  mobileWebAppCapable: true,
-  applicationName: "Quran Kareem",
+applicationName: "Quran Kareem",
 };
 
 export default function RootLayout({
@@ -101,6 +102,8 @@ export default function RootLayout({
           <StoreHydrator />
           {children}
           <Toaster />
+          <RadioPlayer />
+          <RadioPanel />
         </ErrorBoundary>
         <script
           dangerouslySetInnerHTML={{
