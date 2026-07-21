@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net10.0;net481</TargetFrameworks>
+        <IsPackable>false</IsPackable>
+        <OutputType>Exe</OutputType>
+
+        <!-- don't warn about obsolete APIs, or theory with no data -->
+        <Nowarn>$(Nowarn);CS0612;CS0618</Nowarn>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="GitHubActionsTestLogger">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.v3"/>
+        <PackageReference Include="xunit.runner.visualstudio">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="StackExchange.Redis"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\NRedisStack\NRedisStack.csproj"/>
+        <ProjectReference Include="..\..\tests\NRedisStack.Tests\NRedisStack.Tests.csproj"/>
+    </ItemGroup>
+</Project>

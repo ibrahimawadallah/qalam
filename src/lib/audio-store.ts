@@ -136,6 +136,24 @@ const loadRecentlyPlayed = (): number[] => {
   }
 };
 
+let hydrated = false;
+export const hydrateStore = () => {
+  if (hydrated || typeof window === 'undefined') return;
+  hydrated = true;
+  const store = useAudioStore.getState();
+  const bookmarks = loadBookmarks();
+  const theme = loadTheme();
+  const recentlyPlayed = loadRecentlyPlayed();
+  const needsUpdate =
+    Object.keys(bookmarks).length > 0 ||
+    theme !== 'system' ||
+    recentlyPlayed.length > 0;
+  if (needsUpdate) {
+    store.setTheme(theme);
+    useAudioStore.setState({ bookmarks, recentlyPlayed });
+  }
+};
+
 export const useAudioStore = create<AudioState>((set, get) => {
   const meccanCount = SURAH_DATA.filter((s) => s.revelationType === "Meccan").length;
   const medinanCount = SURAH_DATA.filter((s) => s.revelationType === "Medinan").length;
@@ -150,9 +168,9 @@ export const useAudioStore = create<AudioState>((set, get) => {
     isUsingFallback: false,
     currentAyahInSurah: 1,  // Start at first ayah
     playbackSpeed: 1.0,  // Normal speed
-    bookmarks: loadBookmarks(),  // Load bookmarks from localStorage
-    theme: loadTheme(),  // Load theme from localStorage
-    recentlyPlayed: loadRecentlyPlayed(),  // Load recently played from localStorage
+    bookmarks: {},  // Hydrated from localStorage after mount
+    theme: 'system' as const,  // Hydrated from localStorage after mount
+    recentlyPlayed: [],  // Hydrated from localStorage after mount
 
     // Translation state
     selectedTranslations: ['english'],

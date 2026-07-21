@@ -1,0 +1,169 @@
+name: 'Run NRedisStack tests'
+description: 'Runs NRedisStack tests against different Redis versions and configurations'
+inputs:
+  dotnet-version:
+    description: 'SDK version'
+    default: '10.0'
+    required: false
+  dotnet-quality:
+    description: 'SDK quality'
+    default: 'ga'
+    required: false
+  redis-version:
+    description: 'Redis version to test against (MAJOR.MINOR format, e.g., "7.4", "8.0")'
+    required: false
+    default: ''
+  verify-nuget-package:
+    description: 'Verify Nuget package'
+    required: false
+    default: 'false'
+  client-libs-test-image-tag:
+    description: 'Tag of the client libs test image to use'
+    required: false
+    default: ''
+  client-libs-test-image:
+    description: 'Custom client libs test image name to use'
+    required: false
+    default: 'redislabs/client-libs-test'
+  # repository and ref are required for correct checkout when using action
+  # externally (e.g.: in redis-developer/redis-oss-release-automation)
+  repository:
+    description: 'Git repository to checkout'
+    required: false
+    default: ''
+  ref:
+    description: 'Git ref to checkout'
+    required: false
+    default: ''
+  upload-coverage:
+    description: 'Whether to upload coverage reports to Codecov'
+    required: false
+    default: 'true'
+  codecov-token:
+    description: 'Codecov token for uploading coverage'
+    required: false
+    default: ''
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v6
+      with:
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.ref }}
+
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: |
+          ${{inputs.dotnet-version}}
+        dotnet-quality: '${{inputs.dotnet-quality}}'
+
+    - name: Setup Environment variables and run Redis
+      env:
+        REDIS_VERSION: ${{ inputs.redis-version }}
+        INPUT_DOTNET_VERSION: ${{ inputs.dotnet-version }}
+        INPUT_CLIENT_LIBS_TEST_IMAGE_TAG: ${{ inputs.client-libs-test-image-tag }}
+        INPUT_CLIENT_LIBS_TEST_IMAGE: ${{ inputs.client-libs-test-image }}
+      run: |
+        set -e
+
+        echo "::group::Setup Environment variables and run Redis"
+        dotnet_major_minor_version=$(echo "$INPUT_DOTNET_VERSION" | grep -oP '^\d+\.\d+')
+        echo "CLR_VERSION=net${dotnet_major_minor_version}" | tee -a $GITHUB_ENV
+
+        compose_args=()
+        if [ -n "$INPUT_CLIENT_LIBS_TEST_IMAGE_TAG" ]; then
+          if [ -z "$INPUT_CLIENT_LIBS_TEST_IMAGE" ]; then
+            echo "Error: client-libs-test-image is required when client-libs-test-image-tag is set"
+            exit 1
+          fi
+          # CLIENT_LIBS_TEST_IMAGE is used by docker compose, note: it is full image url
+          export CLIENT_LIBS_TEST_IMAGE="$INPUT_CLIENT_LIBS_TEST_IMAGE:$INPUT_CLIENT_LIBS_TEST_IMAGE_TAG"
+          echo "CLIENT_LIBS_TEST_IMAGE=${CLIENT_LIBS_TEST_IMAGE}" >> $GITHUB_ENV
+          echo "Using custom client libs test image: ${CLIENT_LIBS_TEST_IMAGE}"
+        elif [ -n "${REDIS_VERSION}" ]; then
+          # Load environment variables from version-specific file
+          ENV_FILE="tests/dockers/.env.v${REDIS_VERSION}"
+          if [[ ! -f "$ENV_FILE" ]]; then
+            echo "Environment file not found: $ENV_FILE"
+            exit 1
+          fi
+          echo "Using environment file: $ENV_FILE"
+          compose_args=(--env-file "$ENV_FILE")
+        else
+          echo "Error: redis-version or client-libs-test-image-tag input is required"
+          exit 1
+        fi
+
+        docker compose "${compose_args[@]}" --profile all -f tests/dockers/docker-compose.yml up -d --quiet-pull --wait
+        echo "::endgroup::"
+      shell: bash
+
+    # Make sure only the desired dotnet version is set both as target and as active SDK.
+    - name: Tweak target frameworks
+      env:
+        INPUT_DOTNET_VERSION: ${{ inputs.dotnet-version }}
+      shell: bash
+      run: |
+        find . -name '*.csproj' | xargs -I {} sed -E -i "s|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|" {}
+        find . -name '*.csproj' | xargs cat
+        jq -n --arg version "$INPUT_DOTNET_VERSION" '{"sdk":{"version":$version,"rollForward":"latestMinor"}}' > global.json
+    - name: Check .NET version
+      shell: bash
+      run: dotnet --version
+    - name: Check .NET SDKs
+      shell: bash
+      run: dotnet --list-sdks
+    - name: Check .NET runtimes
+      shell: bash
+      run: dotnet --list-runtimes
+    - name: Restore dependencies
+      shell: bash
+      run: dotnet restore
+
+    - name: Build
+      shell: bash
+      run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+
+    - name: Test
+      shell: bash
+      env:
+        REDIS_VERSION: ${{ inputs.redis-version }}
+      run: |
+        echo "::group::Run tests"
+        REDIS_VERSION=$(echo "$REDIS_VERSION" | cut -d'-' -f1)
+        if [ -n "${CLIENT_LIBS_TEST_IMAGE}" ]; then
+          # Redis version is usually set to 255.255.255 for custom images to reflect it is the latest available version.
+          echo "Image ${CLIENT_LIBS_TEST_IMAGE} (Redis version: ${REDIS_VERSION:-unstable})"
+        else
+          echo "Redis version: ${REDIS_VERSION}"
+        fi
+        dotnet test -f ${CLR_VERSION} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
+        echo "::endgroup::"
+    - name: Codecov
+      if: inputs.upload-coverage != 'false'
+      uses: codecov/codecov-action@v6
+      with:
+        verbose: true
+        token: ${{ inputs.codecov-token }}
+    - name: Build
+      shell: bash
+      run: dotnet pack -c Release
+
+    - name: Test against Nuget package from local source
+      if: inputs.verify-nuget-package == 'true'
+      working-directory: PackageVerification
+      shell: bash
+      run: |
+        echo "::group::Test against Nuget package from local source"
+        mkdir -p test-source
+        dotnet nuget add source $(readlink -f test-source) -n test-source
+        find .. -name '*.nupkg' | xargs -I {} dotnet nuget push {} -s test-source
+        ls -R
+        dotnet nuget remove source nuget.org
+        dotnet nuget list source
+        find . -name '*.csproj' | xargs -I {} sed -E -i 's|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|' {}
+        dotnet restore -s test-source -v detailed
+        dotnet run
+        echo "::endgroup::"
+

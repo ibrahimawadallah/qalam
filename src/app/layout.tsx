@@ -3,6 +3,7 @@ import { Space_Grotesk, Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "@/components/error-boundary";
+import StoreHydrator from "@/components/store-hydrator";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -97,6 +98,7 @@ export default function RootLayout({
         }}
       >
         <ErrorBoundary>
+          <StoreHydrator />
           {children}
           <Toaster />
         </ErrorBoundary>
