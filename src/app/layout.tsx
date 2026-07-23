@@ -6,6 +6,8 @@ import ErrorBoundary from "@/components/error-boundary";
 import StoreHydrator from "@/components/store-hydrator";
 import RadioPlayer from "@/components/radio-player";
 import RadioPanel from "@/components/radio-panel";
+import ReciterPanel from "@/components/reciter-panel";
+import Footer from "@/components/footer";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -104,6 +106,8 @@ export default function RootLayout({
           <Toaster />
           <RadioPlayer />
           <RadioPanel />
+          <ReciterPanel />
+          <Footer />
         </ErrorBoundary>
         <script
           dangerouslySetInnerHTML={{
@@ -112,6 +116,19 @@ export default function RootLayout({
                 window.addEventListener('load', () => {
                   navigator.serviceWorker.register('/sw.js').then((registration) => {
                     console.log('SW registered: ', registration);
+                    if (registration.waiting) {
+                      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                    registration.addEventListener('updatefound', () => {
+                      const newWorker = registration.installing;
+                      if (newWorker) {
+                        newWorker.addEventListener('statechange', () => {
+                          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            newWorker.postMessage({ type: 'SKIP_WAITING' });
+                          }
+                        });
+                      }
+                    });
                   }).catch((registrationError) => {
                     console.log('SW registration failed: ', registrationError);
                   });

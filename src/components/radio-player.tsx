@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 const CATEGORY_BADGE: Record<string, { label: string; cls: string }> = {
   quran: { label: "Quran", cls: "border-amber-500/30 text-amber-400" },
   ruqyah: { label: "Ruqyah", cls: "border-red-500/30 text-red-400" },
-  adhkar: { label: "Adhkar", cls: "border-blue-500/30 text-blue-400" },
+  hisn_muslim: { label: "Hisn Muslim", cls: "border-amber-500/30 text-amber-400" },
 };
 
 function CairoClock({ timezone }: { timezone: string }) {
@@ -37,7 +37,7 @@ function CairoClock({ timezone }: { timezone: string }) {
   }, [timezone]);
 
   return (
-    <span className="tabular-nums text-amber-400/80 text-xs" title={timezone}>
+    <span className="tabular-nums text-emerald-400/80 text-xs" title={timezone}>
       {time}
     </span>
   );
@@ -45,6 +45,10 @@ function CairoClock({ timezone }: { timezone: string }) {
 
 export default function RadioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const userGestureRef = useRef(false);
+  const pendingPlayRef = useRef<(() => void) | null>(null);
+  const fallbackIndexRef = useRef(0);
+
   const {
     isRadioMode,
     currentRadio,
@@ -59,24 +63,88 @@ export default function RadioPlayer() {
   const [isMuted, setIsMuted] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const reconnectCountRef = useRef(0);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const isPlayingRef = useRef(isRadioPlaying);
   isPlayingRef.current = isRadioPlaying;
 
-  // Connect / disconnect audio stream
+  const stopReconnect = useCallback(() => {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = undefined;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      stopReconnect();
+      const audio = audioRef.current;
+      if (audio) {
+        audio.pause();
+        audio.src = "";
+      }
+    };
+  }, [stopReconnect]);
+
+  const resolveCurrentUrl = useCallback(() => {
+    if (!currentRadio) return null;
+    const urls = [currentRadio.streamUrl];
+    if (currentRadio.fallbackUrls) {
+      urls.push(...currentRadio.fallbackUrls);
+    }
+    const idx = Math.min(fallbackIndexRef.current, urls.length - 1);
+    return { url: urls[idx], urls };
+  }, [currentRadio]);
+
+  const attemptPlayStream = useCallback((url: string) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    setIsConnecting(true);
+    setHasError(false);
+    audio.src = url;
+    audio.load();
+    const tryPlay = () => {
+      audio.play().then(() => {
+        setIsConnecting(false);
+      }).catch(() => {
+        setIsConnecting(false);
+      });
+    };
+    if (userGestureRef.current) {
+      tryPlay();
+      userGestureRef.current = false;
+    } else {
+      pendingPlayRef.current = tryPlay;
+    }
+  }, []);
+
+  const consumePendingPlay = useCallback(() => {
+    if (pendingPlayRef.current) {
+      const fn = pendingPlayRef.current;
+      pendingPlayRef.current = null;
+      fn();
+    }
+  }, []);
+
+  const handleUserInteraction = useCallback(() => {
+    userGestureRef.current = true;
+    consumePendingPlay();
+  }, [consumePendingPlay]);
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !currentRadio) return;
 
+    stopReconnect();
+    reconnectCountRef.current = 0;
+    fallbackIndexRef.current = 0;
+
     if (isRadioPlaying) {
-      setIsConnecting(true);
-      setHasError(false);
-      audio.src = currentRadio.streamUrl;
-      audio.load();
-      audio.play().catch(() => {
-        setIsConnecting(false);
-        setHasError(true);
-      });
+      const resolved = resolveCurrentUrl();
+      if (resolved) {
+        attemptPlayStream(resolved.url);
+      }
     } else {
       audio.pause();
       audio.src = "";
@@ -84,9 +152,8 @@ export default function RadioPlayer() {
 
     return () => {
       audio.pause();
-      audio.src = "";
     };
-  }, [currentRadio, isRadioPlaying]);
+  }, [currentRadio, isRadioPlaying, attemptPlayStream, stopReconnect, resolveCurrentUrl]);
 
   const onCanPlay = useCallback(() => {
     setIsConnecting(false);
@@ -109,9 +176,52 @@ export default function RadioPlayer() {
   const onErrorEvt = useCallback(() => {
     setIsConnecting(false);
     setHasError(true);
-  }, []);
+    stopReconnect();
+    reconnectCountRef.current += 1;
 
-  // Volume
+    const resolved = resolveCurrentUrl();
+    if (!resolved) return;
+
+    const nextIndex = fallbackIndexRef.current + 1;
+    if (nextIndex < resolved.urls.length) {
+      fallbackIndexRef.current = nextIndex;
+      const nextUrl = resolved.urls[nextIndex];
+      setTimeout(() => {
+        if (!isPlayingRef.current || !currentRadio) return;
+        attemptPlayStream(nextUrl);
+      }, 500);
+      return;
+    }
+
+    const maxRetries = 4;
+    if (reconnectCountRef.current <= maxRetries && isPlayingRef.current && currentRadio) {
+      const delay = Math.min(1000 * Math.pow(1.8, reconnectCountRef.current - 1), 20000);
+      reconnectTimerRef.current = setTimeout(() => {
+        if (!isPlayingRef.current) return;
+        const retryUrl = resolved.urls[fallbackIndexRef.current];
+        attemptPlayStream(retryUrl);
+      }, delay);
+    }
+  }, [currentRadio, attemptPlayStream, stopReconnect, resolveCurrentUrl]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onPlay = () => handleUserInteraction();
+    audio.addEventListener("play", onPlay);
+    return () => audio.removeEventListener("play", onPlay);
+  }, [handleUserInteraction]);
+
+  useEffect(() => {
+    const onInteract = () => handleUserInteraction();
+    window.addEventListener("pointerdown", onInteract);
+    window.addEventListener("keydown", onInteract);
+    return () => {
+      window.removeEventListener("pointerdown", onInteract);
+      window.removeEventListener("keydown", onInteract);
+    };
+  }, [handleUserInteraction]);
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -150,11 +260,9 @@ export default function RadioPlayer() {
           WebkitBackdropFilter: "blur(20px)",
         }}
       >
-        {/* Top accent bar */}
         <div className="h-0.5 w-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-500 opacity-60" />
 
         <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 max-w-screen-xl mx-auto">
-          {/* Icon + info */}
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="relative shrink-0">
               <Signal className={`w-5 h-5 ${isConnecting ? "text-emerald-400/50" : "text-emerald-400"}`} />
@@ -191,35 +299,41 @@ export default function RadioPlayer() {
               )}
               <div className="flex items-center gap-2 text-[11px] text-emerald-300/50 mt-0.5">
                 <span>{currentRadio.location}</span>
-                <span>•</span>
-                <CairoClock timezone={currentRadio.timezone} />
-                {hasError && (
-                  <>
-                    <span className="text-red-400 ml-2">Connection lost — retrying...</span>
-                  </>
+                {currentRadio.location && <span>•</span>}
+                {currentRadio.isLive !== false && (
+                  <CairoClock timezone={currentRadio.timezone} />
+                )}
+                {currentRadio.isLive !== false && hasError && (
+                  <span className="text-red-400 ml-2">
+                    {reconnectCountRef.current > 0
+                      ? `Reconnecting… (${reconnectCountRef.current}`
+                      : "Connection lost — retrying"}
+                    {reconnectCountRef.current > 0 ? ")" : "..."}
+                  </span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Controls */}
           <div className="flex items-center gap-1 sm:gap-1 shrink-0">
-            {/* Prev station */}
-            <button
-              onClick={() => cycleRadioStation(-1)}
-              className="hidden sm:flex p-1 text-emerald-300/60 hover:text-emerald-300 transition-colors rounded-full hover:bg-emerald-500/10 active:scale-95"
-              aria-label="Previous station"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            {/* Next station */}
-            <button
-              onClick={() => cycleRadioStation(1)}
-              className="hidden sm:flex p-1 text-emerald-300/60 hover:text-emerald-300 transition-colors rounded-full hover:bg-emerald-500/10 active:scale-95"
-              aria-label="Next station"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            {currentRadio.isLive !== false && (
+              <>
+                <button
+                  onClick={() => cycleRadioStation(-1)}
+                  className="hidden sm:flex p-1 text-emerald-300/60 hover:text-emerald-300 transition-colors rounded-full hover:bg-emerald-500/10 active:scale-95"
+                  aria-label="Previous station"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => cycleRadioStation(1)}
+                  className="hidden sm:flex p-1 text-emerald-300/60 hover:text-emerald-300 transition-colors rounded-full hover:bg-emerald-500/10 active:scale-95"
+                  aria-label="Next station"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
             <button
               onClick={togglePlay}
               className={`p-3 sm:p-2.5 rounded-full transition-all active:scale-95 touch-manipulation ${
@@ -265,13 +379,15 @@ export default function RadioPlayer() {
               </div>
             </div>
 
-            <button
-              onClick={toggleRadioPanel}
-              className="p-2.5 sm:p-1.5 text-emerald-300/60 hover:text-emerald-300 transition-colors rounded-full hover:bg-emerald-500/10 active:scale-95 touch-manipulation"
-              aria-label="Browse stations"
-            >
-              <List className="w-5 h-5 sm:w-4 sm:h-4" />
-            </button>
+            {currentRadio.isLive !== false && (
+              <button
+                onClick={toggleRadioPanel}
+                className="p-2.5 sm:p-1.5 text-emerald-300/60 hover:text-emerald-300 transition-colors rounded-full hover:bg-emerald-500/10 active:scale-95 touch-manipulation"
+                aria-label="Browse stations"
+              >
+                <List className="w-5 h-5 sm:w-4 sm:h-4" />
+              </button>
+            )}
             <button
               onClick={handleClose}
               className="p-2.5 sm:p-1.5 text-emerald-300/60 hover:text-emerald-300 transition-colors rounded-full hover:bg-emerald-500/10 active:scale-95 touch-manipulation"

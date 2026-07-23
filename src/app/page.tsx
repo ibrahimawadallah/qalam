@@ -211,19 +211,6 @@ export default function LandingPage() {
           </svg>
           Start Listening
         </motion.a>
-
-        {/* Footer */}
-        <motion.footer
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.5 }}
-          className="mt-auto pt-12 pb-6 text-center"
-        >
-          <p className="text-purple-300/40 text-[10px] sm:text-xs">
-            &copy; {new Date().getFullYear()} المصحف المرتل — Under the authority of{' '}
-            <span className="text-amber-400/50">MedTechAI Arab Organization</span>
-          </p>
-        </motion.footer>
       </div>
     </div>
   );

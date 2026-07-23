@@ -11,7 +11,10 @@ export default function HeroSection() {
   const { currentReciter, toggleReciterPanel, setRadioMode, isRadioMode, currentRadioId, toggleRadioPanel } = useAudioStore();
   const quranStations = getStationsByCategory('quran');
   const ruqyahStations = getStationsByCategory('ruqyah');
-  const adhkarStations = getStationsByCategory('adhkar');
+  const hisnStations = getStationsByCategory('hisn_muslim');
+  const quranFirst = quranStations[0] ?? null;
+  const ruqyahFirst = ruqyahStations[0] ?? null;
+  const hisnFirst = hisnStations[0] ?? null;
 
   const reciterInfo = RECITERS.find((r) => r.id === currentReciter);
 
@@ -103,61 +106,64 @@ export default function HeroSection() {
             {reciterInfo?.name ?? 'Select Reciter'}
           </Button>
 
-          {/* Radio — Cairo Quran */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (isRadioMode && currentRadioId === quranStations[0]?.id) { toggleRadioPanel(); return; }
-              setRadioMode(quranStations[0] ?? null);
-            }}
-            className={`gap-2 ${
-              isRadioMode && currentRadioId === quranStations[0]?.id
-                ? "border-amber-500/50 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30"
-                : "border-amber-500/20 bg-amber-500/5 text-amber-300/70 hover:bg-amber-500/15 hover:text-amber-300"
-            }`}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3" />
-            </svg>
-            إذاعة القرآن
-          </Button>
+          {quranFirst && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (isRadioMode && currentRadioId === quranFirst.id) { toggleRadioPanel(); return; }
+                setRadioMode(quranFirst);
+              }}
+              className={`gap-2 ${
+                isRadioMode && currentRadioId === quranFirst.id
+                  ? "border-amber-500/50 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30"
+                  : "border-amber-500/20 bg-amber-500/5 text-amber-300/70 hover:bg-amber-500/15 hover:text-amber-300"
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032-.441-.046-.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3" />
+              </svg>
+              إذاعة القرآن
+            </Button>
+          )}
 
-          {/* Ruqyah */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (isRadioMode && currentRadioId === ruqyahStations[0]?.id) { toggleRadioPanel(); return; }
-              setRadioMode(ruqyahStations[0] ?? null);
-            }}
-            className={`gap-2 ${
-              isRadioMode && currentRadioId === ruqyahStations[0]?.id
-                ? "border-red-500/50 bg-red-500/20 text-red-300 hover:bg-red-500/30"
-                : "border-red-500/20 bg-red-500/5 text-red-300/70 hover:bg-red-500/15 hover:text-red-300"
-            }`}
-          >
-            <Shield className="w-3.5 h-3.5" />
-            الرقية الشرعية
-          </Button>
+          {ruqyahFirst && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (isRadioMode && currentRadioId === ruqyahFirst.id) { toggleRadioPanel(); return; }
+                setRadioMode(ruqyahFirst);
+              }}
+              className={`gap-2 ${
+                isRadioMode && currentRadioId === ruqyahFirst.id
+                  ? "border-red-500/50 bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                  : "border-red-500/20 bg-red-500/5 text-red-300/70 hover:bg-red-500/15 hover:text-red-300"
+              }`}
+            >
+              <Shield className="w-3.5 h-3.5" />
+              الرقية الشرعية
+            </Button>
+          )}
 
-          {/* Adhkar */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (isRadioMode && currentRadioId === adhkarStations[0]?.id) { toggleRadioPanel(); return; }
-              setRadioMode(adhkarStations[0] ?? null);
-            }}
-            className={`gap-2 ${
-              isRadioMode && currentRadioId === adhkarStations[0]?.id
-                ? "border-blue-500/50 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
-                : "border-blue-500/20 bg-blue-500/5 text-blue-300/70 hover:bg-blue-500/15 hover:text-blue-300"
-            }`}
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            الأذكار
-          </Button>
+          {hisnFirst && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (isRadioMode && currentRadioId === hisnFirst.id) { toggleRadioPanel(); return; }
+                setRadioMode(hisnFirst);
+              }}
+              className={`gap-2 ${
+                isRadioMode && currentRadioId === hisnFirst.id
+                  ? "border-amber-500/50 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30"
+                  : "border-amber-500/20 bg-amber-500/5 text-amber-300/70 hover:bg-amber-500/15 hover:text-amber-300"
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              حصن المسلم
+            </Button>
+          )}
 
           {/* Browse all */}
           <Button
@@ -167,7 +173,7 @@ export default function HeroSection() {
             className="border-emerald-500/20 bg-emerald-500/5 text-emerald-300/60 hover:text-emerald-300 hover:bg-emerald-500/15 hover:border-emerald-500/30 gap-1 text-[11px]"
           >
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
             </svg>
             All Stations
           </Button>

@@ -229,6 +229,21 @@ export const useAudioStore = create<AudioState>((set, get) => {
     reciter: RECITERS[0],
 
     // Audio actions
+    stopAllPlayback: () =>
+      set({
+        isPlaying: false,
+        isPlayerVisible: false,
+        currentSurah: null,
+        audioError: null,
+        isBuffering: false,
+        isUsingFallback: false,
+        currentAyahInSurah: 1,
+        isRadioMode: false,
+        currentRadioId: null,
+        currentRadio: null,
+        isRadioPlaying: false,
+        showRadioPanel: false,
+      }),
     play: (surahNumber) => {
       const surahInfo = getSurahInfo(surahNumber);
       if (!surahInfo) return;
@@ -239,7 +254,12 @@ export const useAudioStore = create<AudioState>((set, get) => {
         isBuffering: true,
         audioError: null,
         isUsingFallback: false,
-        currentAyahInSurah: 1,  // Reset to first ayah
+        currentAyahInSurah: 1,
+        isRadioMode: false,
+        currentRadioId: null,
+        currentRadio: null,
+        isRadioPlaying: false,
+        showRadioPanel: false,
       });
     },
 
@@ -251,9 +271,13 @@ export const useAudioStore = create<AudioState>((set, get) => {
         isBuffering: true,
         audioError: null,
         isUsingFallback: false,
-        currentAyahInSurah: 1,  // Reset to first ayah
+        currentAyahInSurah: 1,
+        isRadioMode: false,
+        currentRadioId: null,
+        currentRadio: null,
+        isRadioPlaying: false,
+        showRadioPanel: false,
       });
-      // Add to recently played
       get().addToRecentlyPlayed(surah.number);
     },
 

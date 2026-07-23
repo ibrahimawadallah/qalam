@@ -15,6 +15,13 @@ import { getSurahInfo } from "@/lib/quran-utils";
 import type { SurahText, AyahText, TranslationLanguage } from "@/lib/quran-types";
 import { TRANSLATION_LANGUAGES } from "@/lib/quran-types";
 import TranslationSelector from '@/components/translation-selector';
+import DOMPurify from 'dompurify';
+
+const sanitizeTafsir = (html: string) =>
+  DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['p', 'br', 'b', 'i', 'em', 'strong', 'span', 'div', 'ul', 'ol', 'li', 'blockquote', 'sup', 'sub'],
+    ALLOWED_ATTR: ['dir', 'class', 'lang'],
+  });
 
 interface TafsirEntry {
   verseKey: string;
@@ -325,7 +332,7 @@ export default function SurahReadingModal() {
                         direction: "rtl",
                         textAlign: "right",
                       }}
-                      dangerouslySetInnerHTML={{ __html: tafsirEntry.arabicText }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeTafsir(tafsirEntry.arabicText) }}
                     />
                   </div>
                 )}
@@ -339,7 +346,7 @@ export default function SurahReadingModal() {
                     </div>
                     <p
                       className="text-xs sm:text-sm leading-relaxed text-gray-300"
-                      dangerouslySetInnerHTML={{ __html: tafsirEntry.englishText }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeTafsir(tafsirEntry.englishText) }}
                     />
                   </div>
                 )}

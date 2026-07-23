@@ -12,7 +12,7 @@ import { Radio, Shield, Sun, Moon } from "lucide-react";
 const CATEGORY_META: Record<RadioCategory, { label: string; arabicLabel: string; icon: typeof Radio }> = {
   quran: { label: "Holy Quran Radio", arabicLabel: "إذاعة القرآن الكريم", icon: Radio },
   ruqyah: { label: "Ruqyah al-Shariah", arabicLabel: "الرقية الشرعية", icon: Shield },
-  adhkar: { label: "Adhkar", arabicLabel: "الأذكار", icon: Sun },
+  hisn_muslim: { label: "Hisn Muslim", arabicLabel: "حصن المسلم", icon: Sun },
 };
 
 export default function RadioPanel() {
@@ -20,7 +20,7 @@ export default function RadioPanel() {
 
   const grouped = useMemo(() => {
     const groups: { category: RadioCategory; stations: RadioStation[] }[] = [];
-    for (const cat of ["quran", "ruqyah", "adhkar"] as RadioCategory[]) {
+    for (const cat of ["quran", "ruqyah", "hisn_muslim"] as RadioCategory[]) {
       const stations = getStationsByCategory(cat);
       if (stations.length > 0) groups.push({ category: cat, stations });
     }
@@ -103,7 +103,7 @@ export default function RadioPanel() {
                                 : "border-blue-500/20 text-blue-400/60"
                             }`}
                           >
-                            {category === "quran" ? "Quran" : category === "ruqyah" ? "Ruqyah" : "Adhkar"}
+                            {category === "quran" ? "Quran" : category === "ruqyah" ? "Ruqyah" : "Hisn Muslim"}
                           </Badge>
                         </div>
                       </button>

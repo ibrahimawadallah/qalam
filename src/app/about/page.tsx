@@ -1,6 +1,7 @@
 'use client';
 
 import { Heart, BookOpen, Award } from 'lucide-react';
+import SiteNav from "@/components/site-nav";
 import SurahReadingModal from '@/components/surah-reading-modal';
 import ReciterPanel from '@/components/reciter-panel';
 import AudioPlayer from '@/components/audio-player';
@@ -12,6 +13,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ backgroundColor: '#0a0518' }}>
+      <SiteNav />
       {/* Ambient orbs */}
       <div
         className="ambient-orb-slow w-[600px] h-[600px] bg-purple-600/20 -top-40 -left-40"

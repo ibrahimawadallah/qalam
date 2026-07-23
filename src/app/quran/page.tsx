@@ -1,10 +1,14 @@
+'use client';
+
+import SiteNav from "@/components/site-nav";
 import SurahList from '@/components/surah-list';
 import FilterBar from '@/components/filter-bar';
 import HeroSection from '@/components/hero-section';
 
-export default async function QuranPage() {
+export default function QuranPage() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ backgroundColor: '#0a0518' }}>
+      <SiteNav />
       {/* Ambient orbs */}
       <div
         className="ambient-orb-slow w-[600px] h-[600px] bg-purple-600/20 -top-40 -left-40"

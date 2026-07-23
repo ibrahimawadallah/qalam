@@ -1,0 +1,33 @@
+{
+  "$schema": "../oh-my-opencode-pi.schema.json",
+  "extends": ["durable"],
+  // Pantheon inherits pi's default provider/model unless you add explicit overrides below.
+  // If you do add them, make sure the provider prefix matches your pi auth setup
+  // (for example openai-codex/... for ChatGPT subscription auth vs openai/... for API keys).
+  "multiplexer": {
+    "tmux": false,
+    "layout": "main-vertical",
+    "focusOnSpawn": false
+  },
+  "agents": {
+    "explorer": {
+      "allowSkills": ["cartography"],
+      "allowedAdapters": ["local-docs", "docs-context7", "github-code-search", "web-search"]
+    },
+    "librarian": {
+      "allowedAdapters": ["local-docs", "docs-context7", "github-releases", "github-code-search", "web-search", "npm-registry"]
+    }
+  },
+  "council": {
+    "defaultPreset": "review-board"
+  },
+  "skills": {
+    "defaultAllow": ["karpathy-guidelines", "cartography"],
+    "cartography": {
+      "enabled": true,
+      "maxFiles": 250,
+      "maxDepth": 4,
+      "maxPerDirectory": 8
+    }
+  }
+}
