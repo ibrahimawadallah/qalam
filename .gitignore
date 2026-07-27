@@ -19,3 +19,8 @@ NRedisStack-master/
 
 # Database
 prisma/
+
+db/
+*.jpg
+*.png
+*.jpeg
