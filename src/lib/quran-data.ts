@@ -240,6 +240,7 @@ export const RECITERS: Reciter[] = [
   { id: "ar.abdullahalmatrood", name: "Abdullah Al-Matrood", arabicName: "عبدالله المطرود", country: "Saudi Arabia", category: "Saudi", style: "Murattal", mp3quranFolder: "mtrod" },
   { id: "ar.salahalbudair", name: "Salah Al-Budair", arabicName: "صلاح البدير", country: "Saudi Arabia", category: "Saudi", style: "Murattal", mp3quranFolder: "bdar" },
   { id: "ar.muhammadalluhaidan", name: "Muhammad Al-Luhaidan", arabicName: "محمد اللحيدان", country: "Saudi Arabia", category: "Saudi", style: "Murattal", mp3quranFolder: "lhdn" },
+  { id: "ar.saudalfayez", name: "Saud Al-Fayez", arabicName: "سعود الفايز", country: "Saudi Arabia", category: "Saudi", style: "Murattal", mp3quranFolder: "" },
 
   // ─── Other ─────────────────────────────────────────────────────────────
   { id: "ar.ibrahimaldossari", name: "Ibrahim Al-Dossari", arabicName: "إبراهيم الدوسري", country: "Saudi Arabia", category: "Other", style: "Murattal", mp3quranFolder: "dosri2" },
