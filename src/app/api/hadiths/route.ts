@@ -46,8 +46,13 @@ export async function GET(request: Request) {
   }
 
   try {
-    const res = await fetch(endpoint, { next: { revalidate: 3600 } });
-    if (!res.ok) {
+    let res: Response | null = null;
+    for (let i = 0; i <= 2; i++) {
+      res = await fetch(endpoint);
+      if (res.ok) break;
+      if (i < 2) await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+    }
+    if (!res || !res.ok) {
       return NextResponse.json({ error: "Upstream hadith API failed" }, { status: 502 });
     }
     const upstream = (await res.json()) as UpstreamHadithResponse;

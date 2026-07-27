@@ -4,7 +4,6 @@ import { Heart, BookOpen, Award } from 'lucide-react';
 import SiteNav from "@/components/site-nav";
 import SurahReadingModal from '@/components/surah-reading-modal';
 import ReciterPanel from '@/components/reciter-panel';
-import AudioPlayer from '@/components/audio-player';
 import { useAudioStore } from '@/lib/audio-store';
 import { SURAH_DATA } from '@/lib/quran-data';
 
@@ -114,7 +113,6 @@ export default function AboutPage() {
       {/* Fixed components */}
       <SurahReadingModal />
       <ReciterPanel />
-      {isPlayerVisible && <AudioPlayer />}
       {isPlayerVisible && <div className="h-20" />}
     </div>
   );

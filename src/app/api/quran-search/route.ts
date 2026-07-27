@@ -45,7 +45,6 @@ async function searchUpstream(endpoint: string): Promise<SearchResponse> {
 
     try {
       const res = await fetch(endpoint, {
-        next: { revalidate: 0 },
         signal: controller.signal,
       });
 

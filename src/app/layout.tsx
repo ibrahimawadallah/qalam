@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "@/components/error-boundary";
 import StoreHydrator from "@/components/store-hydrator";
 import RadioPlayer from "@/components/radio-player";
+import AudioPlayer from "@/components/audio-player";
 import RadioPanel from "@/components/radio-panel";
 import ReciterPanel from "@/components/reciter-panel";
 import Footer from "@/components/footer";
@@ -105,6 +106,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <RadioPlayer />
+          <AudioPlayer />
           <RadioPanel />
           <ReciterPanel />
           <Footer />

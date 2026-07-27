@@ -6,17 +6,24 @@ function decodeUtf8Json(buf: ArrayBuffer): any {
   return JSON.parse(decoder.decode(buf));
 }
 
-async function fetchJson(url: string): Promise<any> {
-  const res = await fetch(url, {
-    headers: {
-      accept: "application/json, text/plain, */*",
-      "user-agent": "Mozilla/5.0",
-    },
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${url}: ${res.status}`);
+async function fetchJson(url: string, retries = 2): Promise<any> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          "user-agent": "Mozilla/5.0",
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch ${url}: ${res.status}`);
+      }
+      return res.json();
+    } catch (e) {
+      if (i >= retries) throw e;
+      await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+    }
   }
-  return res.json();
 }
 
 async function getMorningEveningAzkar(): Promise<Chapter[]> {

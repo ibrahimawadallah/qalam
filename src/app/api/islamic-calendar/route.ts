@@ -40,8 +40,13 @@ export async function GET(request: Request) {
   const endpoint = `https://api.aladhan.com/v1/calendar/${encodeURIComponent(year)}/${encodeURIComponent(month)}?method=2&latitude=21.4225&longitude=39.8262`;
 
   try {
-    const res = await fetch(endpoint, { next: { revalidate: 3600 } });
-    if (!res.ok) {
+    let res: Response | null = null;
+    for (let i = 0; i <= 2; i++) {
+      res = await fetch(endpoint);
+      if (res.ok) break;
+      if (i < 2) await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+    }
+    if (!res || !res.ok) {
       return NextResponse.json({ error: "Upstream Islamic calendar API failed" }, { status: 502 });
     }
     const json = (await res.json()) as CalendarResponse;
