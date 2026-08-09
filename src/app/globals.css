@@ -1,0 +1,651 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-space-grotesk);
+  --font-arabic: var(--font-scheherazade);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-gold: var(--gold);
+  --color-green: var(--green);
+  --color-terracotta: var(--terracotta);
+  --color-sand: var(--sand);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: #F5F0E8;
+  --foreground: #2C1810;
+  --card: #FFFBF5;
+  --card-foreground: #2C1810;
+  --popover: #FFFBF5;
+  --popover-foreground: #2C1810;
+  --primary: #1B4332;
+  --primary-foreground: #FFFBF5;
+  --secondary: #C45B28;
+  --secondary-foreground: #FFFBF5;
+  --muted: #E8DFD0;
+  --muted-foreground: #8B7355;
+  --accent: #C45B28;
+  --accent-foreground: #FFFBF5;
+  --destructive: #B91C1C;
+  --border: #D4C5A9;
+  --input: #D4C5A9;
+  --ring: #1B4332;
+  --gold: #C45B28;
+  --green: #1B4332;
+  --terracotta: #C45B28;
+  --sand: #F5F0E8;
+  --chart-1: #1B4332;
+  --chart-2: #C45B28;
+  --chart-3: #8B6914;
+  --chart-4: #2D6A4F;
+  --chart-5: #D97706;
+  --sidebar: #FFFBF5;
+  --sidebar-foreground: #2C1810;
+  --sidebar-primary: #1B4332;
+  --sidebar-primary-foreground: #FFFBF5;
+  --sidebar-accent: #E8DFD0;
+  --sidebar-accent-foreground: #2C1810;
+  --sidebar-border: #D4C5A9;
+  --sidebar-ring: #1B4332;
+}
+
+.dark {
+  --background: #1A1410;
+  --foreground: #F5F0E8;
+  --card: #2C241C;
+  --card-foreground: #F5F0E8;
+  --popover: #2C241C;
+  --popover-foreground: #F5F0E8;
+  --primary: #4ADE80;
+  --primary-foreground: #1A1410;
+  --secondary: #FB923C;
+  --secondary-foreground: #1A1410;
+  --muted: #3D3228;
+  --muted-foreground: #A89880;
+  --accent: #FB923C;
+  --accent-foreground: #1A1410;
+  --destructive: #EF4444;
+  --border: #4A3D30;
+  --input: #4A3D30;
+  --ring: #4ADE80;
+  --gold: #FB923C;
+  --green: #4ADE80;
+  --terracotta: #FB923C;
+  --sand: #1A1410;
+  --chart-1: #4ADE80;
+  --chart-2: #FB923C;
+  --chart-3: #FBBF24;
+  --chart-4: #34D399;
+  --chart-5: #F59E0B;
+  --sidebar: #1A1410;
+  --sidebar-foreground: #F5F0E8;
+  --sidebar-primary: #4ADE80;
+  --sidebar-primary-foreground: #1A1410;
+  --sidebar-accent: #3D3228;
+  --sidebar-accent-foreground: #F5F0E8;
+  --sidebar-border: #4A3D30;
+  --sidebar-ring: #4ADE80;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Islamic Geometric Pattern Background */
+.islamic-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M40 0L80 40L40 80L0 40z' stroke='%231B4332' stroke-width='0.5' opacity='0.06'/%3E%3Cpath d='M40 10L70 40L40 70L10 40z' stroke='%231B4332' stroke-width='0.3' opacity='0.04'/%3E%3Cpath d='M40 20L60 40L40 60L20 40z' stroke='%23C45B28' stroke-width='0.3' opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 80px 80px;
+}
+
+.islamic-pattern-subtle {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='%231B4332' stroke-width='0.3' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+
+/* Star pattern for decorative headers */
+.islamic-stars {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L24 16L40 20L24 24L20 40L16 24L0 20L16 16z' fill='%231B4332' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 40px 40px;
+}
+
+/* Arabesque border pattern */
+.arabesque-border {
+  position: relative;
+}
+
+.arabesque-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    #1B4332 0px,
+    #1B4332 8px,
+    transparent 8px,
+    transparent 12px,
+    #C45B28 12px,
+    #C45B28 14px,
+    transparent 14px,
+    transparent 18px
+  );
+  opacity: 0.6;
+}
+
+/* Warm card styles */
+.warm-card {
+  background: #FFFBF5;
+  border: 1px solid #D4C5A9;
+  box-shadow: 0 1px 3px rgba(44, 24, 16, 0.06), 0 4px 12px rgba(44, 24, 16, 0.04);
+}
+
+.warm-card-hover {
+  background: #FFFBF5;
+  border: 1px solid #D4C5A9;
+  box-shadow: 0 1px 3px rgba(44, 24, 16, 0.06), 0 4px 12px rgba(44, 24, 16, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.warm-card-hover:hover {
+  border-color: #1B4332;
+  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.08), 0 8px 24px rgba(27, 67, 50, 0.06);
+  transform: translateY(-2px);
+}
+
+/* Dark warm card (for dark mode) */
+.dark .warm-card,
+.dark .warm-card-hover {
+  background: #2C241C;
+  border-color: #4A3D30;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dark .warm-card-hover:hover {
+  border-color: #4ADE80;
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1), 0 8px 24px rgba(74, 222, 128, 0.05);
+}
+
+/* Sticky header style */
+.warm-sticky {
+  background: rgba(245, 240, 232, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid #D4C5A9;
+}
+
+.dark .warm-sticky {
+  background: rgba(26, 20, 16, 0.92);
+  border-color: #4A3D30;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(27, 67, 50, 0.25);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(27, 67, 50, 0.4);
+}
+
+/* Arabic text styling */
+.arabic-text {
+  font-family: var(--font-scheherazade), "Scheherazade New", "Traditional Arabic", serif;
+  direction: rtl;
+  text-align: right;
+  line-height: 2;
+}
+
+.arabic-text-lg {
+  font-family: var(--font-scheherazade), "Scheherazade New", "Traditional Arabic", serif;
+  direction: rtl;
+  text-align: center;
+  line-height: 2.2;
+  font-size: 1.75rem;
+}
+
+.arabic-name {
+  font-family: var(--font-scheherazade), "Scheherazade New", "Traditional Arabic", serif;
+  direction: rtl;
+  line-height: 1.4;
+}
+
+/* Ambient warm glow animations */
+@keyframes warm-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(15px, -15px) scale(1.02);
+  }
+  50% {
+    transform: translate(-10px, 10px) scale(0.98);
+  }
+  75% {
+    transform: translate(10px, 5px) scale(1.01);
+  }
+}
+
+@keyframes warm-float-slow {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-20px, 10px) scale(1.03);
+  }
+  66% {
+    transform: translate(15px, -15px) scale(0.97);
+  }
+}
+
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  pointer-events: none;
+  animation: warm-float 30s ease-in-out infinite;
+}
+
+.ambient-glow-slow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+  pointer-events: none;
+  animation: warm-float-slow 40s ease-in-out infinite;
+}
+
+/* Pulse animation for streaming badge */
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.5);
+  }
+}
+
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Audio bars animation */
+@keyframes audio-bar {
+  0%, 100% {
+    height: 3px;
+  }
+  50% {
+    height: 14px;
+  }
+}
+
+.audio-bar {
+  animation: audio-bar 0.8s ease-in-out infinite;
+}
+
+.audio-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.audio-bar:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.audio-bar:nth-child(4) {
+  animation-delay: 0.1s;
+}
+
+/* Shimmer loading skeleton */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    #E8DFD0 25%,
+    #D4C5A9 50%,
+    #E8DFD0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.dark .shimmer {
+  background: linear-gradient(
+    90deg,
+    #3D3228 25%,
+    #4A3D30 50%,
+    #3D3228 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
+
+input[type="range"]::-webkit-slider-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #D4C5A9;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1B4332;
+  margin-top: -6px;
+  box-shadow: 0 1px 4px rgba(27, 67, 50, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.4);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #D4C5A9;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1B4332;
+  border: none;
+  box-shadow: 0 1px 4px rgba(27, 67, 50, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.4);
+}
+
+/* Surah number badge - Islamic green with gold accent */
+.surah-number-badge {
+  background: linear-gradient(135deg, #1B4332, #2D6A4F);
+  color: #FFFBF5;
+  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.25);
+}
+
+/* Playing highlight */
+.playing-highlight {
+  background: rgba(27, 67, 50, 0.06);
+  border-color: rgba(27, 67, 50, 0.25) !important;
+}
+
+/* Hero gradient - warm sand to slightly darker */
+.hero-gradient {
+  background: linear-gradient(180deg, #F5F0E8 0%, #E8DFD0 50%, #F5F0E8 100%);
+}
+
+.dark .hero-gradient {
+  background: linear-gradient(180deg, #1A1410 0%, #2C241C 50%, #1A1410 100%);
+}
+
+/* Basmala glow - warm green */
+.basmala-glow {
+  text-shadow: 0 0 20px rgba(27, 67, 50, 0.15), 0 0 40px rgba(27, 67, 50, 0.05);
+}
+
+/* Divider line with Islamic motif */
+.divider-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D4C5A9, transparent);
+}
+
+.divider-ornate {
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    #1B4332 0px,
+    #1B4332 6px,
+    transparent 6px,
+    transparent 10px,
+    #C45B28 10px,
+    #C45B28 12px,
+    transparent 12px,
+    transparent 16px
+  );
+  opacity: 0.5;
+}
+
+/* Smooth transitions for all interactive elements */
+.interactive-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-transition:hover {
+  transform: translateY(-1px);
+}
+
+.interactive-transition:active {
+  transform: translateY(0);
+}
+
+/* Safe area support for iOS devices */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Mobile touch improvements */
+@media (hover: none) {
+  .interactive-transition:hover {
+    transform: none;
+  }
+  
+  .warm-card-hover:hover {
+    transform: none;
+    border-color: #D4C5A9;
+    box-shadow: 0 1px 3px rgba(44, 24, 16, 0.06), 0 4px 12px rgba(44, 24, 16, 0.04);
+  }
+  
+  .warm-card-hover:active {
+    border-color: #1B4332;
+    box-shadow: 0 1px 2px rgba(27, 67, 50, 0.1);
+  }
+  
+  .dark .warm-card-hover:active {
+    border-color: #4ADE80;
+  }
+}
+
+/* Prevent text selection on interactive elements */
+.warm-card-hover,
+.interactive-transition,
+.surah-number-badge {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling on mobile */
+@media (max-width: 640px) {
+  .overflow-auto, .overflow-y-auto, main {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Touch improvements */
+@media (max-width: 640px) {
+  button[aria-label], .touch-manipulation, nav button {
+    min-height: 44px;
+  }
+  
+  .fixed.bottom-0 {
+    overscroll-behavior: contain;
+  }
+  
+  .arabic-name {
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+  }
+}
+
+/* Install prompt animation */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .fixed.bottom-0 {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Subtle page transition */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Decorative Islamic corner ornament */
+.islamic-corner {
+  position: relative;
+}
+
+.islamic-corner::before,
+.islamic-corner::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #1B4332;
+  opacity: 0.3;
+}
+
+.islamic-corner::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.islamic-corner::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+/* Warm shadow utilities */
+.shadow-warm-sm {
+  box-shadow: 0 1px 2px rgba(44, 24, 16, 0.08);
+}
+
+.shadow-warm {
+  box-shadow: 0 1px 3px rgba(44, 24, 16, 0.08), 0 4px 12px rgba(44, 24, 16, 0.06);
+}
+
+.shadow-warm-lg {
+  box-shadow: 0 2px 8px rgba(44, 24, 16, 0.08), 0 12px 32px rgba(44, 24, 16, 0.08);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ambient-glow,
+  .ambient-glow-slow,
+  .audio-bar {
+    animation: none;
+  }
+  
+  .transition-all {
+    transition: none;
+  }
+}

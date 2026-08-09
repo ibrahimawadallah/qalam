@@ -1,0 +1,4 @@
+
+> quran-kareem@1.0.0 lint
+> eslint .
+

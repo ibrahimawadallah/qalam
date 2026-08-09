@@ -1,0 +1,26 @@
+node_modules
+.next
+.open-next
+*.tsbuildinfo
+dist
+.wrangler
+
+# Generated / junk
+next-env.d.ts
+firebase-debug.log
+vllm.log
+*.log
+
+# Accidental third-party dirs
+NRedisStack-master/
+
+# Vercel
+.vercel/
+
+# Database
+prisma/
+
+db/
+*.jpg
+*.png
+*.jpeg

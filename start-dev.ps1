@@ -1,0 +1,1 @@
+Start-Process -FilePath "node" -ArgumentList "C:\nvm4w\nodejs\node_modules\npm\bin\npm-cli.js","run","dev" -WorkingDirectory "G:\New folder\quran kareem" -NoNewWindow -PassThru | Select-Object Id, ProcessName
