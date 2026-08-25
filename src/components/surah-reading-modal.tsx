@@ -261,7 +261,16 @@ export default function SurahReadingModal() {
     if (!surahInfo) return;
 
     if (currentSurah?.number === surahInfo.number) {
+      const willPlay = !isPlaying;
       togglePlay();
+      if (willPlay) {
+        try {
+          const audio = document.querySelector('audio');
+          if (audio && audio.src) {
+            audio.play().catch(() => {});
+          }
+        } catch {}
+      }
     } else {
       play(surahInfo.number);
     }
