@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import DrawerNav from "@/components/drawer-nav";
+import PageHead from "@/components/page-head";
 import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 
 type HadithItem = {
@@ -74,103 +74,88 @@ export default function HadithsPage() {
   const totalPages = data?.pagination.totalPages ?? 1;
 
   return (
-    <div className="min-h-screen bg-background pt-14">
-      <main className="mx-auto max-w-screen-xl px-3 py-8">
-        <div className="mb-8 text-center page-enter">
-          <h1 className="text-3xl font-bold text-primary mb-2">الأحاديث النبوية</h1>
-          <p className="text-muted-foreground text-sm">Prophetic Hadiths — authentic narrations from the major books</p>
+    <div className="min-h-screen">
+      <PageHead eyebrow="Prophetic traditions" title="الأحاديث النبوية">
+        Authentic narrations from the major collections — presented in Arabic with translation.
+      </PageHead>
+
+      <main className="mx-auto max-w-[820px] px-6 py-12 page-enter">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row">
+          <select
+            value={collection}
+            onChange={(e) => {
+              setCollection(e.target.value);
+              setPage(1);
+            }}
+            className="flex-1 rounded-sm border border-gold/40 bg-paper px-3 py-3 font-ui text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-gold"
+          >
+            {COLLECTIONS.map((c) => (
+              <option key={c.id} value={c.id} className="bg-background text-foreground">
+                {c.name} — {c.arabicName}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={loadHadiths}
+            disabled={loading}
+            className="flex items-center justify-center gap-2 rounded-sm bg-emerald-deep px-5 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            {loading ? "Loading..." : "Refresh"}
+          </button>
         </div>
 
-        <div className="mx-auto max-w-3xl">
-          <div className="flex flex-col sm:flex-row gap-3 mb-6">
-            <select
-              value={collection}
-              onChange={(e) => {
-                setCollection(e.target.value);
-                setPage(1);
-              }}
-              className="flex-1 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
-            >
-              {COLLECTIONS.map((c) => (
-                <option key={c.id} value={c.id} className="bg-background text-foreground">
-                  {c.name} — {c.arabicName}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={loadHadiths}
-              disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-              {loading ? "Loading..." : "Refresh"}
-            </button>
-          </div>
+        {error && <p className="mb-4 font-ui text-xs text-destructive">{error}</p>}
 
-          {error && <p className="mb-4 text-xs text-destructive">{error}</p>}
-
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              {currentCollection.arabicName} — {currentCollection.name}
+        <div className="mb-4 flex items-center justify-between border-b border-emerald-deep/15 pb-3">
+          <p className="eyebrow text-maroon">{currentCollection.name}</p>
+          {data && (
+            <p className="font-ui text-xs text-muted-foreground">
+              Page {data.pagination.page} of {totalPages} · {data.pagination.total} hadiths
             </p>
-            {data && (
-              <p className="text-xs text-muted-foreground">
-                Page {data.pagination.page} of {totalPages} — {data.pagination.total} hadiths
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            {data?.hadiths.map((hadith) => (
-              <div
-                key={hadith.number}
-                className="rounded-2xl border border-border bg-card p-4 sm:p-6"
-              >
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-primary/60">
-                    #{hadith.number}
-                  </span>
-                </div>
-
-                <div
-                  className="mb-4 text-base leading-relaxed text-foreground"
-                  style={{ direction: "rtl", fontFamily: 'var(--font-arabic), "Scheherazade New", serif' }}
-                >
-                  {hadith.arab}
-                </div>
-
-                <div className="divider-line mb-2" />
-                <p className="text-[11px] text-muted-foreground line-clamp-2">{hadith.id}</p>
-              </div>
-            ))}
-          </div>
-
-          {data && totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-between">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1 || loading}
-                className="flex items-center gap-1 rounded-xl border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Previous
-              </button>
-              <span className="text-xs text-muted-foreground">
-                Page {page} / {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages || loading}
-                className="flex items-center gap-1 rounded-xl border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
-              >
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
           )}
         </div>
+
+        <div className="space-y-4">
+          {data?.hadiths.map((hadith) => (
+            <article key={hadith.number} className="warm-card rounded-sm p-5 sm:p-7">
+              <span className="font-display text-sm text-maroon">#{hadith.number}</span>
+              <p
+                className="arabic-name mt-2 mb-4 text-[clamp(18px,2.2vw,22px)] leading-loose text-ink"
+                dir="rtl"
+              >
+                {hadith.arab}
+              </p>
+              <div className="divider-line mb-2.5" />
+              <p className="font-serif text-[13px] leading-relaxed text-muted-foreground line-clamp-2">{hadith.id}</p>
+            </article>
+          ))}
+        </div>
+
+        {data && totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1 || loading}
+              className="flex items-center gap-1 rounded-sm border border-border px-4 py-2.5 font-ui text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </button>
+            <span className="font-ui text-xs text-muted-foreground">
+              Page {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages || loading}
+              className="flex items-center gap-1 rounded-sm border border-border px-4 py-2.5 font-ui text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </main>
-      <DrawerNav />
     </div>
   );
 }

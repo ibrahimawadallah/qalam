@@ -1,21 +1,12 @@
 import { Surah, Reciter, RadioStation } from "./quran-types";
 
-// Quran Ayah timing data - approximate timings in seconds for different reciters
-// Based on typical recitation speeds and known ayah lengths
+// Quran Ayah timing data - approximate start times (seconds) used only as a
+// base proportion until real audio duration scaling is applied by the player.
 export const QURAN_TIMINGS: Record<string, Record<number, number[]>> = {
   // Mishary Rashid Alafasy - moderate pace
   'ar.alafasy': {
     // Surah Al-Fatiha (7 ayahs) - approximate timings based on audio analysis
     1: [0, 4.2, 8.1, 12.3, 16.8, 21.2, 26.1],
-    // Surah Al-Baqarah (286 ayahs) - much more complex timing
-    // For demonstration, I'll provide more accurate timing for first few surahs
-    2: Array.from({ length: 287 }, (_, i) => {
-      if (i === 0) return 0;
-      // Approximate timing - in production this would be from actual audio analysis
-      // Average ayah duration varies significantly in Al-Baqarah
-      const baseDuration = i < 10 ? 25 : i < 50 ? 20 : i < 100 ? 18 : 15; // seconds
-      return Math.round((i * baseDuration + Math.random() * 5) * 10) / 10;
-    }),
   },
   // Abdullah Basfar - faster pace
   'ar.abdullahbasfar': {

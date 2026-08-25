@@ -1,24 +1,42 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Outfit } from "next/font/google";
+import { Cormorant_Garamond, Lora, Inter, Amiri } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "@/components/error-boundary";
 import StoreHydrator from "@/components/store-hydrator";
+import TopNav from "@/components/top-nav";
 import RadioPlayer from "@/components/radio-player";
 import AudioPlayer from "@/components/audio-player";
 import RadioPanel from "@/components/radio-panel";
 import ReciterPanel from "@/components/reciter-panel";
 import Footer from "@/components/footer";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const lora = Lora({
+  variable: "--font-lora",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
+const amiri = Amiri({
+  variable: "--font-amiri",
+  subsets: ["arabic", "latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -79,7 +97,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#1B4332" />
+        <meta name="theme-color" content="#0B3B2C" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Quran Kareem" />
@@ -88,21 +106,14 @@ export default function RootLayout({
         <link rel="icon" href="/logo.svg?v=2" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
         <link rel="apple-touch-icon" href="/logo.jpg" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body
-        className={`${spaceGrotesk.variable} ${outfit.variable} font-sans antialiased`}
-        style={{
-          fontFamily:
-            'var(--font-outfit), "Outfit", system-ui, sans-serif',
-        }}
+        className={`${cormorant.variable} ${lora.variable} ${inter.variable} ${amiri.variable} antialiased`}
       >
         <ErrorBoundary>
           <StoreHydrator />
+          <TopNav />
           {children}
           <Toaster />
           <RadioPlayer />

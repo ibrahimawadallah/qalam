@@ -24,3 +24,7 @@ db/
 *.jpg
 *.png
 *.jpeg
+
+# Local backups / agent state
+node_modules.backup/
+.claude/

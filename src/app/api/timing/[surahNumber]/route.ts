@@ -112,6 +112,9 @@ export async function GET(
       surahNumber,
       reciterId,
       timings,
+      // Estimated total duration of the whole recitation (ms). The client uses
+      // this to scale the proportional timings onto the real audio duration.
+      totalDuration: Math.round(cumulativeTime * 1000),
     });
   } catch (error) {
     console.error('Timing fetch error:', error);

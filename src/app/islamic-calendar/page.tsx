@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import DrawerNav from "@/components/drawer-nav";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import PageHead from "@/components/page-head";
+import Khatam from "@/components/khatam";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type CalendarDay = {
   date: {
@@ -91,138 +92,134 @@ export default function IslamicCalendarPage() {
   const displayYear = data[0]?.date.gregorian.year ?? year;
 
   return (
-    <div className="min-h-screen bg-background pt-14">
-      <main className="mx-auto max-w-screen-xl px-3 py-8">
-        <div className="mb-8 text-center page-enter">
-          <h1 className="text-3xl font-bold text-primary mb-2">Islamic Calendar</h1>
-          <p className="text-muted-foreground text-sm">Hijri calendar with corresponding Gregorian dates</p>
-        </div>
+    <div className="min-h-screen">
+      <PageHead eyebrow="Hijri & Gregorian" title="Islamic Calendar">
+        The Hijri calendar with corresponding Gregorian dates, month by month.
+      </PageHead>
 
-        <div className="mx-auto max-w-3xl">
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={() => {
-                const newMonth = month - 1;
-                if (newMonth < 1) {
-                  setMonth(12);
-                  setYear(year - 1);
-                } else {
-                  setMonth(newMonth);
-                }
-              }}
-              disabled={loading}
-              className="flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </button>
+      <main className="mx-auto max-w-[820px] px-6 py-12 page-enter">
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            onClick={() => {
+              const newMonth = month - 1;
+              if (newMonth < 1) {
+                setMonth(12);
+                setYear(year - 1);
+              } else {
+                setMonth(newMonth);
+              }
+            }}
+            disabled={loading}
+            className="flex items-center gap-1 rounded-sm border border-border px-3.5 py-2.5 font-ui text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </button>
 
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-foreground">
-                {monthName} {displayYear}
-              </h2>
-              <div className="flex justify-center gap-3 mt-1">
-                {WEEKDAYS.map((d) => (
-                  <span key={d} className="text-[10px] text-muted-foreground w-6">{d}</span>
-                ))}
-              </div>
+          <div className="text-center">
+            <h2 className="text-[26px] leading-tight text-emerald-deep">
+              {monthName} {displayYear}
+            </h2>
+            <div className="mt-1 flex justify-center gap-2.5">
+              {WEEKDAYS.map((d) => (
+                <span key={d} className="w-6 font-ui text-[10px] uppercase tracking-wide text-muted-foreground">{d}</span>
+              ))}
             </div>
-
-            <button
-              onClick={() => {
-                const newMonth = month + 1;
-                if (newMonth > 12) {
-                  setMonth(1);
-                  setYear(year + 1);
-                } else {
-                  setMonth(newMonth);
-                }
-              }}
-              disabled={loading}
-              className="flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </button>
           </div>
 
-          {loading && (
-            <div className="flex items-center justify-center py-12">
-              <div className="flex gap-1">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="audio-bar w-1 bg-primary/40 rounded-full" style={{ animationDelay: `${i * 0.2}s` }} />
-                ))}
-              </div>
+          <button
+            onClick={() => {
+              const newMonth = month + 1;
+              if (newMonth > 12) {
+                setMonth(1);
+                setYear(year + 1);
+              } else {
+                setMonth(newMonth);
+              }
+            }}
+            disabled={loading}
+            className="flex items-center gap-1 rounded-sm border border-border px-3.5 py-2.5 font-ui text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="flex gap-1">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="audio-bar w-1 bg-gold/60 rounded-full" style={{ animationDelay: `${i * 0.2}s` }} />
+              ))}
             </div>
-          )}
-          {error && <p className="text-center text-destructive text-sm">{error}</p>}
+          </div>
+        )}
+        {error && <p className="text-center font-ui text-sm text-destructive">{error}</p>}
 
-          {!loading && !error && (
-            <div className="rounded-2xl border border-border bg-card p-3 sm:p-4">
-              <div className="grid grid-cols-7 gap-1 sm:gap-2">
-                {days.map((row, rowIdx) =>
-                  row.map((day, colIdx) => {
-                    if (!day) {
-                      return <div key={`empty-${rowIdx}-${colIdx}`} className="min-h-[60px] sm:min-h-[80px]" />;
-                    }
+        {!loading && !error && (
+          <div className="warm-card rounded-sm p-3 sm:p-4">
+            <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+              {days.map((row, rowIdx) =>
+                row.map((day, colIdx) => {
+                  if (!day) {
+                    return <div key={`empty-${rowIdx}-${colIdx}`} className="min-h-[60px] sm:min-h-[80px]" />;
+                  }
 
-                    const isFriday = day.date.gregorian.weekday.en === "Fri";
-                    const hijriDay = day.date.hijri.day;
-                    const gregDay = day.date.gregorian.day;
+                  const isFriday = day.date.gregorian.weekday.en === "Fri";
+                  const hijriDay = day.date.hijri.day;
+                  const gregDay = day.date.gregorian.day;
 
-                    return (
-                      <div
-                        key={day.date.readable}
-                        className={`min-h-[60px] sm:min-h-[80px] rounded-xl border p-1.5 sm:p-2 flex flex-col ${
-                          isFriday
-                            ? "border-primary/20 bg-primary/5"
-                            : "border-border bg-muted/20"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="text-right">
-                            <p className="text-base sm:text-lg font-bold text-foreground leading-none">{hijriDay}</p>
-                            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{day.date.hijri.month.ar}</p>
-                          </div>
-                          <div className="text-left">
-                            <p className="text-xs sm:text-sm text-foreground/70">{gregDay}</p>
-                            <p className="text-[10px] text-muted-foreground">{day.date.gregorian.month.en}</p>
-                          </div>
+                  return (
+                    <div
+                      key={day.date.readable}
+                      className={`flex min-h-[60px] flex-col rounded-sm border p-1.5 sm:min-h-[80px] sm:p-2 ${
+                        isFriday
+                          ? "border-gold/50 bg-gold/10"
+                          : "border-emerald-deep/10 bg-paper"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="font-display text-base font-semibold leading-none text-emerald-deep sm:text-lg">{hijriDay}</p>
+                          <p className="arabic-name mt-0.5 text-right text-[10px] text-muted-foreground sm:text-xs" dir="rtl">{day.date.hijri.month.ar}</p>
+                        </div>
+                        <div className="text-left">
+                          <p className="font-ui text-xs text-muted-foreground sm:text-sm">{gregDay}</p>
+                          <p className="font-ui text-[9px] uppercase tracking-wide text-muted-foreground/70 sm:text-[10px]">{day.date.gregorian.month.en.slice(0, 3)}</p>
                         </div>
                       </div>
-                    );
-                  })
-                )}
-              </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-          {!loading && !error && data.length > 0 && (
-            <div className="mt-8 rounded-2xl border border-border bg-card p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <CalendarDays className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold text-foreground">Today&apos;s Date</h3>
+        {!loading && !error && data.length > 0 && (
+          <div className="tile-corners mt-8 rounded-sm border border-gold/30 bg-paper p-6 shadow-[var(--shadow-deep)]">
+            <h3 className="mb-4 flex items-center gap-2.5 text-xl text-emerald-deep">
+              <Khatam className="h-4 w-4 text-maroon" />
+              Today&apos;s date
+            </h3>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div>
+                <p className="eyebrow mb-1.5 text-maroon">Hijri</p>
+                <p className="font-display text-lg text-ink">
+                  {data[0]?.date.hijri.day} {data[0]?.date.hijri.month.en} {data[0]?.date.hijri.year}
+                </p>
+                <p className="arabic-name mt-0.5 text-sm text-muted-foreground" dir="rtl">{data[0]?.date.hijri.month.ar}</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Hijri</p>
-                  <p className="text-lg text-foreground font-semibold">
-                    {data[0]?.date.hijri.day} {data[0]?.date.hijri.month.en} {data[0]?.date.hijri.year}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{data[0]?.date.hijri.month.ar}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Gregorian</p>
-                  <p className="text-lg text-foreground font-semibold">
-                    {data[0]?.date.gregorian.day} {data[0]?.date.gregorian.month.en} {data[0]?.date.gregorian.year}
-                  </p>
-                </div>
+              <div>
+                <p className="eyebrow mb-1.5 text-maroon">Gregorian</p>
+                <p className="font-display text-lg text-ink">
+                  {data[0]?.date.gregorian.day} {data[0]?.date.gregorian.month.en} {data[0]?.date.gregorian.year}
+                </p>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </main>
-      <DrawerNav />
     </div>
   );
 }

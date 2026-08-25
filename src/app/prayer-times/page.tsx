@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import DrawerNav from "@/components/drawer-nav";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import PageHead from "@/components/page-head";
+import Khatam from "@/components/khatam";
 import CountryCitySelector from "@/components/country-city-selector";
 import QiblaCompass from "@/components/qibla-compass";
 
@@ -9,6 +10,15 @@ type Prayer = "Fajr" | "Sunrise" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
 type PrayerEntries = Record<Prayer, string>;
 
 const PRAYER_LIST: Prayer[] = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+
+const PRAYER_AR: Record<Prayer, string> = {
+  Fajr: "الفجر",
+  Sunrise: "الشروق",
+  Dhuhr: "الظهر",
+  Asr: "العصر",
+  Maghrib: "المغرب",
+  Isha: "العشاء",
+};
 
 function toMinutes(time24: string): number {
   const [h, m] = time24.split(":").map(Number);
@@ -95,7 +105,7 @@ export default function PrayerTimesPage() {
     if (!timings) return null;
     const currentMins = now.getHours() * 60 + now.getMinutes();
     for (const p of PRAYER_LIST) {
-      if (toMinutes(timings[p]) > currentMins) return p;
+      if (p !== "Sunrise" && toMinutes(timings[p]) > currentMins) return p;
     }
     return "Fajr";
   }, [now, timings]);
@@ -113,14 +123,15 @@ export default function PrayerTimesPage() {
   }, [now, timings, nextPrayer]);
 
   return (
-    <div className="min-h-screen bg-background pt-14">
-      <main className="mx-auto max-w-screen-xl px-3 py-8">
-        <div className="mb-8 text-center page-enter">
-          <h1 className="text-3xl font-bold text-primary mb-2">Prayer Times</h1>
-          <p className="text-muted-foreground text-sm">Accurate prayer times with automatic geolocation and countdown</p>
-        </div>
+    <div className="min-h-screen">
+      <PageHead eyebrow="Five daily prayers" title="Prayer Times">
+        Calculated for your city and updated automatically as the day turns — with live
+        countdown and Qibla direction.
+      </PageHead>
 
-        <div className="mx-auto max-w-lg rounded-2xl border border-border bg-card p-4">
+      <main className="mx-auto max-w-[920px] px-6 py-12 page-enter">
+        {/* Location selector */}
+        <div className="rounded-sm border border-gold bg-paper p-4 shadow-[var(--shadow-deep)] sm:p-5">
           <CountryCitySelector
             country={selectedCountry}
             city={selectedCity}
@@ -130,68 +141,80 @@ export default function PrayerTimesPage() {
             loading={loading}
           />
 
-          <div className="mt-2 flex gap-2">
+          <div className="mt-3 flex gap-2">
             <button
               onClick={() => loadByCity(selectedCountry, selectedCity)}
               disabled={loading || !selectedCountry.trim() || !selectedCity.trim()}
-              className="flex-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+              className="flex-1 rounded-sm bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid disabled:opacity-50"
             >
               {loading ? "Loading..." : "Get Times"}
             </button>
             <button
               onClick={locateMe}
-              className="rounded-xl border border-border px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted transition-colors"
+              className="rounded-sm border border-gold px-4 py-3 font-ui text-sm font-semibold text-emerald-deep transition-colors hover:bg-gold/10"
             >
-              📍 Locate
+              Locate me
             </button>
           </div>
 
-          {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
-
-          {timings && (
-            <div className="mt-4">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{date}</span>
-                <span className="text-xs text-muted-foreground">{timezone}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {PRAYER_LIST.map((prayer) => {
-                  const active = nextPrayer === prayer;
-                  return (
-                    <div
-                      key={prayer}
-                      className={`rounded-xl border p-3 text-center transition-all ${
-                        active ? "border-primary/30 bg-primary/10 shadow-lg shadow-warm-sm" : "border-border bg-muted/30"
-                      }`}
-                    >
-                      <p className="text-xs text-muted-foreground mb-1">{prayer.toUpperCase()}</p>
-                      <p className={`text-lg font-bold ${active ? "text-foreground" : "text-foreground/70"}`}>{timings[prayer]}</p>
-                      {active && (
-                        <p className="mt-1 text-[11px] text-primary">In {countdown}</p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              {nextPrayer && (
-                <div className="mt-3 rounded-xl border border-primary/15 bg-primary/5 p-3 text-center">
-                  <p className="text-xs text-muted-foreground">
-                    Next prayer: <span className="font-semibold text-foreground">{nextPrayer}</span> — in{" "}
-                    <span className="font-bold text-primary">{countdown}</span>
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+          {error && <p className="mt-2 font-ui text-xs text-destructive">{error}</p>}
         </div>
 
+        {timings && (
+          <>
+            <div className="mb-4 mt-8 flex flex-wrap items-center justify-between gap-2">
+              <p className="eyebrow text-emerald-mid">Today&apos;s times</p>
+              <span className="font-ui text-xs text-muted-foreground">
+                {date} · {timezone}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {PRAYER_LIST.map((prayer) => {
+                const active = nextPrayer === prayer;
+                return (
+                  <div
+                    key={prayer}
+                    className={`tile-corners rounded-sm p-5 text-center transition-all ${
+                      active
+                        ? "border border-emerald-deep bg-emerald-deep text-ivory"
+                        : "warm-card"
+                    }`}
+                  >
+                    <Khatam className={`mx-auto mb-2.5 h-4 w-4 ${active ? "text-gold-bright" : "text-maroon"}`} />
+                    <p className="font-display text-[17px] leading-snug">{prayer}</p>
+                    <p className={`arabic-name mt-0.5 mb-2.5 text-sm ${active ? "text-gold-bright" : "text-muted-foreground"}`} dir="rtl">
+                      {PRAYER_AR[prayer]}
+                    </p>
+                    <p className="font-ui text-lg font-semibold tabular-nums">{timings[prayer]}</p>
+                    {active && (
+                      <p className="eyebrow mt-1.5 text-[9px] tracking-[0.1em] text-gold-bright">
+                        In {countdown}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {nextPrayer && (
+              <div className="mt-4 rounded-sm border border-gold/40 bg-paper p-4 text-center">
+                <p className="font-ui text-xs text-muted-foreground">
+                  Next prayer:{" "}
+                  <span className="font-display text-base text-emerald-deep">{nextPrayer}</span>{" "}
+                  — in <span className="font-ui font-bold text-maroon">{countdown}</span>
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
         {coords && (
-          <div className="mx-auto max-w-lg mt-6">
+          <div className="mx-auto mt-10 max-w-lg">
             <QiblaCompass lat={coords.lat} lng={coords.lng} />
           </div>
         )}
       </main>
-      <DrawerNav />
     </div>
   );
 }

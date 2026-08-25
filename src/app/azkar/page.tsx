@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import DrawerNav from "@/components/drawer-nav";
+import PageHead from "@/components/page-head";
+import Khatam from "@/components/khatam";
 import DuaCard from "@/components/hisn-dua-card";
 import { HisnAudioProvider } from "@/components/hisn-audio-context";
 import type { Dua } from "@/lib/hisn-muslim-types";
@@ -38,35 +39,36 @@ export default function AzkarPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background pt-14">
-      <main className="mx-auto max-w-screen-xl px-3 py-8">
-        <div className="mb-8 text-center page-enter">
-          <h1 className="text-3xl font-bold text-primary mb-2">أذكار الصباح والمساء</h1>
-          <p className="text-muted-foreground text-sm">Morning and Evening Supplications — authentic azkar with audio</p>
-        </div>
+    <div className="min-h-screen">
+      <PageHead eyebrow="Daily remembrance" title="Azkar">
+        The morning and evening formulas of dhikr, recited in their traditional order — with
+        audio for every supplication.
+      </PageHead>
 
+      <main className="mx-auto max-w-[820px] px-6 py-12 page-enter">
         {loading && (
           <div className="flex items-center justify-center py-20">
             <div className="flex gap-1">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="audio-bar w-1 bg-primary/40 rounded-full" style={{ animationDelay: `${i * 0.2}s` }} />
+                <div key={i} className="audio-bar w-1 bg-gold/60 rounded-full" style={{ animationDelay: `${i * 0.2}s` }} />
               ))}
             </div>
           </div>
         )}
-        {error && <p className="text-center text-destructive text-sm">{error}</p>}
+        {error && <p className="text-center font-ui text-sm text-destructive">{error}</p>}
 
         {!loading && !error && (
           <HisnAudioProvider>
-            <div className="space-y-6">
+            <div className="space-y-10">
               {chapters.map((chapter) => (
-                <section key={chapter.name} className="rounded-2xl border border-border bg-card p-4 sm:p-6">
-                  <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">{chapter.name}</h2>
+                <section key={chapter.name}>
+                  <h2 className="mb-5 flex items-center gap-3 text-2xl text-emerald-deep">
+                    <Khatam className="h-[18px] w-[18px] shrink-0 text-maroon" />
+                    {chapter.name}
+                  </h2>
                   <div className="space-y-4">
                     {chapter.duas.map((dua: Dua) => (
-                      <div key={dua.id}>
-                        <DuaCard dua={dua} />
-                      </div>
+                      <DuaCard key={dua.id} dua={dua} />
                     ))}
                   </div>
                 </section>
@@ -75,7 +77,6 @@ export default function AzkarPage() {
           </HisnAudioProvider>
         )}
       </main>
-      <DrawerNav />
     </div>
   );
 }

@@ -1,73 +1,60 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import QRCode from 'qrcode';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { Play, BookOpen, Search, Heart, Clock, ChevronRight, Shield } from 'lucide-react';
-import DrawerNav from '@/components/drawer-nav';
-
-const SITE_URL = 'https://quran.medtechai.net';
+import Khatam from '@/components/khatam';
+import { SURAH_DATA } from '@/lib/quran-data';
 
 const ayahs = [
   {
     arabic: 'إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ',
     english: 'Indeed, this Quran guides to that which is most suitable.',
-    surah: 'Al-Isra 17:9',
+    surah: 'Surah Al-Isra, 17:9',
   },
   {
     arabic: 'وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ',
     english: 'And We send down of the Quran that which is a healing and a mercy for those who believe.',
-    surah: 'Al-Isra 17:82',
+    surah: 'Surah Al-Isra, 17:82',
   },
   {
     arabic: 'اللَّهُ نُورُ السَّمَاوَاتِ وَالْأَرْضِ',
     english: 'Allah is the light of the heavens and the earth.',
-    surah: 'An-Nur 24:35',
-  },
-  {
-    arabic: 'رَبَّنَا تَقَبَّلْ مِنَّا ۖ إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ',
-    english: 'Our Lord, accept from us. Indeed, You are the Hearing, the Knowing.',
-    surah: 'Al-Baqarah 2:127',
-  },
-  {
-    arabic: 'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',
-    english: 'So which of the favors of your Lord would you deny?',
-    surah: 'Ar-Rahman 55:13',
+    surah: 'Surah An-Nur, 24:35',
   },
   {
     arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا',
     english: 'Indeed, with hardship comes ease.',
-    surah: 'Ash-Sharh 94:6',
+    surah: 'Surah Ash-Sharh, 94:6',
   },
 ];
 
-const QUICK_LINKS = [
-  { href: '/quran', label: 'Listen to Quran', icon: Play, color: 'bg-primary' },
-  { href: '/search', label: 'Search Surahs', icon: Search, color: 'bg-secondary' },
-  { href: '/azkar', label: 'Daily Azkar', icon: Heart, color: 'bg-terracotta' },
-  { href: '/hisn-muslim', label: 'Hisn Muslim', icon: Shield, color: 'bg-primary' },
-  { href: '/prayer-times', label: 'Prayer Times', icon: Clock, color: 'bg-secondary' },
+const TILES = [
+  { href: '/quran', title: 'Listen', desc: 'Gapless recitation streaming, surah by surah.' },
+  { href: '/search', title: 'Search', desc: 'Find any verse by keyword, name, or number.' },
+  { href: '/azkar', title: 'Daily Azkar', desc: 'Morning and evening remembrance, in order.' },
+  { href: '/hisn-muslim', title: 'Hisn al-Muslim', desc: 'The Fortress of the Muslim, by occasion.' },
+  { href: '/prayer-times', title: 'Prayer Times', desc: 'Accurate times for your location, five times daily.' },
+  { href: '/hadiths', title: 'Hadiths', desc: 'Authentic collections, searchable by topic.' },
+  { href: '/ruqyah', title: 'Ruqyah', desc: 'Quranic healing and protective supplications.' },
+  { href: '/islamic-calendar', title: 'Islamic Calendar', desc: 'Hijri dates and upcoming sacred events.' },
+  { href: '/about', title: 'About', desc: 'The mission behind Quran Kareem.' },
 ];
 
+function SectionHead({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div className="mx-auto mb-11 max-w-[640px] text-center">
+      <p className="eyebrow flex items-center justify-center gap-2.5 text-maroon">
+        <Khatam className="h-3 w-3" />
+        {eyebrow}
+      </p>
+      <h2 className="mt-3 text-[clamp(26px,3.2vw,38px)]">{title}</h2>
+    </div>
+  );
+}
+
 export default function LandingPage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeAyah, setActiveAyah] = useState(0);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    QRCode.toCanvas(canvas, SITE_URL, {
-      width: 100,
-      margin: 1,
-      color: {
-        dark: '#1B4332',
-        light: '#ffffff',
-      },
-      errorCorrectionLevel: 'H',
-    }).catch(() => {});
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -76,123 +63,117 @@ export default function LandingPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const previewSurahs = SURAH_DATA.slice(0, 8);
+
   return (
-    <div className="min-h-screen relative overflow-hidden bg-background">
-      <DrawerNav />
-
-      {/* Spacer for hamburger */}
-      <div className="h-16" />
-
-      <div className="px-4 py-6 max-w-lg mx-auto">
-        {/* Logo + Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-6"
+    <main className="min-h-screen">
+      {/* ---------------- HERO ---------------- */}
+      <section className="hero-bg relative overflow-hidden px-6 pb-[60px] pt-[min(11vw,90px)] text-center text-ivory">
+        <div
+          className="pointer-events-none absolute left-0 right-0 top-[-30%] mx-auto h-[min(120vw,1400px)] w-[min(120vw,1400px)]"
+          aria-hidden="true"
         >
-          <img
-            src="/logo.jpg"
-            alt="Quran Kareem"
-            className="w-16 h-16 rounded-3xl shadow-warm-lg ring-2 ring-primary/15 mx-auto mb-3"
-          />
-          <h1
-            className="text-3xl font-bold text-primary mb-0.5"
-            style={{ fontFamily: 'var(--font-arabic), "Scheherazade New", serif' }}
-          >
-            القرآن الكريم
-          </h1>
-          <p className="text-xs text-muted-foreground uppercase tracking-[0.2em]">The Holy Quran</p>
-        </motion.div>
-
-        {/* Bismillah + Ayah card */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="warm-card islamic-corner rounded-2xl p-4 mb-6"
-        >
-          <p
-            className="text-sm text-primary/60 text-center mb-3"
-            style={{ fontFamily: 'var(--font-arabic), serif' }}
-          >
+          <Khatam className="star-spin h-full w-full text-gold opacity-[0.16]" />
+        </div>
+        <div className="relative z-10 mx-auto max-w-[760px]">
+          <p className="hero-basmala basmala-glow mb-6" dir="rtl">
             بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
           </p>
-          <div className="divider-ornate w-20 mx-auto mb-3" />
-          <motion.p
-            key={activeAyah}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-base text-primary text-center mb-1.5"
-            style={{ fontFamily: 'var(--font-arabic), "Scheherazade New", serif', direction: 'rtl' }}
-          >
-            {ayahs[activeAyah].arabic}
-          </motion.p>
-          <motion.p
-            key={`en-${activeAyah}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-[11px] text-muted-foreground text-center italic"
-          >
-            {ayahs[activeAyah].english}
-          </motion.p>
-          <motion.p
-            key={`ref-${activeAyah}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="text-secondary text-[9px] text-center mt-1 font-medium"
-          >
-            — {ayahs[activeAyah].surah}
-          </motion.p>
-        </motion.div>
-
-        {/* Quick links */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mb-6"
-        >
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Quick Access
-          </h2>
-          <div className="space-y-2">
-            {QUICK_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="warm-card-hover rounded-2xl p-3.5 flex items-center gap-3 group"
+          <div className="verse-block">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeAyah}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
               >
-                <div className={`${link.color} w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-warm-sm`}>
-                  <link.icon className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground">{link.label}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                <p className="hero-ar mb-3" dir="rtl">
+                  {ayahs[activeAyah].arabic}
+                </p>
+                <p className="font-display mx-auto max-w-[480px] text-[clamp(15px,1.9vw,19px)] italic leading-relaxed text-ivory-dim">
+                  &ldquo;{ayahs[activeAyah].english}&rdquo;
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          <p className="eyebrow mt-3.5 tracking-[0.1em] text-gold">{ayahs[activeAyah].surah}</p>
+          <div className="mt-9 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/quran"
+              className="font-ui inline-flex items-center gap-2.5 rounded-sm bg-gold px-[30px] py-3.5 text-[13px] font-semibold tracking-wide text-ink transition-all hover:-translate-y-0.5 hover:bg-gold-bright hover:shadow-[0_10px_30px_rgba(199,161,92,.35)]"
+            >
+              Listen to the Quran
+            </Link>
+            <Link
+              href="/search"
+              className="font-ui inline-flex items-center gap-2.5 rounded-sm border border-ivory/35 px-[30px] py-3.5 text-[13px] font-semibold tracking-wide text-ivory transition-all hover:-translate-y-0.5 hover:border-gold-bright hover:text-gold-bright"
+            >
+              Search Surahs
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- QUICK ACCESS ---------------- */}
+      <section id="quick-access" className="px-6 py-20">
+        <SectionHead eyebrow="Begin here" title="Nine ways into the Book" />
+        <div className="mx-auto grid max-w-[1180px] grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
+          {TILES.map((tile) => (
+            <Link
+              key={tile.href}
+              href={tile.href}
+              className="tile-corners group block w-full border border-gold/25 bg-emerald-deep p-7 pb-6 text-left text-ivory transition-all duration-300 hover:-translate-y-1.5 hover:border-gold hover:shadow-[var(--shadow-deep)]"
+            >
+              <Khatam className="mb-4 h-6 w-6 text-gold transition-transform duration-300 group-hover:rotate-45" />
+              <h3 className="mb-1.5 text-lg leading-snug">{tile.title}</h3>
+              <p className="font-ui text-xs leading-relaxed text-ivory-dim">{tile.desc}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------------- INDEX PREVIEW ---------------- */}
+      <section id="index" className="bg-[#F1E9D4] px-6 py-20">
+        <SectionHead eyebrow="114 surahs" title="The Index" />
+        <div className="mx-auto max-w-[920px]">
+          <div className="border-t border-emerald-deep/15">
+            {previewSurahs.map((surah) => (
+              <Link
+                key={surah.number}
+                href={`/quran?surah=${surah.number}`}
+                className="group grid grid-cols-[36px_1fr_auto_auto] items-center gap-4 border-b border-emerald-deep/10 py-3.5 pr-1 transition-colors hover:bg-gold/10"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-maroon font-display text-sm text-maroon">
+                  {surah.number}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate font-display text-lg leading-snug text-ink">
+                    {surah.englishName}
+                    <span className="ml-2 align-middle font-ui text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground">
+                      {surah.revelationType === 'Meccan' ? 'Makkan' : 'Madani'}
+                    </span>
+                  </span>
+                </span>
+                <span className="arabic-name text-xl leading-none text-emerald-deep" dir="rtl">
+                  {surah.arabicName}
+                </span>
+                <span className="whitespace-nowrap text-right font-ui text-[10.5px] text-[#8a8168]">
+                  {surah.ayahCount} ayat
+                </span>
               </Link>
             ))}
           </div>
-        </motion.div>
-
-        {/* QR Code */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-col items-center"
-        >
-          <p className="text-muted-foreground text-[9px] uppercase tracking-[0.2em] mb-2 font-medium">
-            Scan to Open
-          </p>
-          <div className="bg-white p-2 rounded-xl shadow-warm ring-1 ring-border">
-            <canvas ref={canvasRef} className="block" />
+          <div className="mt-9 flex justify-center">
+            <Link
+              href="/quran"
+              className="font-ui inline-flex items-center gap-2.5 rounded-sm bg-emerald-deep px-[30px] py-3.5 text-[13px] font-semibold tracking-wide text-ivory transition-all hover:-translate-y-0.5 hover:bg-emerald-mid hover:shadow-[0_10px_30px_rgba(11,59,44,.35)]"
+            >
+              View all 114 surahs
+            </Link>
           </div>
-        </motion.div>
-      </div>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }

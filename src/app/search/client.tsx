@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import DrawerNav from "@/components/drawer-nav";
+import PageHead from "@/components/page-head";
 import { Search, BookOpen, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
 
 type SearchMatch = {
@@ -173,31 +173,31 @@ export default function QuranSearchClient() {
   const currentPage = results?.currentPage ?? page;
 
   return (
-    <div className="min-h-screen bg-background pt-14">
-      <main className="mx-auto max-w-screen-xl px-3 py-8">
-        <div className="mb-8 text-center page-enter">
-          <h1 className="text-3xl font-bold text-primary mb-2">Quran Search</h1>
-          <p className="text-muted-foreground text-sm">Search across the Holy Quran by keyword, surah, or translation</p>
-        </div>
+    <div className="min-h-screen">
+      <PageHead eyebrow="114 surahs · Every verse" title="Search the Quran">
+        Find any verse by keyword — in English, transliteration, or Arabic — and jump straight
+        to its surah.
+      </PageHead>
 
+      <main className="mx-auto max-w-[920px] px-6 py-10 page-enter">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+          <div className="rounded-sm border border-gold bg-paper p-4 shadow-[var(--shadow-deep)] sm:p-6">
             <div className="flex gap-2 mb-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-maroon" />
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => handleQueryChange(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && executeSearch(1, query)}
                   placeholder="Search the Quran... (e.g. mercy, patience, Allah)"
-                  className="w-full rounded-xl border border-border bg-muted/30 pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  className="w-full rounded-sm border border-gold/40 bg-white/60 pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gold"
                 />
               </div>
               <button
                 onClick={() => executeSearch(1, query)}
                 disabled={loading || query.trim().length < 2}
-                className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2 transition-colors"
+                className="rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-emerald-mid disabled:opacity-50 flex items-center gap-2 transition-colors"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {loading ? "Searching..." : "Search"}
@@ -208,7 +208,7 @@ export default function QuranSearchClient() {
               <select
                 value={surah}
                 onChange={(e) => setSurah(e.target.value)}
-                className="flex-1 rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                className="flex-1 rounded-sm border border-gold/40 bg-muted/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-gold"
               >
                 <option value="all" className="bg-background text-foreground">All Surahs</option>
                 {Array.from({ length: 114 }, (_, i) => i + 1).map((num) => (
@@ -221,7 +221,7 @@ export default function QuranSearchClient() {
               <select
                 value={isArabic ? "ar" : edition}
                 onChange={(e) => setEdition(e.target.value)}
-                className="flex-1 rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                className="flex-1 rounded-sm border border-gold/40 bg-muted/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-gold"
               >
                 <option value="en" className="bg-background text-foreground">English (all)</option>
                 <option value="en.sahih" className="bg-background text-foreground">Sahih International</option>
@@ -232,13 +232,13 @@ export default function QuranSearchClient() {
               </select>
             </div>
 
-            <p className="mt-2 text-[11px] text-muted-foreground/60">
+            <p className="mt-2 font-ui text-[11px] text-muted-foreground/60">
               Tip: Press Enter or Ctrl+Enter to search
             </p>
             {isArabic && (
-              <div className="mt-2 flex items-start gap-1.5 rounded-xl border border-primary/15 bg-primary/5 p-2">
-                <AlertCircle className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                <p className="text-[11px] text-primary/70">
+              <div className="mt-2 flex items-start gap-1.5 rounded-sm border border-maroon/20 bg-maroon/5 p-2">
+                <AlertCircle className="h-3.5 w-3.5 text-maroon mt-0.5 shrink-0" />
+                <p className="text-[11px] text-maroon/80">
                   Arabic searches may take longer because some queries match thousands of verses.
                   Showing {results?.matches?.length ?? 10} results per page.
                 </p>
@@ -258,39 +258,37 @@ export default function QuranSearchClient() {
           )}
 
           {results && !loading && (
-            <div className="mt-6">
-              <p className="mb-4 text-sm text-muted-foreground">
-                Found <span className="font-semibold text-foreground">{results.totalCount}</span> matches for &ldquo;{query}&rdquo;
+            <div className="mt-8">
+              <p className="mb-4 font-ui text-sm text-muted-foreground">
+                Found <span className="font-semibold text-emerald-deep">{results.totalCount}</span> matches for &ldquo;{query}&rdquo;
               </p>
 
               <div className="space-y-3">
                 {results.matches.map((match) => (
-                  <div
+                  <a
                     key={match.number}
-                    className="rounded-2xl border border-border bg-card p-4 sm:p-6 hover:border-border/80 transition-colors"
+                    href={`/quran?surah=${match.surah.number}`}
+                    className="warm-card-hover block rounded-sm p-4 sm:p-6 group"
                   >
                     <div className="mb-2 flex items-center justify-between">
-                      <a
-                        href={`/quran?surah=${match.surah.number}`}
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      >
+                      <span className="flex items-center gap-1.5 font-ui text-xs text-emerald-deep group-hover:text-maroon transition-colors">
                         <BookOpen className="h-3 w-3" />
                         {match.surah.englishName} ({match.surah.number}:{match.surah.numberOfAyahs})
-                      </a>
+                      </span>
                       <span className="text-[10px] text-muted-foreground/50">
                         #{match.number}
                       </span>
                     </div>
-                    <p className="text-sm leading-relaxed text-foreground">
+                    <p className={`text-sm leading-relaxed text-ink ${containsArabic(match.text) ? "arabic-name text-base" : ""}`} dir={containsArabic(match.text) ? "rtl" : undefined} style={containsArabic(match.text) ? { textAlign: "left" } : undefined}>
                       {match.text}
                     </p>
-                  </div>
+                  </a>
                 ))}
               </div>
 
               {results.matches.length === 0 && (
-                <div className="rounded-2xl border border-border bg-card p-8 text-center">
-                  <p className="text-muted-foreground">No matches found. Try a different keyword or translation.</p>
+                <div className="rounded-sm border border-border bg-card p-8 text-center">
+                  <p className="font-ui text-muted-foreground">No matches found. Try a different keyword or translation.</p>
                 </div>
               )}
 
@@ -299,18 +297,18 @@ export default function QuranSearchClient() {
                   <button
                     onClick={() => executeSearch(Math.max(1, currentPage - 1), query)}
                     disabled={currentPage <= 1 || loading}
-                    className="flex items-center gap-1 rounded-xl border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-1 rounded-sm border border-border px-4 py-2 text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
                   >
                     <ChevronLeft className="h-4 w-4" />
                     Previous
                   </button>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="font-ui text-xs text-muted-foreground">
                     Page {currentPage} / {totalPages}
                   </span>
                   <button
                     onClick={() => executeSearch(Math.min(totalPages, currentPage + 1), query)}
                     disabled={currentPage >= totalPages || loading}
-                    className="flex items-center gap-1 rounded-xl border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-1 rounded-sm border border-border px-4 py-2 text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
                   >
                     Next
                     <ChevronRight className="h-4 w-4" />
@@ -321,9 +319,9 @@ export default function QuranSearchClient() {
           )}
 
           {!searched && !loading && (
-            <div className="mt-12 rounded-2xl border border-border bg-card p-8 text-center">
-              <Search className="mx-auto h-12 w-12 text-muted-foreground/30 mb-3" />
-              <p className="text-muted-foreground text-sm">
+            <div className="tile-corners mt-12 rounded-sm border border-gold/30 bg-paper p-8 text-center shadow-[var(--shadow-deep)]">
+              <Search className="mx-auto h-10 w-10 text-gold/50 mb-3" />
+              <p className="font-ui text-sm text-muted-foreground">
                 Search for words, phrases, or themes across the Holy Quran
               </p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -334,7 +332,7 @@ export default function QuranSearchClient() {
                       setQuery(term);
                       executeSearch(1, term);
                     }}
-                    className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:bg-muted transition-colors"
+                    className="rounded-full border border-emerald-deep/25 px-3 py-1 font-ui text-xs text-emerald-deep hover:bg-emerald-deep hover:text-ivory transition-colors"
                   >
                     {term}
                   </button>
@@ -344,7 +342,6 @@ export default function QuranSearchClient() {
           )}
         </div>
       </main>
-      <DrawerNav />
     </div>
   );
 }

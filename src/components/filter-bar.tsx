@@ -1,8 +1,6 @@
 'use client';
 
 import { Search, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { useAudioStore } from '@/lib/audio-store';
 
 export default function FilterBar() {
@@ -12,24 +10,24 @@ export default function FilterBar() {
   } = useAudioStore();
 
   return (
-    <div className="relative">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-      <Input
+    <div className="relative flex items-center gap-3 border border-gold bg-paper px-[18px] py-3.5 shadow-[var(--shadow-deep)] transition-colors focus-within:bg-white">
+      <Search className="h-4 w-4 shrink-0 text-maroon" />
+      <input
         type="text"
-        placeholder="Search surah by name, number, or meaning..."
+        placeholder="Try &lsquo;Kahf&rsquo;, &lsquo;الرحمن&rsquo;, or &lsquo;36&rsquo;…"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="pl-11 pr-10 h-12 text-sm bg-card border-border rounded-2xl shadow-warm-sm"
+        className="w-full bg-transparent font-serif text-base text-ink outline-none placeholder:text-muted-foreground"
+        aria-label="Search surah by name or number"
       />
       {searchQuery && (
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
           onClick={() => setSearchQuery('')}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl text-muted-foreground"
+          aria-label="Clear search"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-maroon"
         >
-          <X className="w-4 h-4" />
-        </Button>
+          <X className="h-4 w-4" />
+        </button>
       )}
     </div>
   );

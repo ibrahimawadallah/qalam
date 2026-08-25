@@ -7,9 +7,9 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 
 const CATEGORY_BADGE: Record<string, { label: string; cls: string }> = {
-  quran: { label: "Quran", cls: "border-primary/30 text-primary" },
-  ruqyah: { label: "Ruqyah", cls: "border-[#dc4a4a]/30 text-[#dc4a4a]" },
-  hisn_muslim: { label: "Hisn Muslim", cls: "border-primary/30 text-primary" },
+  quran: { label: "Quran", cls: "border-gold/40 text-gold-bright" },
+  ruqyah: { label: "Ruqyah", cls: "border-[#e07a6a]/50 text-[#eda092]" },
+  hisn_muslim: { label: "Hisn Muslim", cls: "border-gold/40 text-gold-bright" },
 };
 
 function CairoClock({ timezone }: { timezone: string }) {
@@ -37,7 +37,7 @@ function CairoClock({ timezone }: { timezone: string }) {
   }, [timezone]);
 
   return (
-    <span className="tabular-nums text-primary/70 text-xs" title={timezone}>
+    <span className="tabular-nums text-gold-bright/70 font-ui text-xs" title={timezone}>
       {time}
     </span>
   );
@@ -253,53 +253,51 @@ export default function RadioPlayer() {
       />
 
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background pb-[env(safe-area-inset-bottom)]"
+        className="player-bar fixed bottom-0 left-0 right-0 z-50 border-t border-gold/40 text-ivory pb-[env(safe-area-inset-bottom)]"
       >
-        <div className="h-0.5 w-full bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
-
         <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 max-w-screen-xl mx-auto">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="relative shrink-0">
-              <Signal className={`w-5 h-5 ${isConnecting ? "text-primary/50" : "text-primary"}`} />
+              <Signal className={`w-5 h-5 ${isConnecting ? "text-gold/60" : "text-gold-bright"}`} />
               {isConnecting && (
                 <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
                 </span>
               )}
             </div>
 
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs text-primary font-semibold uppercase tracking-wider shrink-0">
+                <span className="eyebrow text-[10px] text-gold-bright shrink-0">
                   LIVE
                 </span>
                 <Badge
                   variant="outline"
                   className={`text-[10px] px-1.5 py-0 h-4 ${
-                    CATEGORY_BADGE[currentRadio.category]?.cls ?? "border-primary/30 text-primary"
+                    CATEGORY_BADGE[currentRadio.category]?.cls ?? "border-gold/40 text-gold-bright"
                   }`}
                 >
                   {CATEGORY_BADGE[currentRadio.category]?.label ?? currentRadio.category}
                 </Badge>
-                <span className="text-xs sm:text-sm text-foreground truncate">
+                <span className="font-display text-sm sm:text-base text-ivory truncate" dir="rtl">
                   {currentRadio.arabicName}
                 </span>
-                <span className="text-[11px] text-muted-foreground hidden sm:inline truncate">
+                <span className="font-ui text-[11px] text-ivory-dim hidden sm:inline truncate">
                   — {currentRadio.name}
                 </span>
               </div>
               {currentRadio.reciterArabicName && (
-                <p className="text-[11px] text-muted-foreground mt-0.5">{currentRadio.reciterArabicName}</p>
+                <p className="arabic-name text-[11px] text-ivory-dim mt-0.5">{currentRadio.reciterArabicName}</p>
               )}
-              <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+              <div className="flex items-center gap-2 font-ui text-[11px] text-ivory-dim mt-0.5">
                 <span>{currentRadio.location}</span>
                 {currentRadio.location && <span>•</span>}
                 {currentRadio.isLive !== false && (
                   <CairoClock timezone={currentRadio.timezone} />
                 )}
                 {currentRadio.isLive !== false && hasError && (
-                  <span className="text-destructive ml-2">
+                  <span className="text-[#f0a08e] ml-2">
                     {reconnectCountRef.current > 0
                       ? `Reconnecting… (${reconnectCountRef.current}`
                       : "Connection lost — retrying"}
@@ -315,14 +313,14 @@ export default function RadioPlayer() {
               <>
                 <button
                   onClick={() => cycleRadioStation(-1)}
-                  className="hidden sm:flex p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted active:scale-95"
+                  className="hidden sm:flex p-1 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95"
                   aria-label="Previous station"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => cycleRadioStation(1)}
-                  className="hidden sm:flex p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted active:scale-95"
+                  className="hidden sm:flex p-1 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95"
                   aria-label="Next station"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -333,8 +331,8 @@ export default function RadioPlayer() {
               onClick={togglePlay}
               className={`p-3 sm:p-2.5 rounded-full transition-all active:scale-95 touch-manipulation ${
                 isRadioPlaying && !hasError
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-warm"
-                  : "bg-primary/15 text-primary hover:bg-primary/25"
+                  ? "bg-gold text-ink hover:bg-gold-bright shadow-lg"
+                  : "bg-gold/15 text-gold-bright hover:bg-gold/25"
               }`}
               aria-label={isRadioPlaying ? "Pause" : "Play"}
             >
@@ -350,7 +348,7 @@ export default function RadioPlayer() {
             <div className="hidden sm:flex items-center gap-1">
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-full hover:bg-muted"
+                className="text-ivory-dim hover:text-gold-bright transition-colors p-1 rounded-full hover:bg-white/5"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
                 {isMuted || volume === 0 ? (
@@ -369,7 +367,7 @@ export default function RadioPlayer() {
                     setVolume(val[0]);
                     if (val[0] > 0) setIsMuted(false);
                   }}
-                  className="cursor-pointer"
+                  className="cursor-pointer [&_[data-slot=slider-range]]:bg-gold [&_[data-slot=slider-track]]:bg-white/15"
                 />
               </div>
             </div>
@@ -377,7 +375,7 @@ export default function RadioPlayer() {
             {currentRadio.isLive !== false && (
               <button
                 onClick={toggleRadioPanel}
-                className="p-2.5 sm:p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted active:scale-95 touch-manipulation"
+                className="p-2.5 sm:p-1.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                 aria-label="Browse stations"
               >
                 <List className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -385,7 +383,7 @@ export default function RadioPlayer() {
             )}
             <button
               onClick={handleClose}
-              className="p-2.5 sm:p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted active:scale-95 touch-manipulation"
+              className="p-2.5 sm:p-1.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
               aria-label="Close radio"
             >
               <X className="w-5 h-5 sm:w-4 sm:h-4" />

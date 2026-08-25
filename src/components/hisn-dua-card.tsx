@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Play, Pause } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useHisnAudio } from "@/components/hisn-audio-context";
 import type { Dua } from "@/lib/hisn-muslim-types";
 
@@ -10,13 +9,13 @@ export default function DuaCard({ dua }: { dua: Dua }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { playingId, setPlayingId } = useHisnAudio();
-  
+
   const isCurrentlyPlaying = playingId === dua.id;
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    
+
     if (isCurrentlyPlaying) {
       audio.play().then(() => setIsPlaying(true)).catch(() => {});
     } else {
@@ -37,53 +36,74 @@ export default function DuaCard({ dua }: { dua: Dua }) {
   const audioSrc = `/api/hisn-audio?url=${encodeURIComponent(dua.audioUrl)}`;
 
   return (
-    <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
+    <div className={`warm-card rounded-sm p-5 sm:p-7 ${isCurrentlyPlaying ? "playing-highlight" : ""}`}>
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-primary/50 mb-1">#{dua.id}</p>
-            <p className="arabic-name text-base sm:text-lg text-foreground leading-relaxed" style={{ direction: "rtl" }}>
-              {dua.arabicText}
-            </p>
-          </div>
-          {dua.audioUrl && (
-            <div className="shrink-0">
-              <audio 
-                ref={audioRef} 
-                src={audioSrc} 
-                preload="none" 
+          {dua.audioUrl ? (
+            <>
+              <audio
+                ref={audioRef}
+                src={audioSrc}
+                preload="none"
                 onEnded={() => setPlayingId(null)}
                 onPause={() => setIsPlaying(false)}
                 onPlay={() => setIsPlaying(true)}
               />
-              <Button
+              <button
                 type="button"
-                size="sm"
                 onClick={togglePlay}
-                className="gap-1.5 text-xs bg-primary/10 text-primary hover:bg-primary/20"
+                aria-label={isPlaying ? "Pause recitation" : "Play recitation"}
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all ${
+                  isPlaying
+                    ? "border border-emerald-deep bg-emerald-deep text-gold-bright"
+                    : "border border-emerald-deep/25 bg-transparent text-emerald-deep hover:bg-emerald-deep hover:text-gold-bright"
+                }`}
               >
                 {isPlaying ? (
-                  <Pause className="w-3.5 h-3.5" />
+                  <Pause className="h-3.5 w-3.5" />
                 ) : (
-                  <Play className="w-3.5 h-3.5 ml-0.5" />
+                  <Play className="ml-px h-3.5 w-3.5" />
                 )}
-                {isPlaying ? "Pause" : "Listen"}
-              </Button>
-            </div>
+              </button>
+            </>
+          ) : (
+            <span className="font-ui text-[10px] uppercase tracking-wider text-muted-foreground/50">
+              #{dua.id}
+            </span>
+          )}
+          {dua.repeat > 1 && (
+            <span className="shrink-0 whitespace-nowrap rounded-full border border-maroon px-2.5 py-1 font-ui text-[10.5px] uppercase tracking-wider text-maroon">
+              ×{dua.repeat}
+            </span>
           )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border border-border bg-muted/30 p-3">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Transliteration</p>
-            <p className="text-xs text-foreground/80 leading-relaxed">{dua.transliteration || "—"}</p>
+
+        <p
+          className="arabic-name mb-1 text-[clamp(19px,2.4vw,23px)] leading-loose text-ink"
+          dir="rtl"
+        >
+          {dua.arabicText}
+        </p>
+
+        {(dua.transliteration || dua.englishTranslation) && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {dua.transliteration && (
+              <div className="rounded-sm border-l-[3px] border-gold bg-muted/40 p-3">
+                <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-maroon">Transliteration</p>
+                <p className="font-serif text-[13px] italic leading-relaxed text-[#4a4433]" dir="ltr">
+                  {dua.transliteration}
+                </p>
+              </div>
+            )}
+            {dua.englishTranslation && (
+              <div className={`rounded-sm border-l-[3px] border-gold bg-muted/40 p-3 ${!dua.transliteration ? "sm:col-span-2" : ""}`}>
+                <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-maroon">Translation</p>
+                <p className="font-serif text-[13.5px] leading-relaxed text-ink" dir="ltr">
+                  {dua.englishTranslation}
+                </p>
+              </div>
+            )}
           </div>
-          <div className="rounded-lg border border-border bg-muted/30 p-3">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Translation</p>
-            <p className="text-xs text-foreground/80 leading-relaxed">{dua.englishTranslation || "—"}</p>
-          </div>
-        </div>
-        {dua.repeat > 1 && (
-          <p className="text-[11px] text-muted-foreground">Repeat {dua.repeat}x</p>
         )}
       </div>
     </div>

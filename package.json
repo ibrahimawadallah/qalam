@@ -82,14 +82,15 @@
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.1.1",
     "@tailwindcss/postcss": "^4",
-    "@types/react": "^18",
+    "@types/node": "20.17.6",
+    "@types/react": "18.3.31",
     "@types/react-dom": "^18",
     "bun-types": "^1.3.4",
     "eslint": "^9",
     "eslint-config-next": "^15.0.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.5",
-    "typescript": "^5",
+    "typescript": "5.8.2",
     "wrangler": "^4.112.0"
   }
 }
