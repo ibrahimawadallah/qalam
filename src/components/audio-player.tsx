@@ -201,6 +201,14 @@ export default function AudioPlayer() {
     const fetchAudioUrl = async () => {
       const cached = urlCache.get(cacheKey);
       if (cached && !abortController.signal.aborted) {
+        const audio = audioRef.current;
+        try {
+          const current =
+            audio && audio.src && audio.src !== location.href
+              ? new URL(audio.src).pathname + new URL(audio.src).search
+              : "";
+          if (current && current === cached) return;
+        } catch {}
         setAudioSrc(cached);
         return;
       }
@@ -223,6 +231,14 @@ export default function AudioPlayer() {
     (url: string, autoPlay: boolean) => {
       const audio = audioRef.current;
       if (!audio || !url) return;
+
+      try {
+        const current =
+          audio.src && audio.src !== location.href
+            ? new URL(audio.src).pathname + new URL(audio.src).search
+            : "";
+        if (current && current === url) return;
+      } catch {}
 
       audio.src = url;
       audio.load();
@@ -719,12 +735,11 @@ export default function AudioPlayer() {
     setCurrentAyah(1);
 
     const audio = audioRef.current;
-    if (audio && audioSrc) {
-      audio.src = audioSrc;
+    if (audio && audio.src) {
       audio.load();
       audio.play().catch(() => {});
     }
-  }, [currentSurah, audioSrc, setAudioError, setIsBuffering, setCurrentAyah]);
+  }, [currentSurah, setAudioError, setIsBuffering, setCurrentAyah]);
 
   if (!isPlayerVisible || !currentSurah) return null;
 
