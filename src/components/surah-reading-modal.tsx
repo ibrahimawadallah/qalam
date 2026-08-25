@@ -702,7 +702,7 @@ export default function SurahReadingModal() {
                     <div className="flex items-center justify-end gap-1 mt-2">
                       <button
                         onClick={() => copyAyah(ayah.text, ayah.numberInSurah)}
-                        className="p-1.5 rounded-full text-ivory-dim hover:text-gold-bright hover:bg-emerald-deep/[0.05] transition-colors active:scale-95 touch-manipulation"
+                        className="p-1.5 rounded-full text-maroon/70 hover:text-emerald-deep hover:bg-gold/10 transition-colors active:scale-95 touch-manipulation"
                         aria-label="Copy ayah"
                         title="Copy"
                       >
@@ -712,8 +712,8 @@ export default function SurahReadingModal() {
                         onClick={() => toggleAyahBookmark(`${surahNumber}:${ayah.numberInSurah}`)}
                         className={`p-1.5 rounded-full transition-colors active:scale-95 touch-manipulation ${
                           ayahBookmarks.has(`${surahNumber}:${ayah.numberInSurah}`)
-                            ? "text-gold hover:text-gold-bright hover:bg-emerald-deep/[0.05]"
-                            : "text-ivory-dim hover:text-gold-bright hover:bg-emerald-deep/[0.05]"
+                            ? "text-gold hover:text-gold-bright hover:bg-gold/10"
+                            : "text-maroon/70 hover:text-emerald-deep hover:bg-gold/10"
                         }`}
                         aria-label="Bookmark ayah"
                         title="Bookmark"

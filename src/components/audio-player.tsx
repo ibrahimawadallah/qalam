@@ -19,7 +19,7 @@ import {
   Repeat,
   Download,
 } from "lucide-react";
-import { useAudioStore } from "@/lib/audio-store";
+import { useAudioStore, setAudioPlayNow } from "@/lib/audio-store";
 import { getSurahInfo } from "@/lib/quran-utils";
 import { getAyahTimings } from "@/lib/quran-data";
 import type { SurahText } from "@/lib/quran-types";
@@ -131,6 +131,18 @@ export default function AudioPlayer() {
   const isPlayingRef = useRef(isPlaying);
   isPlayingRef.current = isPlaying;
 
+  useEffect(() => {
+    setAudioPlayNow((url) => {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.src = url;
+        audio.load();
+        audio.play().catch(() => {});
+      }
+    });
+    return () => setAudioPlayNow(null);
+  }, []);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
   };
@@ -193,29 +205,10 @@ export default function AudioPlayer() {
         return;
       }
 
-      try {
-        const res = await fetch(
-          `/api/audio-stream?reciter=${encodeURIComponent(currentReciter)}&surah=${currentSurahNumber}`,
-          { signal: abortController.signal }
-        );
-        
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        
-        // The proxy returns the audio stream itself (same-origin). Use the
-        // request URL directly so the <audio> element loads it cross-origin-free.
-        const streamUrl = `/api/audio-stream?reciter=${encodeURIComponent(currentReciter)}&surah=${currentSurahNumber}`;
-        urlCache.set(cacheKey, streamUrl);
-        if (!abortController.signal.aborted) {
-          setAudioSrc(streamUrl);
-        }
-        return;
-      } catch (error) {
-        if (!abortController.signal.aborted) {
-          console.error('Failed to fetch audio URL:', error);
-          setAudioError("Unable to load audio. Please check your internet connection or try a different reciter.");
-        }
+      const streamUrl = `/api/audio-stream?reciter=${encodeURIComponent(currentReciter)}&surah=${currentSurahNumber}`;
+      urlCache.set(cacheKey, streamUrl);
+      if (!abortController.signal.aborted) {
+        setAudioSrc(streamUrl);
       }
     };
 
@@ -813,7 +806,20 @@ export default function AudioPlayer() {
               </button>
 
               <button
-                onClick={audioError ? handleRetry : togglePlay}
+                onClick={() => {
+                  if (audioError) {
+                    handleRetry();
+                    return;
+                  }
+                  const willPlay = !isPlaying;
+                  togglePlay();
+                  if (willPlay) {
+                    const audio = audioRef.current;
+                    if (audio && audio.src) {
+                      audio.play().catch(() => {});
+                    }
+                  }
+                }}
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 touch-manipulation ${
                   isPlaying
                     ? "bg-gold text-ink shadow-lg hover:bg-gold-bright"
