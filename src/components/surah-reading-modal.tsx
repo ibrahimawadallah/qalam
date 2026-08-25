@@ -414,7 +414,7 @@ export default function SurahReadingModal() {
                       <span className="eyebrow text-[9.5px] text-emerald-mid">Tafsir Ibn Kathir · English</span>
                     </div>
                     <p
-                      className="font-serif text-sm leading-relaxed text-[#2C2418]"
+                      className="font-serif text-base leading-relaxed text-[#2C2418]"
                       dangerouslySetInnerHTML={{ __html: sanitizeTafsir(tafsirEntry.englishText) }}
                     />
                   </div>
@@ -723,7 +723,7 @@ export default function SurahReadingModal() {
                     </div>
 
                     {viewMode !== 'arabic' && surahText.englishAyahs[index] && (
-                      <p className={`font-serif text-sm leading-relaxed mt-2.5 ml-9 sm:ml-11 transition-colors duration-300 ${
+                      <p className={`font-serif text-base leading-relaxed mt-3 ml-9 sm:ml-11 transition-colors duration-300 ${
                         isCurrentPlayingAyah ? "text-[#2C2418]" : "text-muted-foreground"
                       }`}>
                         <span className="font-ui text-[10px] uppercase tracking-wider mr-2 text-maroon">EN</span>
@@ -741,7 +741,7 @@ export default function SurahReadingModal() {
                       return (
                         <p
                           key={lang}
-                          className={`font-serif text-sm leading-relaxed mt-1.5 ml-9 sm:ml-11 transition-colors duration-300 ${
+                          className={`font-serif text-base leading-relaxed mt-2 ml-9 sm:ml-11 transition-colors duration-300 ${
                             isCurrentPlayingAyah ? "text-[#2C2418]/90" : "text-muted-foreground"
                           } ${
                             langInfo.rtl ? "pr-4" : ""
@@ -835,7 +835,7 @@ function InlineTafsir({ entry }: { entry?: TafsirEntry }) {
         <>
           <span className="eyebrow mb-1.5 block text-[9.5px] text-maroon">التفسير الميسر · Arabic</span>
           <p
-            className="arabic-name text-[15px] leading-loose text-emerald-deep"
+            className="arabic-name text-base leading-loose text-emerald-deep"
             dangerouslySetInnerHTML={{ __html: sanitizeTafsir(entry.arabicText) }}
           />
         </>
@@ -844,7 +844,7 @@ function InlineTafsir({ entry }: { entry?: TafsirEntry }) {
         <div className={entry.arabicText ? "mt-3.5 border-t border-dashed border-emerald-deep/20 pt-3.5" : ""}>
           <span className="eyebrow mb-1.5 block text-[9.5px] text-maroon">Tafsir Ibn Kathir · English</span>
           <p
-            className="font-serif text-[13.5px] leading-relaxed text-[#2C2418]"
+            className="font-serif text-sm leading-relaxed text-[#2C2418]"
             dangerouslySetInnerHTML={{ __html: sanitizeTafsir(entry.englishText) }}
           />
         </div>
