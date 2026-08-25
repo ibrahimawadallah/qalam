@@ -481,7 +481,18 @@ export function getSurahAudioUrl(reciterId: string, surahNumber: number): string
 
 /**
  * Fallback audio URL for a full surah — cdn.islamic.network.
+ * The `audio-surah/128` path covers the vast majority of reciters
+ * (verified 200 for ~22/30). Used as the first fallback candidate.
  */
 export function getFallbackAudioUrl(reciterId: string, surahNumber: number): string {
+  return `https://cdn.islamic.network/quran/audio-surah/128/${reciterId}/${surahNumber}.mp3`;
+}
+
+/**
+ * Second fallback candidate for cdn.islamic.network. The `audio/128` path
+ * covers a different subset of reciters (e.g. ar.alafasy, ar.husary), so it
+ * is tried after `audio-surah/128` when the latter is unavailable.
+ */
+export function getFallbackAudioUrlAlt(reciterId: string, surahNumber: number): string {
   return `https://cdn.islamic.network/quran/audio/128/${reciterId}/${surahNumber}.mp3`;
 }

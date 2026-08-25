@@ -247,6 +247,11 @@ export default function AudioPlayer() {
     const currentCacheKey = currentSurah ? `${currentReciter}-${currentSurah.number}` : "";
     if (expectedSurahKeyRef.current !== currentCacheKey) return;
 
+    const expectedSrc = currentSurah
+      ? `/api/audio-stream?reciter=${encodeURIComponent(currentReciter)}&surah=${currentSurah.number}`
+      : "";
+    if (audioSrc !== expectedSrc) return;
+
     const isReciterChangeOnly =
       prevSurahNumberRef.current === currentSurah?.number &&
       prevReciterRef.current !== currentReciter &&

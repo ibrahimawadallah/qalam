@@ -379,7 +379,9 @@ export const useAudioStore = create<AudioState>((set, get) => {
       let nextNum: number;
       if (shuffleMode) {
         nextNum = 1 + Math.floor(Math.random() * 114);
-        if (nextNum === currentNum && currentNum < 114) nextNum = currentNum + 1;
+        if (nextNum === currentNum) {
+          nextNum = currentNum >= 114 ? 1 : currentNum + 1;
+        }
       } else {
         nextNum = currentNum >= 114 ? 1 : currentNum + 1;
       }

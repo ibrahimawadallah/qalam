@@ -1,20 +1,23 @@
 import { NextRequest } from "next/server";
-import { getSurahAudioUrl, getFallbackAudioUrl } from "@/lib/quran-data";
+import { getSurahAudioUrl, getFallbackAudioUrl, getFallbackAudioUrlAlt } from "@/lib/quran-data";
 
 // Streams surah audio through the Cloudflare Worker so the browser loads it
 // same-origin. This avoids direct cross-origin fetches to mp3quran.net (which
 // can fail due to regional/CORS/network blocks for some users).
-// Primary source: mp3quran.net. Fallback: cdn.islamic.network (correct /audio/ path).
+// Primary source: mp3quran.net. Fallbacks: cdn.islamic.network (audio-surah/128,
+// then audio/128) — these cover the majority of reciters.
 // Supports HTTP Range requests so the <audio> element can seek (returns 206).
 
 export const runtime = "nodejs";
 
 function buildCandidateUrls(reciterId: string, surahNumber: number): string[] {
   const primary = getSurahAudioUrl(reciterId, surahNumber); // mp3quran
-  const fallback = getFallbackAudioUrl(reciterId, surahNumber); // islamic.network /audio/
+  const fallback = getFallbackAudioUrl(reciterId, surahNumber); // islamic.network /audio-surah/
+  const fallbackAlt = getFallbackAudioUrlAlt(reciterId, surahNumber); // islamic.network /audio/
   const urls: string[] = [];
   if (primary) urls.push(primary);
-  if (fallback && fallback !== primary) urls.push(fallback);
+  if (fallback && fallback !== primary && !urls.includes(fallback)) urls.push(fallback);
+  if (fallbackAlt && fallbackAlt !== primary && !urls.includes(fallbackAlt)) urls.push(fallbackAlt);
   return urls;
 }
 

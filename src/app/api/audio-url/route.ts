@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSurahAudioUrl, getFallbackAudioUrl } from '@/lib/quran-data';
+import { getSurahAudioUrl, getFallbackAudioUrl, getFallbackAudioUrlAlt } from '@/lib/quran-data';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -10,14 +10,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing surah or reciter parameter' }, { status: 400 });
   }
 
-  // Return both URLs; client-side caching handles the rest.
-  // Server-side HEAD check is omitted — Workers may have outbound fetch issues
-  // and the browser is better positioned to handle audio loading.
+  // Return the primary URL; fall back to cdn.islamic.network paths (audio-surah
+  // then audio/128) which together cover the large majority of reciters.
   const primaryUrl = getSurahAudioUrl(reciterId, Number(surahNumber));
   const fallbackUrl = getFallbackAudioUrl(reciterId, Number(surahNumber));
+  const fallbackUrlAlt = getFallbackAudioUrlAlt(reciterId, Number(surahNumber));
+  const audioUrl = primaryUrl || fallbackUrl || fallbackUrlAlt;
 
   return NextResponse.json({
-    audioUrl: primaryUrl || fallbackUrl,
+    audioUrl,
     format: 'mp3',
     source: primaryUrl ? 'mp3quran' : 'islamic-network',
   });
