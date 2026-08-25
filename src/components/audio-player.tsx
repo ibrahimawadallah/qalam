@@ -15,6 +15,9 @@ import {
   Bookmark,
   BookmarkCheck,
   Image,
+  Shuffle,
+  Repeat,
+  Download,
 } from "lucide-react";
 import { useAudioStore } from "@/lib/audio-store";
 import { getSurahInfo } from "@/lib/quran-utils";
@@ -118,6 +121,11 @@ export default function AudioPlayer() {
     showTranslations,
     setShowTranslations,
     toggleTranslation,
+    toggleShuffleMode,
+    toggleRepeatOne,
+    shuffleMode,
+    repeatOne,
+    setCurrentReciter,
   } = useAudioStore();
 
   const isPlayingRef = useRef(isPlaying);
@@ -412,6 +420,7 @@ export default function AudioPlayer() {
       rescaleToDuration();
 
       const audio = audioRef.current;
+      if (!audio) return;
 
       if (seekToTimeRef.current !== null) {
         const { ratio } = seekToTimeRef.current;
@@ -445,6 +454,14 @@ export default function AudioPlayer() {
     };
 
     const onEnded = () => {
+      if (repeatOne) {
+        const audio = audioRef.current;
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        }
+        return;
+      }
       nextSurah();
     };
 
@@ -770,6 +787,19 @@ export default function AudioPlayer() {
           <div className="flex flex-col items-center gap-1 min-w-0">
             <div className="flex items-center gap-1">
               <button
+                onClick={toggleShuffleMode}
+                className={`p-2 rounded-full transition-colors active:scale-95 touch-manipulation ${
+                  shuffleMode
+                    ? "text-gold-bright bg-gold/15"
+                    : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
+                }`}
+                aria-label="Shuffle"
+                title="Shuffle"
+              >
+                <Shuffle className="w-4 h-4" />
+              </button>
+
+              <button
                 onClick={prevSurah}
                 className="p-2 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                 aria-label="Previous surah"
@@ -803,6 +833,19 @@ export default function AudioPlayer() {
                 aria-label="Next surah"
               >
                 <SkipForward className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={toggleRepeatOne}
+                className={`p-2 rounded-full transition-colors active:scale-95 touch-manipulation ${
+                  repeatOne
+                    ? "text-gold-bright bg-gold/15"
+                    : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
+                }`}
+                aria-label="Repeat one"
+                title="Repeat one"
+              >
+                <Repeat className="w-4 h-4" />
               </button>
             </div>
 
@@ -917,6 +960,23 @@ export default function AudioPlayer() {
               ) : (
                 <Bookmark className="w-4 h-4" />
               )}
+            </button>
+
+            <button
+              onClick={() => {
+                if (!currentSurah) return;
+                const a = document.createElement("a");
+                a.href = `/api/audio-stream?reciter=${encodeURIComponent(currentReciter)}&surah=${currentSurah.number}`;
+                a.download = `surah-${currentSurah.number}-${currentReciter}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+              }}
+              className="p-1.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+              aria-label="Download surah audio"
+              title="Download"
+            >
+              <Download className="w-4 h-4" />
             </button>
 
             <button

@@ -106,10 +106,31 @@ export async function GET(
 
     const translationResults = await Promise.all(translationPromises);
 
+    // Fetch transliteration (en.transliteration edition)
+    let translitAyahs: SurahText['translitAyahs'] = [];
+    try {
+      const translitRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/en.transliteration`);
+      if (translitRes.ok) {
+        const translitData = await translitRes.json();
+        if (translitData.code === 200) {
+          translitAyahs = translitData.data.ayahs.map(
+            (ayah: { number: number; numberInSurah: number; text: string }) => ({
+              number: ayah.number,
+              numberInSurah: ayah.numberInSurah,
+              text: ayah.text,
+            })
+          );
+        }
+      }
+    } catch (error) {
+      console.warn('Error fetching transliteration:', error);
+    }
+
     // Build result object with available translations
     const result: SurahText = {
       surahNumber,
       arabicAyahs,
+      translitAyahs,
       englishAyahs: translationResults.find(r => r.lang === 'english')?.data || [],
       urduAyahs: translationResults.find(r => r.lang === 'urdu')?.data,
       frenchAyahs: translationResults.find(r => r.lang === 'french')?.data,

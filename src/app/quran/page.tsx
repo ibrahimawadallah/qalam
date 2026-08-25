@@ -11,7 +11,7 @@ import { SURAH_DATA } from '@/lib/quran-data';
 import { Play, Pause } from 'lucide-react';
 
 export default function QuranPage() {
-  const { isPlayerVisible, currentSurah, isPlaying, playSurah, pauseAudio, toggleReciterPanel, reciter, openReadingModal } = useAudioStore();
+  const { isPlayerVisible, currentSurah, isPlaying, playSurah, pauseAudio, toggleReciterPanel, reciter, openReadingModal, revelationFilter, setRevelationFilter, meccanCount, medinanCount } = useAudioStore();
   const [recentSurahs, setRecentSurahs] = useState<number[]>([]);
 
   useEffect(() => {
@@ -138,6 +138,25 @@ export default function QuranPage() {
         <div className="mb-2 flex items-center justify-between">
           <p className="eyebrow text-emerald-mid">All surahs</p>
           <span className="font-ui text-[11px] text-muted-foreground">114 surahs</span>
+        </div>
+        <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto pb-1">
+          {([
+            { key: 'All', label: 'All' },
+            { key: 'Meccan', label: `Makkan · ${meccanCount}` },
+            { key: 'Medinan', label: `Madani · ${medinanCount}` },
+          ] as const).map((chip) => (
+            <button
+              key={chip.key}
+              onClick={() => setRevelationFilter(chip.key)}
+              className={`shrink-0 rounded-full border px-4 py-1.5 font-ui text-xs font-semibold transition-colors ${
+                revelationFilter === chip.key
+                  ? 'border-gold bg-gold text-ink'
+                  : 'border-gold/40 bg-paper text-emerald-deep hover:bg-gold/10'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
         </div>
         <SurahList />
       </main>

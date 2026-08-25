@@ -71,9 +71,9 @@ function getSurahName(num: number): string {
 
 export default function QuranSearchClient() {
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("q") || "";
-  const initialSurah = searchParams.get("surah") || "all";
-  const initialEdition = searchParams.get("edition") || "en";
+  const initialQuery = searchParams?.get("q") || "";
+  const initialSurah = searchParams?.get("surah") || "all";
+  const initialEdition = searchParams?.get("edition") || "en";
 
   const [query, setQuery] = useState(initialQuery);
   const [surah, setSurah] = useState(initialSurah);

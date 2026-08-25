@@ -51,6 +51,7 @@ export interface AyahText {
 export interface SurahText {
   surahNumber: number;
   arabicAyahs: AyahText[];
+  translitAyahs?: AyahText[];
   englishAyahs: AyahText[];
   urduAyahs?: AyahText[];
   frenchAyahs?: AyahText[];

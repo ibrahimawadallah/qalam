@@ -36,6 +36,10 @@ interface AudioState {
   showReciterPanel: boolean;
   isReciterPanelOpen: boolean;
 
+  // Playback modes
+  shuffleMode: boolean;
+  repeatOne: boolean;
+
   // Computed helpers
   filteredSurahs: () => Surah[];
   meccanCount: number;
@@ -99,6 +103,10 @@ interface AudioState {
   setShowReciterPanel: (show: boolean) => void;
   toggleReciterPanel: () => void;
   closeReciterPanel: () => void;
+
+  // Playback mode actions
+  toggleShuffleMode: () => void;
+  toggleRepeatOne: () => void;
 }
 
 
@@ -206,6 +214,10 @@ export const useAudioStore = create<AudioState>((set, get) => {
     surahModalNumber: 1,
     showReciterPanel: false,
     isReciterPanelOpen: false,
+
+    // Playback modes
+    shuffleMode: false,
+    repeatOne: false,
 
     // Computed helpers
     filteredSurahs: () => {
@@ -362,9 +374,15 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
 
     nextSurah: () => {
-      const { currentSurah } = get();
+      const { currentSurah, shuffleMode } = get();
       const currentNum = currentSurah?.number ?? 0;
-      const nextNum = currentNum >= 114 ? 1 : currentNum + 1;
+      let nextNum: number;
+      if (shuffleMode) {
+        nextNum = 1 + Math.floor(Math.random() * 114);
+        if (nextNum === currentNum && currentNum < 114) nextNum = currentNum + 1;
+      } else {
+        nextNum = currentNum >= 114 ? 1 : currentNum + 1;
+      }
       const surahInfo = getSurahInfo(nextNum);
       if (!surahInfo) return;
       set({
@@ -522,5 +540,9 @@ export const useAudioStore = create<AudioState>((set, get) => {
         isReciterPanelOpen: !state.isReciterPanelOpen,
       })),
     closeReciterPanel: () => set({ showReciterPanel: false, isReciterPanelOpen: false }),
+
+    // Playback modes
+    toggleShuffleMode: () => set((state) => ({ shuffleMode: !state.shuffleMode })),
+    toggleRepeatOne: () => set((state) => ({ repeatOne: !state.repeatOne })),
   };
 });

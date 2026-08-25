@@ -45,6 +45,13 @@ export default function PrayerTimesPage() {
   const [error, setError] = useState<string | null>(null);
   const [date, setDate] = useState<string>("");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [hijri, setHijri] = useState<{
+    date: string;
+    day: string;
+    month: { en: string; ar: string };
+    year: string;
+    weekday: { en: string };
+  } | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -63,6 +70,7 @@ export default function PrayerTimesPage() {
       setTimings(mapTimings(json.data.timings));
       setTimezone(json.data.meta.timezone);
       setDate(json.data.date.readable);
+      setHijri(json.data.date.hijri);
       setCoords({ lat: json.data.meta.latitude, lng: json.data.meta.longitude });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
@@ -87,6 +95,7 @@ export default function PrayerTimesPage() {
           setTimings(mapTimings(json.data.timings));
           setTimezone(json.data.meta.timezone);
           setDate(json.data.date.readable);
+          setHijri(json.data.date.hijri);
           setCoords({ lat: json.data.meta.latitude, lng: json.data.meta.longitude });
         } catch (e) {
           setError(e instanceof Error ? e.message : "Unknown error");
@@ -210,8 +219,26 @@ export default function PrayerTimesPage() {
         )}
 
         {coords && (
-          <div className="mx-auto mt-10 max-w-lg">
-            <QiblaCompass lat={coords.lat} lng={coords.lng} />
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mx-auto w-full max-w-lg">
+              <QiblaCompass lat={coords.lat} lng={coords.lng} />
+            </div>
+
+            {hijri && (
+              <div className="tile-corners warm-card flex flex-col justify-center rounded-sm p-5 sm:p-6">
+                <p className="eyebrow text-emerald-mid">Hijri date</p>
+                <p className="arabic-name mt-2 text-3xl leading-snug text-emerald-deep" dir="rtl">
+                  {hijri.day} {hijri.month.ar} {hijri.year}
+                </p>
+                <p className="font-display mt-1.5 text-xl text-ink">
+                  {hijri.weekday.en}, {hijri.date}
+                </p>
+                <div className="mt-3 flex items-center gap-2 text-muted-foreground">
+                  <Khatam className="h-3.5 w-3.5 text-maroon" />
+                  <span className="font-ui text-xs">{hijri.month.en} · {hijri.year} AH</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

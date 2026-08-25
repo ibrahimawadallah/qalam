@@ -33,7 +33,7 @@ async function getHisnData(): Promise<Chapter[]> {
       const item = items[i];
       const id = item.ID;
       const textUrl = item.TEXT;
-      const audioUrl = item.AUDIO_URL ?? "";
+      let audioUrl = item.AUDIO_URL ?? "";
 
       let arabicText = item.TITLE ?? "";
       let transliteration = "";
