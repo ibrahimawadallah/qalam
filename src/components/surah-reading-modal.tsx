@@ -56,6 +56,7 @@ export default function SurahReadingModal() {
   const [loadingTafsir, setLoadingTafsir] = useState(false);
   const [showTafsir, setShowTafsir] = useState(false);
   const [selectedTafsirAyah, setSelectedTafsirAyah] = useState<number | null>(null);
+  const [openTafsirAyahs, setOpenTafsirAyahs] = useState<Set<number>>(new Set);
   const cacheRef = useRef<Map<number, SurahText>>(new Map());
   const ayahRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -111,15 +112,15 @@ export default function SurahReadingModal() {
   }, [showSurahModal, surahNumber, fetchSurahText]);
 
   useEffect(() => {
-    if (!surahNumber || !showTafsir) return;
-    
+    if (!surahNumber || (!showTafsir && openTafsirAyahs.size === 0)) return;
+
     const abortController = new AbortController();
     
     const fetchTafsir = async () => {
       setLoadingTafsir(true);
       try {
         const [arRes, enRes] = await Promise.all([
-          fetch(`/api/tafsir/${surahNumber}?tafsir_slug=ar-muyassar`, { signal: abortController.signal }),
+          fetch(`/api/tafsir/${surahNumber}?tafsir_slug=ar-tafsir-muyassar`, { signal: abortController.signal }),
           fetch(`/api/tafsir/${surahNumber}?tafsir_slug=en-tafisr-ibn-kathir`, { signal: abortController.signal }),
         ]);
         
@@ -161,11 +162,28 @@ export default function SurahReadingModal() {
     };
     
     fetchTafsir();
-    
+
     return () => {
       abortController.abort();
     };
-  }, [surahNumber, showTafsir]);
+  }, [surahNumber, showTafsir, openTafsirAyahs]);
+
+  /* Reset inline tafsir panels when switching surah */
+  useEffect(() => {
+    setOpenTafsirAyahs(new Set);
+  }, [surahNumber]);
+
+  const toggleInlineTafsir = (ayahNumber: number) => {
+    setOpenTafsirAyahs(prev => {
+      const next = new Set(prev);
+      if (next.has(ayahNumber)) {
+        next.delete(ayahNumber);
+      } else {
+        next.add(ayahNumber);
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!isViewingPlayingSurah || !isPlaying || !surahText) return;
@@ -582,13 +600,38 @@ export default function SurahReadingModal() {
                             fontFamily: langInfo.rtl ? "var(--font-amiri), 'Amiri', serif" : undefined,
                           }}
                         >
-                          <span className="font-ui text-[10px] uppercase tracking-wider mr-2 text-maroon/70">
+                                          <span className="font-ui text-[10px] uppercase tracking-wider mr-2 text-maroon/70">
                             {langInfo.flag}
                           </span>
                           {translation[index].text}
                         </p>
                       );
                     })}
+
+                    {/* Per-ayah tafsir (Arabic + English) */}
+                    <div className="mt-3">
+                      <button
+                        onClick={() => toggleInlineTafsir(ayah.numberInSurah)}
+                        className="font-ui flex items-center gap-2 text-xs font-semibold tracking-wide text-emerald-mid transition-colors hover:text-maroon"
+                        aria-expanded={openTafsirAyahs.has(ayah.numberInSurah)}
+                      >
+                        <Khatam className="h-[11px] w-[11px]" />
+                        {openTafsirAyahs.has(ayah.numberInSurah) ? "Hide tafsir" : "Show tafsir"}
+                      </button>
+
+                      {openTafsirAyahs.has(ayah.numberInSurah) && (
+                        <div className="mt-3 rounded-sm border-l-4 border-gold bg-[#F1E9D4] p-4">
+                          {loadingTafsir ? (
+                            <div className="flex items-center gap-2 py-1 text-muted-foreground">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span className="font-ui text-xs">Loading tafsir…</span>
+                            </div>
+                          ) : (
+                            <InlineTafsir entry={tafsirData[`${surahNumber}:${ayah.numberInSurah}`]} />
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -597,5 +640,35 @@ export default function SurahReadingModal() {
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function InlineTafsir({ entry }: { entry?: TafsirEntry }) {
+  if (!entry || (!entry.arabicText && !entry.englishText)) {
+    return (
+      <p className="font-ui text-xs text-muted-foreground">No tafsir available for this āyah.</p>
+    );
+  }
+  return (
+    <>
+      {entry.arabicText && (
+        <>
+          <span className="eyebrow mb-1.5 block text-[9.5px] text-maroon">التفسير الميسر · Arabic</span>
+          <p
+            className="arabic-name text-[15px] leading-loose text-emerald-deep"
+            dangerouslySetInnerHTML={{ __html: sanitizeTafsir(entry.arabicText) }}
+          />
+        </>
+      )}
+      {entry.englishText && (
+        <div className={entry.arabicText ? "mt-3.5 border-t border-dashed border-emerald-deep/20 pt-3.5" : ""}>
+          <span className="eyebrow mb-1.5 block text-[9.5px] text-maroon">Tafsir Ibn Kathir · English</span>
+          <p
+            className="font-serif text-[13.5px] leading-relaxed text-[#2C2418]"
+            dangerouslySetInnerHTML={{ __html: sanitizeTafsir(entry.englishText) }}
+          />
+        </div>
+      )}
+    </>
   );
 }
