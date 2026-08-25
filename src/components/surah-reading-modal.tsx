@@ -406,7 +406,7 @@ export default function SurahReadingModal() {
                   <div className="p-4 sm:p-5 rounded-sm border-l-4 border-gold bg-muted/50">
                     <div className="flex items-center gap-2 mb-2">
                       <Khatam className="h-3 w-3 text-maroon" />
-                      <span className="eyebrow text-[9.5px] text-maroon">التفسير الميسر · Arabic</span>
+                      <span className="eyebrow text-maroon">التفسير الميسر · Arabic</span>
                     </div>
                     <p
                       className="arabic-name text-base leading-loose text-ink"
@@ -420,7 +420,7 @@ export default function SurahReadingModal() {
                   <div className="p-4 sm:p-5 rounded-sm border-l-4 border-emerald-deep bg-white/50">
                     <div className="flex items-center gap-2 mb-2">
                       <BookOpen className="w-3.5 h-3.5 text-emerald-mid" />
-                      <span className="eyebrow text-[9.5px] text-emerald-mid">Tafsir Ibn Kathir · English</span>
+                      <span className="eyebrow text-emerald-mid">Tafsir Ibn Kathir · English</span>
                     </div>
                     <p
                       className="font-serif text-base leading-relaxed text-[#2C2418]"
@@ -835,14 +835,14 @@ export default function SurahReadingModal() {
 function InlineTafsir({ entry }: { entry?: TafsirEntry }) {
   if (!entry || (!entry.arabicText && !entry.englishText)) {
     return (
-      <p className="font-ui text-xs text-muted-foreground">No tafsir available for this āyah.</p>
+      <p className="font-ui text-sm text-muted-foreground">No tafsir available for this āyah.</p>
     );
   }
   return (
     <>
       {entry.arabicText && (
         <>
-          <span className="eyebrow mb-1.5 block text-[9.5px] text-maroon">التفسير الميسر · Arabic</span>
+          <span className="eyebrow mb-1.5 block text-maroon">التفسير الميسر · Arabic</span>
           <p
             className="arabic-name text-base leading-loose text-emerald-deep"
             dangerouslySetInnerHTML={{ __html: sanitizeTafsir(entry.arabicText) }}
@@ -851,9 +851,9 @@ function InlineTafsir({ entry }: { entry?: TafsirEntry }) {
       )}
       {entry.englishText && (
         <div className={entry.arabicText ? "mt-3.5 border-t border-dashed border-emerald-deep/20 pt-3.5" : ""}>
-          <span className="eyebrow mb-1.5 block text-[9.5px] text-maroon">Tafsir Ibn Kathir · English</span>
+          <span className="eyebrow mb-1.5 block text-emerald-mid">Tafsir Ibn Kathir · English</span>
           <p
-            className="font-serif text-sm leading-relaxed text-[#2C2418]"
+            className="font-serif text-base leading-relaxed text-[#2C2418]"
             dangerouslySetInnerHTML={{ __html: sanitizeTafsir(entry.englishText) }}
           />
         </div>
