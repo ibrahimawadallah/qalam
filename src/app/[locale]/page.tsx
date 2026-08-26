@@ -1,8 +1,10 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import Khatam from '@/components/khatam';
 import { SURAH_DATA } from '@/lib/quran-data';
 
@@ -29,16 +31,16 @@ const ayahs = [
   },
 ];
 
-const TILES = [
-  { href: '/quran', title: 'Listen', desc: 'Gapless recitation streaming, surah by surah.' },
-  { href: '/search', title: 'Search', desc: 'Find any verse by keyword, name, or number.' },
-  { href: '/azkar', title: 'Daily Azkar', desc: 'Morning and evening remembrance, in order.' },
-  { href: '/hisn-muslim', title: 'Hisn al-Muslim', desc: 'The Fortress of the Muslim, by occasion.' },
-  { href: '/prayer-times', title: 'Prayer Times', desc: 'Accurate times for your location, five times daily.' },
-  { href: '/hadiths', title: 'Hadiths', desc: 'Authentic collections, searchable by topic.' },
-  { href: '/ruqyah', title: 'Ruqyah', desc: 'Quranic healing and protective supplications.' },
-  { href: '/islamic-calendar', title: 'Islamic Calendar', desc: 'Hijri dates and upcoming sacred events.' },
-  { href: '/about', title: 'About', desc: 'The mission behind Quran Kareem.' },
+const TILES_HREF = [
+  '/quran',
+  '/search',
+  '/azkar',
+  '/hisn-muslim',
+  '/prayer-times',
+  '/hadiths',
+  '/ruqyah',
+  '/islamic-calendar',
+  '/about',
 ];
 
 function SectionHead({ eyebrow, title }: { eyebrow: string; title: string }) {
@@ -54,6 +56,8 @@ function SectionHead({ eyebrow, title }: { eyebrow: string; title: string }) {
 }
 
 export default function LandingPage() {
+  const t = useTranslations('home');
+  const tCommon = useTranslations('common');
   const [activeAyah, setActiveAyah] = useState(0);
 
   useEffect(() => {
@@ -62,6 +66,18 @@ export default function LandingPage() {
     }, 6000);
     return () => clearInterval(interval);
   }, []);
+
+  const tiles = useMemo(() => [
+    { title: t('listen'), desc: t('listenDesc') },
+    { title: t('search'), desc: t('searchDesc') },
+    { title: t('dailyAzkar'), desc: t('dailyAzkarDesc') },
+    { title: t('hisnAlMuslim'), desc: t('hisnAlMuslimDesc') },
+    { title: t('prayerTimes'), desc: t('prayerTimesDesc') },
+    { title: t('hadiths'), desc: t('hadithsDesc') },
+    { title: t('ruqyah'), desc: t('ruqyahDesc') },
+    { title: t('islamicCalendar'), desc: t('islamicCalendarDesc') },
+    { title: t('about'), desc: t('aboutDesc') },
+  ], [t]);
 
   const previewSurahs = SURAH_DATA.slice(0, 8);
 
@@ -103,13 +119,13 @@ export default function LandingPage() {
               href="/quran"
               className="font-ui inline-flex items-center gap-2.5 rounded-sm bg-gold px-[30px] py-3.5 text-[13px] font-semibold tracking-wide text-ink transition-all hover:-translate-y-0.5 hover:bg-gold-bright hover:shadow-[0_10px_30px_rgba(199,161,92,.35)]"
             >
-              Listen to the Quran
+              {t('listenToQuran')}
             </Link>
             <Link
               href="/search"
               className="font-ui inline-flex items-center gap-2.5 rounded-sm border border-ivory/35 px-[30px] py-3.5 text-[13px] font-semibold tracking-wide text-ivory transition-all hover:-translate-y-0.5 hover:border-gold-bright hover:text-gold-bright"
             >
-              Search Surahs
+              {t('searchSurahs')}
             </Link>
           </div>
         </div>
@@ -117,17 +133,17 @@ export default function LandingPage() {
 
       {/* ---------------- QUICK ACCESS ---------------- */}
       <section id="quick-access" className="px-6 py-20">
-        <SectionHead eyebrow="Begin here" title="Nine ways into the Book" />
+        <SectionHead eyebrow={t('beginHere')} title={t('nineWays')} />
         <div className="mx-auto grid max-w-[1180px] grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
-          {TILES.map((tile) => (
+          {TILES_HREF.map((href, i) => (
             <Link
-              key={tile.href}
-              href={tile.href}
+              key={href}
+              href={href}
               className="tile-corners group block w-full border border-gold/25 bg-emerald-deep p-7 pb-6 text-left text-ivory transition-all duration-300 hover:-translate-y-1.5 hover:border-gold hover:shadow-[var(--shadow-deep)]"
             >
               <Khatam className="mb-4 h-6 w-6 text-gold transition-transform duration-300 group-hover:rotate-45" />
-              <h3 className="mb-1.5 text-lg leading-snug">{tile.title}</h3>
-              <p className="font-ui text-xs leading-relaxed text-ivory-dim">{tile.desc}</p>
+              <h3 className="mb-1.5 text-lg leading-snug">{tiles[i].title}</h3>
+              <p className="font-ui text-xs leading-relaxed text-ivory-dim">{tiles[i].desc}</p>
             </Link>
           ))}
         </div>
@@ -135,7 +151,7 @@ export default function LandingPage() {
 
       {/* ---------------- INDEX PREVIEW ---------------- */}
       <section id="index" className="bg-[#F1E9D4] px-6 py-20">
-        <SectionHead eyebrow="114 surahs" title="The Index" />
+        <SectionHead eyebrow={t('surahCountEyebrow')} title={t('indexTitle')} />
         <div className="mx-auto max-w-[920px]">
           <div className="border-t border-emerald-deep/15">
             {previewSurahs.map((surah) => (
@@ -151,7 +167,7 @@ export default function LandingPage() {
                   <span className="block truncate font-display text-lg leading-snug text-ink">
                     {surah.englishName}
                     <span className="ml-2 align-middle font-ui text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground">
-                      {surah.revelationType === 'Meccan' ? 'Makkan' : 'Madani'}
+                      {surah.revelationType === 'Meccan' ? t('makkan') : t('madani')}
                     </span>
                   </span>
                 </span>
@@ -159,7 +175,7 @@ export default function LandingPage() {
                   {surah.arabicName}
                 </span>
                 <span className="whitespace-nowrap text-right font-ui text-[10.5px] text-[#8a8168]">
-                  {surah.ayahCount} ayat
+                  {surah.ayahCount} {tCommon('ayat')}
                 </span>
               </Link>
             ))}
@@ -169,7 +185,7 @@ export default function LandingPage() {
               href="/quran"
               className="font-ui inline-flex items-center gap-2.5 rounded-sm bg-emerald-deep px-[30px] py-3.5 text-[13px] font-semibold tracking-wide text-ivory transition-all hover:-translate-y-0.5 hover:bg-emerald-mid hover:shadow-[0_10px_30px_rgba(11,59,44,.35)]"
             >
-              View all 114 surahs
+              {t('viewAllSurahs')}
             </Link>
           </div>
         </div>

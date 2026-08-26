@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from 'next-intl';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,14 +10,16 @@ import { RADIO_STATIONS, getStationsByCategory } from "@/lib/quran-data";
 import type { RadioStation, RadioCategory } from "@/lib/quran-types";
 import { Radio, Shield, Sun, Moon } from "lucide-react";
 
-const CATEGORY_META: Record<RadioCategory, { label: string; arabicLabel: string; icon: typeof Radio }> = {
-  quran: { label: "Holy Quran Radio", arabicLabel: "إذاعة القرآن الكريم", icon: Radio },
-  ruqyah: { label: "Ruqyah al-Shariah", arabicLabel: "الرقية الشرعية", icon: Shield },
-  hisn_muslim: { label: "Hisn Muslim", arabicLabel: "حصن المسلم", icon: Sun },
+const CATEGORY_META: Record<RadioCategory, { labelKey: string; arabicLabel: string; icon: typeof Radio }> = {
+  quran: { labelKey: "holyQuranRadio", arabicLabel: "إذاعة القرآن الكريم", icon: Radio },
+  ruqyah: { labelKey: "ruqyahAlShariah", arabicLabel: "الرقية الشرعية", icon: Shield },
+  hisn_muslim: { labelKey: "hisnMuslim", arabicLabel: "حصن المسلم", icon: Sun },
 };
 
 export default function RadioPanel() {
   const { showRadioPanel, toggleRadioPanel, currentRadioId, setRadioMode, isRadioMode } = useAudioStore();
+
+  const t = useTranslations('radioPanel');
 
   const grouped = useMemo(() => {
     const groups: { category: RadioCategory; stations: RadioStation[] }[] = [];
@@ -37,9 +40,9 @@ export default function RadioPanel() {
         <SheetHeader className="mb-4">
           <SheetTitle className="text-foreground text-lg flex items-center gap-2">
             <Radio className="w-5 h-5 text-primary" />
-            <span>Radio &amp; Audio Services</span>
+             <span>{t('title')}</span>
           </SheetTitle>
-          <p className="text-muted-foreground text-xs">إذاعة ورقية وأذكار</p>
+           <p className="text-muted-foreground text-xs">{t('arabicSubtitle')}</p>
         </SheetHeader>
 
         <div className="space-y-5">
@@ -53,7 +56,7 @@ export default function RadioPanel() {
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {meta.arabicLabel}
                   </span>
-                  <span className="text-[10px] text-muted-foreground/50">{meta.label}</span>
+                  <span className="text-[10px] text-muted-foreground/50">{t(meta.labelKey)}</span>
                 </div>
                 <div className="space-y-1">
                   {stations.map((station) => {
@@ -96,9 +99,9 @@ export default function RadioPanel() {
                           <Badge
                             variant="outline"
                             className="shrink-0 text-[10px] px-2 py-0 border-border text-muted-foreground"
-                          >
-                            {category === "quran" ? "Quran" : category === "ruqyah" ? "Ruqyah" : "Hisn Muslim"}
-                          </Badge>
+                           >
+                             {category === "quran" ? t('holyQuranRadio') : category === "ruqyah" ? t('ruqyahAlShariah') : t('hisnMuslim')}
+                           </Badge>
                         </div>
                       </button>
                     );

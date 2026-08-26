@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PageHead from "@/components/page-head";
 import Khatam from "@/components/khatam";
@@ -37,6 +38,8 @@ function mapTimings(raw: Record<string, string>): PrayerEntries {
 }
 
 export default function PrayerTimesPage() {
+  const t = useTranslations('prayerTimes');
+  const tCommon = useTranslations('common');
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [timings, setTimings] = useState<PrayerEntries | null>(null);
@@ -65,7 +68,7 @@ export default function PrayerTimesPage() {
     setError(null);
     try {
       const res = await fetch(`/api/prayer-times?city=${encodeURIComponent(city.trim())}&country=${encodeURIComponent(country.trim())}`);
-      if (!res.ok) throw new Error("Failed to load prayer times");
+      if (!res.ok) throw new Error(t('loadingError'));
       const json = await res.json();
       setTimings(mapTimings(json.data.timings));
       setTimezone(json.data.meta.timezone);
@@ -81,7 +84,7 @@ export default function PrayerTimesPage() {
 
   const locateMe = useCallback(() => {
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported");
+      setError(t('geolocationNotSupported'));
       return;
     }
     setLoading(true);
@@ -90,7 +93,7 @@ export default function PrayerTimesPage() {
       async (pos) => {
         try {
           const res = await fetch(`/api/prayer-times?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`);
-          if (!res.ok) throw new Error("Failed to load prayer times");
+          if (!res.ok) throw new Error(t('loadingError'));
           const json = await res.json();
           setTimings(mapTimings(json.data.timings));
           setTimezone(json.data.meta.timezone);
@@ -133,9 +136,8 @@ export default function PrayerTimesPage() {
 
   return (
     <div className="min-h-screen">
-      <PageHead eyebrow="Five daily prayers" title="Prayer Times">
-        Calculated for your city and updated automatically as the day turns — with live
-        countdown and Qibla direction.
+      <PageHead eyebrow={t('eyebrow')} title={t('title')}>
+        {t('description')}
       </PageHead>
 
       <main className="mx-auto max-w-[920px] px-6 py-12 page-enter">
@@ -156,13 +158,13 @@ export default function PrayerTimesPage() {
               disabled={loading || !selectedCountry.trim() || !selectedCity.trim()}
               className="flex-1 rounded-sm bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid disabled:opacity-50"
             >
-              {loading ? "Loading..." : "Get Times"}
+              {loading ? tCommon('loading') : t('getTimes')}
             </button>
             <button
               onClick={locateMe}
               className="rounded-sm border border-gold px-4 py-3 font-ui text-sm font-semibold text-emerald-deep transition-colors hover:bg-gold/10"
             >
-              Locate me
+              {t('locateMe')}
             </button>
           </div>
 
@@ -172,13 +174,13 @@ export default function PrayerTimesPage() {
         {timings && (
           <>
             <div className="mb-4 mt-8 flex flex-wrap items-center justify-between gap-2">
-              <p className="eyebrow text-emerald-mid">Today&apos;s times</p>
+              <p className="eyebrow text-emerald-mid">{t('todayTimes')}</p>
               <span className="font-ui text-xs text-muted-foreground">
                 {date} · {timezone}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {PRAYER_LIST.map((prayer) => {
                 const active = nextPrayer === prayer;
                 return (
@@ -191,14 +193,14 @@ export default function PrayerTimesPage() {
                     }`}
                   >
                     <Khatam className={`mx-auto mb-2.5 h-4 w-4 ${active ? "text-gold-bright" : "text-maroon"}`} />
-                    <p className="font-display text-[17px] leading-snug">{prayer}</p>
+                    <p className="font-display text-[17px] leading-snug">{t('prayer' + prayer)}</p>
                     <p className={`arabic-name mt-0.5 mb-2.5 text-sm ${active ? "text-gold-bright" : "text-muted-foreground"}`} dir="rtl">
                       {PRAYER_AR[prayer]}
                     </p>
                     <p className="font-ui text-lg font-semibold tabular-nums">{timings[prayer]}</p>
                     {active && (
                       <p className="eyebrow mt-1.5 text-[9px] tracking-[0.1em] text-gold-bright">
-                        In {countdown}
+                        {t('inCountdown')}
                       </p>
                     )}
                   </div>
@@ -209,9 +211,10 @@ export default function PrayerTimesPage() {
             {nextPrayer && (
               <div className="mt-4 rounded-sm border border-gold/40 bg-paper p-4 text-center">
                 <p className="font-ui text-xs text-muted-foreground">
-                  Next prayer:{" "}
-                  <span className="font-display text-base text-emerald-deep">{nextPrayer}</span>{" "}
-                  — in <span className="font-ui font-bold text-maroon">{countdown}</span>
+                  {t.rich('nextPrayer', {
+                    prayer: () => <span className="font-display text-base text-emerald-deep">{nextPrayer}</span>,
+                  })}{' '}
+                  — {t.rich('inCountdown', { countdown: () => <span className="font-ui font-bold text-maroon">{countdown}</span> })}
                 </p>
               </div>
             )}
@@ -226,7 +229,7 @@ export default function PrayerTimesPage() {
 
             {hijri && (
               <div className="tile-corners warm-card flex flex-col justify-center rounded-sm p-5 sm:p-6">
-                <p className="eyebrow text-emerald-mid">Hijri date</p>
+                <p className="eyebrow text-emerald-mid">{t('hijriDate')}</p>
                 <p className="arabic-name mt-2 text-3xl leading-snug text-emerald-deep" dir="rtl">
                   {hijri.day} {hijri.month.ar} {hijri.year}
                 </p>

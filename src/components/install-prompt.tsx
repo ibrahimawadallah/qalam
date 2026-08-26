@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 
 export default function InstallPrompt() {
+  const t = useTranslations('installPrompt');
+
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -58,8 +61,8 @@ export default function InstallPrompt() {
         <button
           onClick={handleDismiss}
           className="absolute top-2 right-2 text-muted-foreground hover:text-foreground transition-colors p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center"
-          aria-label="Dismiss"
-        >
+           aria-label={t('dismiss')}
+         >
           <X className="w-5 h-5" />
         </button>
 
@@ -71,16 +74,16 @@ export default function InstallPrompt() {
           </div>
           
           <div className="flex-1 min-w-0 pr-8">
-            <h3 className="text-foreground font-semibold text-sm mb-1">Install Quran Kareem App</h3>
+             <h3 className="text-foreground font-semibold text-sm mb-1">{t('title')}</h3>
             
             {isIOS ? (
-              <p className="text-muted-foreground text-xs leading-relaxed">
-                Tap <span className="text-primary">Share</span> then <span className="text-primary">Add to Home Screen</span>
-              </p>
+               <p className="text-muted-foreground text-xs leading-relaxed">
+                 Tap <span className="text-primary">{t('share')}</span> then <span className="text-primary">{t('addToHome')}</span>
+               </p>
             ) : (
-              <p className="text-muted-foreground text-xs leading-relaxed">
-                Install Quran Kareem for a better experience with quick access from your home screen
-              </p>
+               <p className="text-muted-foreground text-xs leading-relaxed">
+                 {t('description')}
+               </p>
             )}
             
             <div className="flex gap-2 mt-3">
@@ -89,15 +92,15 @@ export default function InstallPrompt() {
                   onClick={handleInstall}
                   className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors active:scale-95 min-h-[44px] touch-manipulation"
                 >
-                  Install
-                </button>
+                   {t('install')}
+                 </button>
               )}
               <button
                 onClick={handleDismiss}
                 className="flex-1 bg-muted hover:bg-muted/80 text-foreground text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors active:scale-95 min-h-[44px] touch-manipulation"
               >
-                {isIOS ? 'Close' : 'Later'}
-              </button>
+                 {isIOS ? t('close') : t('later')}
+               </button>
             </div>
           </div>
         </div>

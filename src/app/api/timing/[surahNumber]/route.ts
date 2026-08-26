@@ -72,15 +72,15 @@ export async function GET(
     }
 
     const ayahs = data.data.ayahs;
-    const timings: { timestamp: number; ayahKey: string }[] = [];
+    const timings: { timestamp: number; ayahKey: string; audioUrl: string; duration: number }[] = [];
     let cumulativeTime = 0;
 
     const batchSize = 5;
     for (let i = 0; i < ayahs.length; i += batchSize) {
       const batch = ayahs.slice(i, i + batchSize);
       const durationPromises = batch.map(async (ayah: any) => {
+        const audioUrl = ayah.audio;
         try {
-          const audioUrl = ayah.audio;
           const headRes = await fetch(audioUrl, {
             method: 'HEAD',
             signal: request.signal,
@@ -90,20 +90,26 @@ export async function GET(
             headRes.headers.get('content-length') || '0',
             10
           );
-          // MP3 at 128kbps: ~16KB per second
           const duration = contentLength > 0 ? contentLength / 16000 : (ayah.text.length * 0.08);
-          return { ayahKey: ayah.verse_key || `${surahNumber}:${ayah.numberInSurah}`, duration };
+          return {
+            ayahKey: ayah.verse_key || `${surahNumber}:${ayah.numberInSurah}`,
+            audioUrl,
+            duration,
+          };
         } catch {
-          // Fallback: estimate based on text length
           const duration = ayah.text.length * 0.08;
-          return { ayahKey: ayah.verse_key || `${surahNumber}:${ayah.numberInSurah}`, duration };
+          return {
+            ayahKey: ayah.verse_key || `${surahNumber}:${ayah.numberInSurah}`,
+            audioUrl,
+            duration,
+          };
         }
       });
 
-      const durations = await Promise.all(durationPromises);
+      const results = await Promise.all(durationPromises);
 
-      for (const { ayahKey, duration } of durations) {
-        timings.push({ timestamp: Math.round(cumulativeTime * 1000), ayahKey });
+      for (const { ayahKey, audioUrl, duration } of results) {
+        timings.push({ timestamp: Math.round(cumulativeTime * 1000), ayahKey, audioUrl, duration });
         cumulativeTime += duration;
       }
     }
@@ -112,8 +118,6 @@ export async function GET(
       surahNumber,
       reciterId,
       timings,
-      // Estimated total duration of the whole recitation (ms). The client uses
-      // this to scale the proportional timings onto the real audio duration.
       totalDuration: Math.round(cumulativeTime * 1000),
     });
   } catch (error) {

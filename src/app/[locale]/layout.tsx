@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Lora, Inter, Amiri } from "next/font/google";
+import { notFound } from "next/navigation";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, getTranslations } from "next-intl/server";
+import { locales } from "@/i18n/request";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "@/components/error-boundary";
@@ -40,61 +44,89 @@ const amiri = Amiri({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Quran Kareem - Listen to Full Surah Audio & Translations",
-  description:
-    "Quran Kareem - A premium Quran streaming application by MedTechAI Arab Organization. Listen to the Holy Quran recited by world-renowned Qaris with beautiful gapless audio streaming, reading mode, and more.",
-  keywords: [
-    "Quran",
-    "Quran Kareem",
-    "Islamic",
-    "Quran Streaming",
-    "Qari",
-    "Recitation",
-    "MedTechAI",
-  ],
-  metadataBase: new URL("https://quran.medtechai.net"),
-  icons: {
-    icon: [
-      { url: "/logo.svg?v=2", type: "image/svg+xml" },
-      { url: "/favicon.ico?v=2", sizes: "any" },
-    ],
-    apple: "/logo.jpg",
-  },
-  manifest: "/manifest.json",
-  openGraph: {
-    title: "Quran Kareem - Full Surah Audio & Translations",
-    description: "A premium Quran streaming application by MedTechAI Arab Organization",
-    type: "website",
-    url: "https://quran.medtechai.net",
-    siteName: "Quran Kareem",
-    images: [
-      {
-        url: "/logo.jpg",
-        width: 512,
-        height: 512,
-        alt: "Quran Kareem App",
-      },
-    ],
-  },
-  alternates: {
-    canonical: "https://quran.medtechai.net",
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Quran Kareem",
-  },
-applicationName: "Quran Kareem",
-};
+export function generateStaticParams() {
+  return [{ locale: "en" }, { locale: "ar" }];
+}
 
-export default function RootLayout({
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "seo" });
+
+  const siteName = t("siteName");
+  const title = t("homeTitle");
+  const description = t("homeDescription");
+  const keywords = t.raw("keywords") as unknown as string[];
+  const ogTitle = t("ogTitle");
+  const ogDescription = t("ogDescription");
+  const ogImageAlt = t("ogImageAlt");
+
+  return {
+    title,
+    description,
+    keywords: Array.isArray(keywords) ? keywords : keywords ? [String(keywords)] : [],
+    metadataBase: new URL("https://quran.medtechai.net"),
+    icons: {
+      icon: [
+        { url: "/logo.svg?v=2", type: "image/svg+xml" },
+        { url: "/favicon.ico?v=2", sizes: "any" },
+      ],
+      apple: "/logo.jpg",
+    },
+    manifest: "/manifest.json",
+    openGraph: {
+      title: ogTitle,
+      description: ogDescription,
+      type: "website",
+      url: "https://quran.medtechai.net",
+      siteName,
+      locale: locale === "ar" ? "ar_SA" : "en_US",
+      alternateLocale: locale === "ar" ? "en_US" : "ar_SA",
+      images: [
+        {
+          url: "/logo.jpg",
+          width: 512,
+          height: 512,
+          alt: ogImageAlt,
+        },
+      ],
+    },
+    alternates: {
+      canonical: "https://quran.medtechai.net",
+      languages: {
+        en: "/en",
+        ar: "/ar",
+      },
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: siteName,
+    },
+    applicationName: siteName,
+  };
+}
+
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+
+  if (!locales.includes(locale as "en" | "ar")) {
+    notFound();
+  }
+
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content="#0B3B2C" />
@@ -111,17 +143,19 @@ export default function RootLayout({
       <body
         className={`${cormorant.variable} ${lora.variable} ${inter.variable} ${amiri.variable} antialiased`}
       >
-        <ErrorBoundary>
-          <StoreHydrator />
-          <TopNav />
-          {children}
-          <Toaster />
-          <RadioPlayer />
-          <AudioPlayer />
-          <RadioPanel />
-          <ReciterPanel />
-          <Footer />
-        </ErrorBoundary>
+        <NextIntlClientProvider messages={messages}>
+          <ErrorBoundary>
+            <StoreHydrator />
+            <TopNav />
+            {children}
+            <Toaster />
+            <RadioPlayer />
+            <AudioPlayer />
+            <RadioPanel />
+            <ReciterPanel />
+            <Footer />
+          </ErrorBoundary>
+        </NextIntlClientProvider>
         <script
           dangerouslySetInnerHTML={{
             __html: `

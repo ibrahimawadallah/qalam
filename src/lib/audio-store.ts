@@ -3,11 +3,6 @@ import { RECITERS, SURAH_DATA, RADIO_STATIONS, getStationsByCategory } from "./q
 import type { Surah, Reciter, TranslationLanguage, RadioStation } from "./quran-types";
 import { getSurahInfo } from "./quran-utils";
 
-let audioPlayNow: ((url: string) => void) | null = null;
-export const setAudioPlayNow = (fn: ((url: string) => void) | null) => {
-  audioPlayNow = fn;
-};
-
 type RevelationFilter = "All" | "Meccan" | "Medinan";
 type ViewMode = "list" | "grid";
 
@@ -264,7 +259,6 @@ export const useAudioStore = create<AudioState>((set, get) => {
     play: (surahNumber) => {
       const surahInfo = getSurahInfo(surahNumber);
       if (!surahInfo) return;
-      const streamUrl = `/api/audio-stream?reciter=${encodeURIComponent(get().currentReciter)}&surah=${surahNumber}`;
       set({
         currentSurah: surahInfo,
         isPlaying: true,
@@ -279,11 +273,9 @@ export const useAudioStore = create<AudioState>((set, get) => {
         isRadioPlaying: false,
         showRadioPanel: false,
       });
-      audioPlayNow?.(streamUrl);
     },
 
     playSurah: (surah) => {
-      const streamUrl = `/api/audio-stream?reciter=${encodeURIComponent(get().currentReciter)}&surah=${surah.number}`;
       set({
         currentSurah: surah,
         isPlaying: true,
@@ -299,7 +291,6 @@ export const useAudioStore = create<AudioState>((set, get) => {
         showRadioPanel: false,
       });
       get().addToRecentlyPlayed(surah.number);
-      audioPlayNow?.(streamUrl);
     },
 
     setIsPlaying: (playing) => set({ isPlaying: playing }),

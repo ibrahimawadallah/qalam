@@ -1,34 +1,33 @@
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import Khatam from '@/components/khatam';
 
-const FOOT_LINKS = [
-  { href: '/quran', label: 'Quran' },
-  { href: '/azkar', label: 'Azkar' },
-  { href: '/prayer-times', label: 'Prayer Times' },
-  { href: '/about', label: 'About' },
-];
+const FOOT_HREFS = ['/quran', '/azkar', '/prayer-times', '/about'];
+
+const FOOT_LABEL_KEYS = ['quran', 'azkar', 'prayerTimes', 'about'];
 
 export default function Footer() {
+  const t = useTranslations('footer');
+
   return (
     <footer className="bg-night px-6 pb-8 pt-14 text-center text-ivory-dim">
       <Khatam className="mb-4 inline-block h-5 w-5 text-gold" />
       <p className="font-ui mx-auto mb-5 max-w-[560px] text-xs leading-relaxed text-[#8FA79A]">
-        Under the authority of MedTechAI Arab Organization — a registered organization dedicated
-        to leveraging technology for the service of Islam and the Muslim Ummah.
+        {t('authority')}
       </p>
       <div className="font-ui mb-5 flex flex-wrap justify-center gap-6 text-xs">
-        {FOOT_LINKS.map((link) => (
+        {FOOT_HREFS.map((href, i) => (
           <Link
-            key={link.href}
-            href={link.href}
+            key={href}
+            href={href}
             className="text-ivory-dim transition-colors hover:text-gold-bright"
           >
-            {link.label}
+            {t(FOOT_LABEL_KEYS[i])}
           </Link>
         ))}
       </div>
       <p className="font-ui text-[11px] text-[#5F7A6C]">
-        © {new Date().getFullYear()} Quran Kareem — Full Surah Audio &amp; Translations App.
+        {t('copyright', { year: String(new Date().getFullYear()) })}
       </p>
     </footer>
   );

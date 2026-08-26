@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from 'next-intl';
 import { useSearchParams } from "next/navigation";
 import PageHead from "@/components/page-head";
 import { Search, BookOpen, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
@@ -70,6 +71,8 @@ function getSurahName(num: number): string {
 }
 
 export default function QuranSearchClient() {
+  const t = useTranslations('search');
+  const tCommon = useTranslations('common');
   const searchParams = useSearchParams();
   const initialQuery = searchParams?.get("q") || "";
   const initialSurah = searchParams?.get("surah") || "all";
@@ -91,7 +94,7 @@ export default function QuranSearchClient() {
     async (pageNum = 1, searchQuery: string) => {
       const trimmed = searchQuery.trim();
       if (trimmed.length < 2) {
-        setError("Please enter at least 2 characters to search.");
+        setError(t('atLeastTwoChars'));
         return;
       }
 
@@ -122,7 +125,7 @@ export default function QuranSearchClient() {
         const json = (await res.json()) as SearchResponse;
         setResults(json.data);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Unknown error");
+        setError(e instanceof Error ? e.message : tCommon('unknownError'));
         setResults(null);
       } finally {
         setLoading(false);
@@ -174,9 +177,8 @@ export default function QuranSearchClient() {
 
   return (
     <div className="min-h-screen">
-      <PageHead eyebrow="114 surahs · Every verse" title="Search the Quran">
-        Find any verse by keyword — in English, transliteration, or Arabic — and jump straight
-        to its surah.
+      <PageHead eyebrow={t('eyebrow')} title={t('title')}>
+        {t('description')}
       </PageHead>
 
       <main className="mx-auto max-w-[920px] px-6 py-10 page-enter">
@@ -190,7 +192,7 @@ export default function QuranSearchClient() {
                   value={query}
                   onChange={(e) => handleQueryChange(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && executeSearch(1, query)}
-                  placeholder="Search the Quran... (e.g. mercy, patience, Allah)"
+                  placeholder={t('placeholder')}
                   className="w-full rounded-sm border border-gold/40 bg-white/60 pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gold"
                 />
               </div>
@@ -200,7 +202,7 @@ export default function QuranSearchClient() {
                 className="rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-emerald-mid disabled:opacity-50 flex items-center gap-2 transition-colors"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                {loading ? "Searching..." : "Search"}
+                {loading ? t('searchingText') : t('searchButton')}
               </button>
             </div>
 
@@ -210,7 +212,7 @@ export default function QuranSearchClient() {
                 onChange={(e) => setSurah(e.target.value)}
                 className="flex-1 rounded-sm border border-gold/40 bg-muted/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-gold"
               >
-                <option value="all" className="bg-background text-foreground">All Surahs</option>
+                <option value="all" className="bg-background text-foreground">{t('allSurahs')}</option>
                 {Array.from({ length: 114 }, (_, i) => i + 1).map((num) => (
                   <option key={num} value={num} className="bg-background text-foreground">
                     {num}. {getSurahName(num)}
@@ -223,24 +225,25 @@ export default function QuranSearchClient() {
                 onChange={(e) => setEdition(e.target.value)}
                 className="flex-1 rounded-sm border border-gold/40 bg-muted/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-gold"
               >
-                <option value="en" className="bg-background text-foreground">English (all)</option>
-                <option value="en.sahih" className="bg-background text-foreground">Sahih International</option>
-                <option value="en.pickthall" className="bg-background text-foreground">Pickthall</option>
-                <option value="en.yusufali" className="bg-background text-foreground">Yusuf Ali</option>
-                <option value="ar" className="bg-background text-foreground">Arabic (all)</option>
-                <option value="quran-uthmani" className="bg-background text-foreground">Uthmani Script</option>
+                <option value="en" className="bg-background text-foreground">{t('englishAll')}</option>
+                <option value="en.sahih" className="bg-background text-foreground">{t('sahihInternational')}</option>
+                <option value="en.pickthall" className="bg-background text-foreground">{t('pickthall')}</option>
+                <option value="en.yusufali" className="bg-background text-foreground">{t('yusufAli')}</option>
+                <option value="ar" className="bg-background text-foreground">{t('arabicAll')}</option>
+                <option value="quran-uthmani" className="bg-background text-foreground">{t('uthmaniScript')}</option>
               </select>
             </div>
 
             <p className="mt-2 font-ui text-[11px] text-muted-foreground/60">
-              Tip: Press Enter or Ctrl+Enter to search
+              {t('tip')}
             </p>
             {isArabic && (
               <div className="mt-2 flex items-start gap-1.5 rounded-sm border border-maroon/20 bg-maroon/5 p-2">
                 <AlertCircle className="h-3.5 w-3.5 text-maroon mt-0.5 shrink-0" />
                 <p className="text-[11px] text-maroon/80">
-                  Arabic searches may take longer because some queries match thousands of verses.
-                  Showing {results?.matches?.length ?? 10} results per page.
+                  {t.rich('arabicSearchWarning', {
+                    count: results?.matches?.length ?? 10,
+                  })}
                 </p>
               </div>
             )}
@@ -252,7 +255,7 @@ export default function QuranSearchClient() {
             <div className="mt-6 flex items-center justify-center gap-2 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               <span className="text-sm">
-                {isArabic ? "Searching Arabic text — this may take a moment..." : "Searching the Quran..."}
+                {isArabic ? t('searchingArabic') : t('searchingQuran')}
               </span>
             </div>
           )}
@@ -260,7 +263,10 @@ export default function QuranSearchClient() {
           {results && !loading && (
             <div className="mt-8">
               <p className="mb-4 font-ui text-sm text-muted-foreground">
-                Found <span className="font-semibold text-emerald-deep">{results.totalCount}</span> matches for &ldquo;{query}&rdquo;
+                {t.rich('foundMatches', {
+                  n: results.totalCount,
+                  query: query,
+                })}
               </p>
 
               <div className="space-y-3">
@@ -288,7 +294,7 @@ export default function QuranSearchClient() {
 
               {results.matches.length === 0 && (
                 <div className="rounded-sm border border-border bg-card p-8 text-center">
-                  <p className="font-ui text-muted-foreground">No matches found. Try a different keyword or translation.</p>
+                  <p className="font-ui text-muted-foreground">{tCommon('noMatches')}</p>
                 </div>
               )}
 
@@ -300,17 +306,17 @@ export default function QuranSearchClient() {
                     className="flex items-center gap-1 rounded-sm border border-border px-4 py-2 text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
                   >
                     <ChevronLeft className="h-4 w-4" />
-                    Previous
+                    {tCommon('previous')}
                   </button>
                   <span className="font-ui text-xs text-muted-foreground">
-                    Page {currentPage} / {totalPages}
+                    {tCommon('page')} {currentPage} / {totalPages}
                   </span>
                   <button
                     onClick={() => executeSearch(Math.min(totalPages, currentPage + 1), query)}
                     disabled={currentPage >= totalPages || loading}
                     className="flex items-center gap-1 rounded-sm border border-border px-4 py-2 text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
                   >
-                    Next
+                    {tCommon('next')}
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -322,7 +328,7 @@ export default function QuranSearchClient() {
             <div className="tile-corners mt-12 rounded-sm border border-gold/30 bg-paper p-8 text-center shadow-[var(--shadow-deep)]">
               <Search className="mx-auto h-10 w-10 text-gold/50 mb-3" />
               <p className="font-ui text-sm text-muted-foreground">
-                Search for words, phrases, or themes across the Holy Quran
+                {t('searchForWords')}
               </p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {["mercy", "patience", "gratitude", "paradise", "forgiveness"].map((term) => (

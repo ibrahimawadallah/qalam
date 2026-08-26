@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import SurahList from '@/components/surah-list';
 import FilterBar from '@/components/filter-bar';
@@ -11,6 +12,7 @@ import { SURAH_DATA } from '@/lib/quran-data';
 import { Play, Pause } from 'lucide-react';
 
 export default function QuranPage() {
+  const t = useTranslations('quran');
   const { isPlayerVisible, currentSurah, isPlaying, playSurah, pauseAudio, toggleReciterPanel, reciter, openReadingModal, revelationFilter, setRevelationFilter, meccanCount, medinanCount } = useAudioStore();
   const [recentSurahs, setRecentSurahs] = useState<number[]>([]);
 
@@ -48,9 +50,8 @@ export default function QuranPage() {
 
   return (
     <div className="min-h-screen">
-      <PageHead eyebrow="114 surahs · Gapless recitation" title="The Noble Quran">
-        Choose any surah to stream full-surah recitation from world-renowned Qaris, or open it
-        in reading mode with translation and tafsir.
+      <PageHead eyebrow={t('eyebrow')} title={t('title')}>
+        {t('description')}
       </PageHead>
 
       {/* Floating search panel */}
@@ -67,8 +68,8 @@ export default function QuranPage() {
             <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z" />
             </svg>
-            <span className="hidden sm:inline">{reciter?.name ?? 'Reciters'}</span>
-            <span className="sm:hidden">Reciters</span>
+            <span className="hidden sm:inline">{reciter?.name ?? t('reciters')}</span>
+            <span className="sm:hidden">{t('reciters')}</span>
           </button>
         </div>
       </div>
@@ -78,7 +79,7 @@ export default function QuranPage() {
         <div className="mx-auto mt-8 max-w-[920px] px-6">
           <p className="eyebrow mb-3 text-maroon">
             <Khatam className="mr-1 inline-block h-[11px] w-[11px]" />
-            Continue listening
+            {t('continueListening')}
           </p>
           <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2" style={{ scrollSnapType: 'x mandatory' }}>
             {recentSurahData.map((surah) => {
@@ -136,14 +137,14 @@ export default function QuranPage() {
       {/* Full index */}
       <main className="mx-auto w-full max-w-[920px] px-6 pb-28 pt-8">
         <div className="mb-2 flex items-center justify-between">
-          <p className="eyebrow text-emerald-mid">All surahs</p>
-          <span className="font-ui text-[11px] text-muted-foreground">114 surahs</span>
+          <p className="eyebrow text-emerald-mid">{t('allSurahs')}</p>
+          <span className="font-ui text-[11px] text-muted-foreground">{t('totalSurahs')}</span>
         </div>
         <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto pb-1">
           {([
-            { key: 'All', label: 'All' },
-            { key: 'Meccan', label: `Makkan · ${meccanCount}` },
-            { key: 'Medinan', label: `Madani · ${medinanCount}` },
+            { key: 'All', label: t('allFilter') },
+            { key: 'Meccan', label: t.rich('meccanFilter', { count: meccanCount }) },
+            { key: 'Medinan', label: t.rich('medinanFilter', { count: medinanCount }) },
           ] as const).map((chip) => (
             <button
               key={chip.key}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from 'next-intl';
 import { Compass } from "lucide-react";
 
 interface QiblaCompassProps {
@@ -43,6 +44,8 @@ function calculateQibla(lat: number, lng: number): number {
 }
 
 export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
+  const t = useTranslations('qiblaCompass');
+
   const [heading, setHeading] = useState<number | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [permissionRequested, setPermissionRequested] = useState(false);
@@ -151,10 +154,10 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
 
   const statusText =
     deviation === null
-      ? "Rotate your device to find Qibla direction"
+      ? t('rotateDevice')
       : isAligned
-        ? "You are facing Qibla"
-        : `${Math.round(deviation)} off Qibla direction`;
+        ? t('facingQibla')
+        : t.rich('offQibla', { n: Math.round(deviation) });
 
   // No geolocation passed yet
   if (!lat || !lng) return null;
@@ -164,7 +167,7 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
       <div className="flex items-center gap-2 mb-3">
         <Compass className={`w-4 h-4 ${arrowColor}`} />
         <span className="text-xs font-semibold text-foreground">
-          اتجاه القبلة — Qibla Direction
+          {t('title')}
         </span>
       </div>
       <p className="text-[11px] text-muted-foreground mb-2">
@@ -175,10 +178,10 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
       {hasPermission === false && (
         <button
           onClick={startListening}
-          className="mb-3 w-full rounded-sm border border-gold bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid"
-        >
-          Enable Compass
-        </button>
+         className="mb-3 w-full rounded-sm border border-gold bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid"
+       >
+         {t('enableCompass')}
+       </button>
       )}
 
       {/* Compass dial */}
@@ -186,9 +189,9 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
         <div className="absolute inset-0 rounded-full border-2 border-border" />
 
         {/* N label */}
-        <div className="absolute inset-x-0 bottom-2 flex justify-center">
-          <span className="text-[10px] text-muted-foreground font-semibold">N</span>
-        </div>
+         <div className="absolute inset-x-0 bottom-2 flex justify-center">
+           <span className="text-[10px] text-muted-foreground font-semibold">{t('north')}</span>
+         </div>
 
         {/* Qibla arrow — rotates by relative bearing */}
         <div className="absolute inset-0 flex items-center justify-center">
@@ -219,9 +222,9 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
 
         {/* Top bearing readout */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground font-semibold">
-          {isAligned ? (
-            <span className="text-[#4a9ebb]">QIBLA ✓</span>
-          ) : heading !== null ? (
+           {isAligned ? (
+             <span className="text-[#4a9ebb]">{t('qiblaAligned')}</span>
+           ) : heading !== null ? (
             <span>{markerRotation.toFixed(0)}°</span>
           ) : (
             <span>N</span>
@@ -233,20 +236,19 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
           <span className="w-2 h-2 rounded-full bg-destructive" />
-          <span>
-            Not aligned (turn toward {qiblaBearing.toFixed(0)}°)
-          </span>
+           <span>
+             {t.rich('notAligned', { n: qiblaBearing.toFixed(0) })}
+           </span>
         </div>
         <div className="flex items-center gap-1.5 text-[10px] text-[#4a9ebb]">
           <span className="w-2 h-2 rounded-full bg-[#4a9ebb]" />
-          <span>Aligned (within 20°)</span>
+           <span>{t('aligned')}</span>
         </div>
       </div>
 
-      <p className="mt-2 text-[10px] text-muted-foreground/60 leading-relaxed">
-        Kaaba: {KAABA_LAT}°N, {KAABA_LNG}°E · Qibla bearing:{" "}
-        {qiblaBearing.toFixed(1)}°
-      </p>
+       <p className="mt-2 text-[10px] text-muted-foreground/60 leading-relaxed">
+         {t.rich('kaabaInfo', { lat: KAABA_LAT, lng: KAABA_LNG, n: qiblaBearing.toFixed(1) })}
+       </p>
     </div>
   );
 }

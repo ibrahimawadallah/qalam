@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Khatam from '@/components/khatam';
 
 interface PageHeadProps {
-  eyebrow: string;
+  eyebrow: ReactNode;
   title: string;
   children?: ReactNode;
 }

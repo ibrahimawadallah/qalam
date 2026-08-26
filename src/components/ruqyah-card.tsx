@@ -1,11 +1,13 @@
 "use client";
 
 import { Play, Pause, Shield } from "lucide-react";
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { useAudioStore } from "@/lib/audio-store";
 import type { RadioStation } from "@/lib/quran-types";
 
 export default function ReciterCard({ station }: { station: RadioStation }) {
+  const t = useTranslations('ruqyahCard');
   const { isRadioMode, currentRadioId, isRadioPlaying, setRadioMode, stopRadio, cycleRadioStation } = useAudioStore();
   const isActive = isRadioMode && currentRadioId === station.id;
 
@@ -55,8 +57,8 @@ export default function ReciterCard({ station }: { station: RadioStation }) {
           ) : (
             <Play className="w-3.5 h-3.5 ml-0.5" />
           )}
-          {isActive && isRadioPlaying ? "Pause" : "Listen"}
-        </Button>
+           {isActive && isRadioPlaying ? t('pause') : t('listen')}
+         </Button>
       </div>
     </div>
   );

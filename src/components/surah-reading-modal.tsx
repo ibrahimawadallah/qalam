@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Play, Pause, X, RefreshCw, Loader2, Languages, BookOpen, ChevronLeft, ChevronRight, Copy, Bookmark, BookmarkCheck, AlignJustify, Check } from 'lucide-react';
 import {
   Dialog,
@@ -24,15 +25,15 @@ type ReaderViewMode = 'full' | 'translation' | 'arabic';
 type TafsirSource = 'both' | 'ibn-kathir' | 'muyassar';
 
 const RECITER_OPTIONS = RECITERS.map((r) => ({ id: r.id, name: r.name }));
-const TAFSIR_SOURCES: { value: TafsirSource; label: string }[] = [
-  { value: 'both', label: 'Tafsir · Both' },
-  { value: 'ibn-kathir', label: 'Ibn Kathir (EN)' },
-  { value: 'muyassar', label: 'Al-Muyassar (AR)' },
+const TAFSIR_SOURCES: { value: TafsirSource; labelKey: string }[] = [
+  { value: 'both', labelKey: 'tafsirBoth' },
+  { value: 'ibn-kathir', labelKey: 'tafsirIbnKathirEn' },
+  { value: 'muyassar', labelKey: 'tafsirAlMuyassarAr' },
 ];
-const VIEW_MODES: { value: ReaderViewMode; label: string }[] = [
-  { value: 'full', label: 'Full' },
-  { value: 'translation', label: 'Translation' },
-  { value: 'arabic', label: 'Arabic' },
+const VIEW_MODES: { value: ReaderViewMode; labelKey: string }[] = [
+  { value: 'full', labelKey: 'viewFull' },
+  { value: 'translation', labelKey: 'viewTranslation' },
+  { value: 'arabic', labelKey: 'viewArabic' },
 ];
 
 const sanitizeTafsir = (html: string) =>
@@ -48,6 +49,8 @@ interface TafsirEntry {
 }
 
 export default function SurahReadingModal() {
+  const t = useTranslations('surahModal');
+
   const {
     showSurahModal,
     readingModalSurah,
@@ -322,9 +325,9 @@ export default function SurahReadingModal() {
                   <DialogTitle className="text-ivory font-display text-base sm:text-lg truncate" dir="rtl">
                     التفسير — {surahInfo?.arabicName}
                   </DialogTitle>
-                  <DialogDescription className="font-ui text-gold-bright/80 text-xs">
-                    Āyah {currentTafsirAyah} of {surahInfo?.ayahCount}
-                  </DialogDescription>
+                    <DialogDescription className="font-ui text-gold-bright/80 text-xs">
+                      {t('selectAyah')} {currentTafsirAyah} of {surahInfo?.ayahCount}
+                    </DialogDescription>
                 </div>
               </div>
 
@@ -389,7 +392,7 @@ export default function SurahReadingModal() {
                 {/* Arabic Ayah */}
                 {arabicAyah && (
                   <div className="p-4 sm:p-5 rounded-sm bg-[#F1E9D4] border border-gold/30">
-                    <span className="eyebrow mb-2 block text-maroon">Āyah</span>
+                    <span className="eyebrow mb-2 block text-maroon">{t('selectAyah')}</span>
                     <p
                       className="arabic-name text-lg sm:text-xl leading-loose text-emerald-deep"
                     >
@@ -406,7 +409,7 @@ export default function SurahReadingModal() {
                   <div className="p-4 sm:p-5 rounded-sm border-l-4 border-gold bg-muted/50">
                     <div className="flex items-center gap-2 mb-2">
                       <Khatam className="h-3 w-3 text-maroon" />
-                      <span className="eyebrow text-maroon">التفسير الميسر · Arabic</span>
+                      <span className="eyebrow text-maroon">{t('tafsirAlMuyassarTitle')}</span>
                     </div>
                     <p
                       className="arabic-name text-base leading-loose text-ink"
@@ -420,7 +423,7 @@ export default function SurahReadingModal() {
                   <div className="p-4 sm:p-5 rounded-sm border-l-4 border-emerald-deep bg-white/50">
                     <div className="flex items-center gap-2 mb-2">
                       <BookOpen className="w-3.5 h-3.5 text-emerald-mid" />
-                      <span className="eyebrow text-emerald-mid">Tafsir Ibn Kathir · English</span>
+                       <span className="eyebrow text-emerald-mid">{t('tafsirIbnKathirTitle')}</span>
                     </div>
                     <p
                       className="font-serif text-base leading-relaxed text-[#2C2418]"
@@ -432,7 +435,7 @@ export default function SurahReadingModal() {
             ) : (
               <div className="flex flex-col items-center justify-center py-12 gap-3">
                 <BookOpen className="w-10 h-10 text-gold/40" />
-                <p className="font-ui text-muted-foreground text-sm">No tafsir available for this āyah</p>
+                 <p className="font-ui text-muted-foreground text-sm">{t('noTafsirAvailable')}</p>
               </div>
             )}
           </div>
@@ -479,8 +482,8 @@ export default function SurahReadingModal() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75" />
                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gold" />
                   </span>
-                  Āyah {currentAyah}
-                </span>
+                   {t('selectAyah')} {currentAyah}
+                 </span>
               )}
 
               <button
@@ -490,8 +493,8 @@ export default function SurahReadingModal() {
                     ? 'bg-gold/20 text-gold-bright'
                     : 'text-ivory-dim hover:text-gold-bright hover:bg-white/10'
                 }`}
-                aria-label="Toggle translations"
-              >
+                 aria-label={t('toggleTranslations')}
+               >
                 <Languages className="w-5 h-5" />
               </button>
 
@@ -502,9 +505,9 @@ export default function SurahReadingModal() {
                     ? 'bg-gold/20 text-gold-bright'
                     : 'text-ivory-dim hover:text-gold-bright hover:bg-white/10'
                 }`}
-                aria-label="Toggle transliteration"
-                title="Transliteration"
-              >
+                 aria-label={t('toggleTransliteration')}
+                 title={t('toggleTransliteration')}
+               >
                 <AlignJustify className="w-5 h-5" />
               </button>
 
@@ -515,8 +518,8 @@ export default function SurahReadingModal() {
                     ? "bg-gold text-ink hover:bg-gold-bright"
                     : "bg-white/10 text-ivory hover:bg-white/20"
                 }`}
-                aria-label={isCurrentlyPlaying ? "Pause" : "Play surah"}
-              >
+                 aria-label={isCurrentlyPlaying ? t('pause') : t('playSurah')}
+               >
                 {isCurrentlyPlaying ? (
                   <Pause className="w-5 h-5 sm:w-6 sm:h-6" />
                 ) : (
@@ -527,8 +530,8 @@ export default function SurahReadingModal() {
               <button
                 onClick={closeReadingModal}
                 className="p-2.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/10 active:scale-95 touch-manipulation"
-                aria-label="Close"
-              >
+                 aria-label={t('close')}
+               >
                 <X className="w-5 h-5" />
               </button>
 
@@ -537,8 +540,8 @@ export default function SurahReadingModal() {
                 className={`p-2.5 rounded-full transition-all active:scale-95 touch-manipulation ${
                   showTafsir ? 'bg-gold/20 text-gold-bright' : 'text-ivory-dim hover:text-gold-bright hover:bg-white/10'
                 }`}
-                aria-label="Toggle tafsir"
-              >
+                 aria-label={t('toggleTafsir')}
+               >
                 <BookOpen className="w-5 h-5" />
               </button>
             </div>
@@ -561,14 +564,14 @@ export default function SurahReadingModal() {
                     viewMode === m.value ? 'bg-gold text-ink' : 'text-ivory-dim hover:text-gold-bright'
                   }`}
                 >
-                  {m.label}
+                  {t(m.labelKey)}
                 </button>
               ))}
             </div>
 
             <Select value={currentReciter} onValueChange={setCurrentReciter}>
               <SelectTrigger className="h-8 w-auto min-w-[120px] rounded-full bg-white/10 border-gold/30 text-ivory text-xs px-3">
-                <SelectValue placeholder="Reciter" />
+                <SelectValue placeholder={t('selectReciter')} />
               </SelectTrigger>
               <SelectContent className="bg-paper border-gold/40 max-h-60">
                 {RECITER_OPTIONS.map((r) => (
@@ -581,14 +584,14 @@ export default function SurahReadingModal() {
 
             <Select value={tafsirSource} onValueChange={(v) => setTafsirSource(v as TafsirSource)}>
               <SelectTrigger className="h-8 w-auto min-w-[120px] rounded-full bg-white/10 border-gold/30 text-ivory text-xs px-3">
-                <SelectValue placeholder="Tafsir" />
+                <SelectValue placeholder={t('selectTafsir')} />
               </SelectTrigger>
               <SelectContent className="bg-paper border-gold/40">
-                {TAFSIR_SOURCES.map((t) => (
-                  <SelectItem key={t.value} value={t.value} className="font-ui text-xs">
-                    {t.label}
-                  </SelectItem>
-                ))}
+                 {TAFSIR_SOURCES.map((src) => (
+                   <SelectItem key={src.value} value={src.value} className="font-ui text-xs">
+                     {t(src.labelKey)}
+                   </SelectItem>
+                 ))}
               </SelectContent>
             </Select>
           </div>
@@ -638,9 +641,9 @@ export default function SurahReadingModal() {
                 onClick={() => fetchSurahText()}
                 className="flex items-center gap-2 px-4 py-2 bg-emerald-deep text-ivory rounded-sm hover:bg-emerald-mid transition-colors font-ui text-sm touch-manipulation"
               >
-                <RefreshCw className="w-4 h-4" />
-                Retry
-              </button>
+                 <RefreshCw className="w-4 h-4" />
+                 {t('retry')}
+               </button>
             </div>
           )}
 
@@ -712,9 +715,9 @@ export default function SurahReadingModal() {
                       <button
                         onClick={() => copyAyah(ayah.text, ayah.numberInSurah)}
                         className="p-1.5 rounded-full text-maroon/70 hover:text-emerald-deep hover:bg-gold/10 transition-colors active:scale-95 touch-manipulation"
-                        aria-label="Copy ayah"
-                        title="Copy"
-                      >
+                         aria-label={t('copyAyah')}
+                         title={t('copyAyah')}
+                       >
                         {copiedAyah === ayah.numberInSurah ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                       </button>
                       <button
@@ -724,9 +727,9 @@ export default function SurahReadingModal() {
                             ? "text-gold hover:text-gold-bright hover:bg-gold/10"
                             : "text-maroon/70 hover:text-emerald-deep hover:bg-gold/10"
                         }`}
-                        aria-label="Bookmark ayah"
-                        title="Bookmark"
-                      >
+                         aria-label={t('bookmarkAyah')}
+                         title={t('bookmarkAyah')}
+                       >
                         {ayahBookmarks.has(`${surahNumber}:${ayah.numberInSurah}`) ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
                       </button>
                     </div>
@@ -735,7 +738,7 @@ export default function SurahReadingModal() {
                       <p className={`font-serif text-base leading-relaxed mt-3 ml-9 sm:ml-11 transition-colors duration-300 ${
                         isCurrentPlayingAyah ? "text-[#2C2418]" : "text-muted-foreground"
                       }`}>
-                        <span className="font-ui text-[10px] uppercase tracking-wider mr-2 text-maroon">EN</span>
+                        <span className="font-ui text-[10px] uppercase tracking-wider mr-2 text-maroon">{t('translationLangBadge')}</span>
                         {surahText.englishAyahs[index].text}
                       </p>
                     )}
@@ -777,7 +780,7 @@ export default function SurahReadingModal() {
                           aria-expanded={openTafsirAyahs.has(ayah.numberInSurah)}
                         >
                           <Khatam className="h-[11px] w-[11px]" />
-                          {openTafsirAyahs.has(ayah.numberInSurah) ? "Hide tafsir" : "Show tafsir"}
+                           {openTafsirAyahs.has(ayah.numberInSurah) ? t('hideTafsir') : t('showTafsir')}
                         </button>
 
                         {openTafsirAyahs.has(ayah.numberInSurah) && (
@@ -785,7 +788,7 @@ export default function SurahReadingModal() {
                             {loadingTafsir ? (
                               <div className="flex items-center gap-2 py-1 text-muted-foreground">
                                 <Loader2 className="h-4 w-4 animate-spin" />
-                                <span className="font-ui text-xs">Loading tafsir…</span>
+                                 <span className="font-ui text-xs">{t('loadingTafsir')}</span>
                               </div>
                             ) : (
                               <InlineTafsir entry={tafsirData[`${surahNumber}:${ayah.numberInSurah}`]} />
@@ -812,7 +815,7 @@ export default function SurahReadingModal() {
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors font-ui text-xs touch-manipulation"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span className="truncate max-w-[40vw]">{surahNumber <= 1 ? 'Al-Nas' : getSurahInfo(surahNumber - 1)?.englishName}</span>
+            <span className="truncate max-w-[40vw]">                   {surahNumber <= 1 ? t('alNas') : getSurahInfo(surahNumber - 1)?.englishName}</span>
           </button>
           <button
             onClick={() => {
@@ -822,7 +825,7 @@ export default function SurahReadingModal() {
             }}
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors font-ui text-xs touch-manipulation"
           >
-            <span className="truncate max-w-[40vw]">{surahNumber >= 114 ? 'Al-Fatiha' : getSurahInfo(surahNumber + 1)?.englishName}</span>
+            <span className="truncate max-w-[40vw]">                   {surahNumber >= 114 ? t('alFatifa') : getSurahInfo(surahNumber + 1)?.englishName}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -833,16 +836,18 @@ export default function SurahReadingModal() {
 }
 
 function InlineTafsir({ entry }: { entry?: TafsirEntry }) {
+  const t = useTranslations('surahModal');
+
   if (!entry || (!entry.arabicText && !entry.englishText)) {
     return (
-      <p className="font-ui text-sm text-muted-foreground">No tafsir available for this āyah.</p>
+      <p className="font-ui text-sm text-muted-foreground">{t('noTafsirAvailable')}</p>
     );
   }
   return (
     <>
       {entry.arabicText && (
         <>
-          <span className="eyebrow mb-1.5 block text-maroon">التفسير الميسر · Arabic</span>
+          <span className="eyebrow mb-1.5 block text-maroon">{t('tafsirAlMuyassarTitle')}</span>
           <p
             className="arabic-name text-base leading-loose text-emerald-deep"
             dangerouslySetInnerHTML={{ __html: sanitizeTafsir(entry.arabicText) }}
@@ -851,7 +856,7 @@ function InlineTafsir({ entry }: { entry?: TafsirEntry }) {
       )}
       {entry.englishText && (
         <div className={entry.arabicText ? "mt-3.5 border-t border-dashed border-emerald-deep/20 pt-3.5" : ""}>
-          <span className="eyebrow mb-1.5 block text-emerald-mid">Tafsir Ibn Kathir · English</span>
+          <span className="eyebrow mb-1.5 block text-emerald-mid">{t('tafsirIbnKathirTitle')}</span>
           <p
             className="font-serif text-base leading-relaxed text-[#2C2418]"
             dangerouslySetInnerHTML={{ __html: sanitizeTafsir(entry.englishText) }}

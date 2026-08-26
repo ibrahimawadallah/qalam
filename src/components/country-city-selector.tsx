@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from 'next-intl';
 
 interface Country {
   code: string;
@@ -88,6 +89,8 @@ export default function CountryCitySelector({
   onSearch,
   loading,
 }: Props) {
+  const t = useTranslations('countrySelector');
+
   const [countryInput, setCountryInput] = useState(country);
   const [cityInput, setCityInput] = useState(city);
   const [showCountryList, setShowCountryList] = useState(false);
@@ -171,7 +174,7 @@ export default function CountryCitySelector({
       <div className="relative" ref={countryRef}>
         <input
           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
-          placeholder="Select or type country (e.g. Germany)"
+           placeholder={t('placeholderCountry')}
           value={countryInput}
           onChange={(e) => {
             setCountryInput(e.target.value);
@@ -197,7 +200,7 @@ export default function CountryCitySelector({
                 }`}
               >
                 <span className="font-medium">{item.name}</span>
-                <span className="ml-2 text-xs text-muted-foreground/50">({item.cities.length} cities)</span>
+                 <span className="ml-2 text-xs text-muted-foreground/50">{t.rich('citiesCount', { n: item.cities.length })}</span>
               </button>
             ))}
           </div>
@@ -207,7 +210,7 @@ export default function CountryCitySelector({
       <div className="relative" ref={cityRef}>
         <input
           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50 disabled:opacity-50"
-          placeholder={matchedCountry ? "Select or type city (e.g. Berlin)" : "Choose a country first"}
+           placeholder={matchedCountry ? t('placeholderCity') : t('chooseCountryFirst')}
           value={cityInput}
           onChange={(e) => {
             setCityInput(e.target.value);
@@ -237,7 +240,7 @@ export default function CountryCitySelector({
                 </button>
               ))}
             {availableCities.filter((c) => c.toLowerCase().includes(cityInput.toLowerCase().trim())).length === 0 && (
-              <div className="px-3 py-2 text-xs text-muted-foreground/50">Type to search cities…</div>
+               <div className="px-3 py-2 text-xs text-muted-foreground/50">{t('citySearchPlaceholder')}</div>
             )}
           </div>
         )}

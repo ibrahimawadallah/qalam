@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl';
 import PageHead from "@/components/page-head";
 import Khatam from "@/components/khatam";
 import DuaCard from "@/components/hisn-dua-card";
@@ -10,13 +11,13 @@ import type { Dua } from "@/lib/hisn-muslim-types";
 export const dynamic = "force-dynamic";
 
 export default function HisnMuslimPage() {
+  const t = useTranslations('hisnMuslim');
   const totalDuas = hisnData.chapters.reduce((sum, ch) => sum + ch.duas.length, 0);
 
   return (
     <div className="min-h-screen">
-      <PageHead eyebrow={`Fortress of the Muslim · ${totalDuas} duas`} title="Hisn al-Muslim">
-        Supplications gathered by daily occasion — from waking to sleeping — each with
-        individual audio recitation.
+      <PageHead eyebrow={t.rich('eyebrow', { total: totalDuas })} title={t('title')}>
+        {t('description')}
       </PageHead>
 
       <main className="mx-auto max-w-[820px] px-6 py-12 page-enter">

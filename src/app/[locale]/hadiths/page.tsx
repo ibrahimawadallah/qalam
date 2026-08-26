@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from 'next-intl';
 import PageHead from "@/components/page-head";
 import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 
@@ -40,6 +41,8 @@ const COLLECTIONS: Collection[] = [
 ];
 
 export default function HadithsPage() {
+  const t = useTranslations('hadiths');
+  const tCommon = useTranslations('common');
   const [collection, setCollection] = useState("bukhari");
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
@@ -75,8 +78,8 @@ export default function HadithsPage() {
 
   return (
     <div className="min-h-screen">
-      <PageHead eyebrow="Prophetic traditions" title="الأحاديث النبوية">
-        Authentic narrations from the major collections — presented in Arabic with translation.
+      <PageHead eyebrow={t('eyebrow')} title={t('title')}>
+        {t('description')}
       </PageHead>
 
       <main className="mx-auto max-w-[820px] px-6 py-12 page-enter">
@@ -101,7 +104,7 @@ export default function HadithsPage() {
             className="flex items-center justify-center gap-2 rounded-sm bg-emerald-deep px-5 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-            {loading ? "Loading..." : "Refresh"}
+            {loading ? tCommon('loading') : t('refresh')}
           </button>
         </div>
 
@@ -111,7 +114,11 @@ export default function HadithsPage() {
           <p className="eyebrow text-maroon">{currentCollection.name}</p>
           {data && (
             <p className="font-ui text-xs text-muted-foreground">
-              Page {data.pagination.page} of {totalPages} · {data.pagination.total} hadiths
+              {t.rich('pageOfTotal', {
+                page: data.pagination.page,
+                total: totalPages,
+                totalHadiths: data.pagination.total,
+              })}
             </p>
           )}
         </div>
@@ -140,17 +147,17 @@ export default function HadithsPage() {
               className="flex items-center gap-1 rounded-sm border border-border px-4 py-2.5 font-ui text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
-              Previous
+              {tCommon('previous')}
             </button>
             <span className="font-ui text-xs text-muted-foreground">
-              Page {page} / {totalPages}
+              {tCommon('page')} {page} / {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || loading}
               className="flex items-center gap-1 rounded-sm border border-border px-4 py-2.5 font-ui text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
             >
-              Next
+              {tCommon('next')}
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>

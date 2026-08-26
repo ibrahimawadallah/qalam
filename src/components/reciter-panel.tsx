@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { useTranslations } from 'next-intl';
 import { Search, Check } from "lucide-react";
 import {
   Sheet,
@@ -25,6 +26,8 @@ const CATEGORY_FLAGS: Record<string, string> = {
 const CATEGORY_ORDER = ["Popular", "Egyptian", "Saudi", "Other"];
 
 export default function ReciterPanel() {
+  const t = useTranslations('reciterPanel');
+
   const {
     showReciterPanel,
     setShowReciterPanel,
@@ -91,9 +94,9 @@ export default function ReciterPanel() {
         }}
       >
         <SheetHeader className="mb-4">
-          <SheetTitle className="text-foreground text-lg">Reciters</SheetTitle>
+          <SheetTitle className="text-foreground text-lg">{t('title')}</SheetTitle>
           <SheetDescription className="text-muted-foreground text-sm">
-            Choose your preferred reciter — full surah streaming
+            {t('description')}
           </SheetDescription>
         </SheetHeader>
 
@@ -101,7 +104,7 @@ export default function ReciterPanel() {
         <div className="relative mb-5 px-4">
           <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search reciters..."
+             placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 bg-muted/30 border-border text-foreground placeholder:text-muted-foreground focus-visible:border-primary/40 focus-visible:ring-primary/15"
@@ -119,8 +122,8 @@ export default function ReciterPanel() {
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-lg">{CATEGORY_FLAGS[category]}</span>
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                    {category}
-                  </h3>
+                     {t(category.toLowerCase())}
+                   </h3>
                   <span className="text-xs text-muted-foreground/50">
                     ({catReciters.length})
                   </span>
@@ -190,12 +193,11 @@ export default function ReciterPanel() {
               <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z" />
             </svg>
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              Audio Quality
+              {t('audioQuality')}
             </h3>
           </div>
           <p className="text-xs text-muted-foreground/60 leading-relaxed">
-            Full surah streaming — each surah plays as one complete audio file for seamless, gapless playback.
-            Primary source: mp3quran.net with automatic fallback for maximum reliability.
+            {t('streamingInfo')} {t('sourceInfo')}
           </p>
         </div>
       </SheetContent>

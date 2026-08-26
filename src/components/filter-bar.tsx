@@ -1,9 +1,12 @@
 'use client';
 
 import { Search, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useAudioStore } from '@/lib/audio-store';
 
 export default function FilterBar() {
+  const t = useTranslations('filterBar');
+
   const {
     searchQuery,
     setSearchQuery,
@@ -14,7 +17,7 @@ export default function FilterBar() {
       <Search className="h-4 w-4 shrink-0 text-maroon" />
       <input
         type="text"
-        placeholder="Try &lsquo;Kahf&rsquo;, &lsquo;الرحمن&rsquo;, or &lsquo;36&rsquo;…"
+         placeholder={t('placeholder')}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full bg-transparent font-serif text-base text-ink outline-none placeholder:text-muted-foreground"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PageHead from "@/components/page-head";
 import Khatam from "@/components/khatam";
@@ -34,6 +35,8 @@ type CalendarResponse = {
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function IslamicCalendarPage() {
+  const t = useTranslations('calendar');
+  const tCommon = useTranslations('common');
   const today = useMemo(() => new Date(), []);
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
@@ -46,7 +49,7 @@ export default function IslamicCalendarPage() {
     setError(null);
     try {
       const res = await fetch(`/api/islamic-calendar?month=${month}&year=${year}`);
-      if (!res.ok) throw new Error("Failed to load calendar");
+      if (!res.ok) throw new Error(t('loadingError'));
       const json = (await res.json()) as CalendarResponse;
       setData(json.data);
     } catch (e) {
@@ -93,8 +96,8 @@ export default function IslamicCalendarPage() {
 
   return (
     <div className="min-h-screen">
-      <PageHead eyebrow="Hijri & Gregorian" title="Islamic Calendar">
-        The Hijri calendar with corresponding Gregorian dates, month by month.
+      <PageHead eyebrow={t('eyebrow')} title={t('title')}>
+        {t('description')}
       </PageHead>
 
       <main className="mx-auto max-w-[820px] px-6 py-12 page-enter">
@@ -113,7 +116,7 @@ export default function IslamicCalendarPage() {
             className="flex items-center gap-1 rounded-sm border border-border px-3.5 py-2.5 font-ui text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
-            Previous
+            {tCommon('previous')}
           </button>
 
           <div className="text-center">
@@ -140,7 +143,7 @@ export default function IslamicCalendarPage() {
             disabled={loading}
             className="flex items-center gap-1 rounded-sm border border-border px-3.5 py-2.5 font-ui text-sm text-muted-foreground hover:border-gold hover:bg-muted disabled:opacity-50 transition-colors"
           >
-            Next
+            {tCommon('next')}
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -200,18 +203,18 @@ export default function IslamicCalendarPage() {
           <div className="tile-corners mt-8 rounded-sm border border-gold/30 bg-paper p-6 shadow-[var(--shadow-deep)]">
             <h3 className="mb-4 flex items-center gap-2.5 text-xl text-emerald-deep">
               <Khatam className="h-4 w-4 text-maroon" />
-              Today&apos;s date
+              {t('todayDate')}
             </h3>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
-                <p className="eyebrow mb-1.5 text-maroon">Hijri</p>
+                <p className="eyebrow mb-1.5 text-maroon">{t('hijriLabel')}</p>
                 <p className="font-display text-lg text-ink">
                   {data[0]?.date.hijri.day} {data[0]?.date.hijri.month.en} {data[0]?.date.hijri.year}
                 </p>
                 <p className="arabic-name mt-0.5 text-sm text-muted-foreground" dir="rtl">{data[0]?.date.hijri.month.ar}</p>
               </div>
               <div>
-                <p className="eyebrow mb-1.5 text-maroon">Gregorian</p>
+                <p className="eyebrow mb-1.5 text-maroon">{t('gregorianLabel')}</p>
                 <p className="font-display text-lg text-ink">
                   {data[0]?.date.gregorian.day} {data[0]?.date.gregorian.month.en} {data[0]?.date.gregorian.year}
                 </p>

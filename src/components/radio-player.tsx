@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
+import { useTranslations } from 'next-intl';
 import { Play, Pause, Volume2, VolumeX, X, Loader2, Signal, ChevronLeft, ChevronRight, List } from "lucide-react";
 import { useAudioStore } from "@/lib/audio-store";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 
-const CATEGORY_BADGE: Record<string, { label: string; cls: string }> = {
-  quran: { label: "Quran", cls: "border-gold/40 text-gold-bright" },
-  ruqyah: { label: "Ruqyah", cls: "border-[#e07a6a]/50 text-[#eda092]" },
-  hisn_muslim: { label: "Hisn Muslim", cls: "border-gold/40 text-gold-bright" },
+const CATEGORY_BADGE: Record<string, { cls: string }> = {
+  quran: { cls: "border-gold/40 text-gold-bright" },
+  ruqyah: { cls: "border-[#e07a6a]/50 text-[#eda092]" },
+  hisn_muslim: { cls: "border-gold/40 text-gold-bright" },
 };
 
 function CairoClock({ timezone }: { timezone: string }) {
@@ -44,6 +45,7 @@ function CairoClock({ timezone }: { timezone: string }) {
 }
 
 export default function RadioPlayer() {
+  const t = useTranslations('radioPlayer');
   const audioRef = useRef<HTMLAudioElement>(null);
   const userGestureRef = useRef(false);
   const pendingPlayRef = useRef<(() => void) | null>(null);
@@ -68,6 +70,15 @@ export default function RadioPlayer() {
 
   const isPlayingRef = useRef(isRadioPlaying);
   isPlayingRef.current = isRadioPlaying;
+
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case 'quran': return t('categoryQuran');
+      case 'ruqyah': return t('categoryRuqyah');
+      case 'hisn_muslim': return t('categoryHisn');
+      default: return cat;
+    }
+  };
 
   const stopReconnect = useCallback(() => {
     if (reconnectTimerRef.current) {
@@ -270,7 +281,7 @@ export default function RadioPlayer() {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="eyebrow text-[10px] text-gold-bright shrink-0">
-                  LIVE
+                  {t('live')}
                 </span>
                 <Badge
                   variant="outline"
@@ -278,7 +289,7 @@ export default function RadioPlayer() {
                     CATEGORY_BADGE[currentRadio.category]?.cls ?? "border-gold/40 text-gold-bright"
                   }`}
                 >
-                  {CATEGORY_BADGE[currentRadio.category]?.label ?? currentRadio.category}
+                  {getCategoryLabel(currentRadio.category)}
                 </Badge>
                 <span className="font-display text-sm sm:text-base text-ivory truncate" dir="rtl">
                   {currentRadio.arabicName}
@@ -299,9 +310,8 @@ export default function RadioPlayer() {
                 {currentRadio.isLive !== false && hasError && (
                   <span className="text-[#f0a08e] ml-2">
                     {reconnectCountRef.current > 0
-                      ? `Reconnecting… (${reconnectCountRef.current}`
-                      : "Connection lost — retrying"}
-                    {reconnectCountRef.current > 0 ? ")" : "..."}
+                      ? t.rich('reconnecting', { n: reconnectCountRef.current })
+                      : t('connectionLost')}
                   </span>
                 )}
               </div>
@@ -314,14 +324,14 @@ export default function RadioPlayer() {
                 <button
                   onClick={() => cycleRadioStation(-1)}
                   className="hidden sm:flex p-1 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95"
-                  aria-label="Previous station"
+                  aria-label={t('previousStation')}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => cycleRadioStation(1)}
                   className="hidden sm:flex p-1 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95"
-                  aria-label="Next station"
+                  aria-label={t('nextStation')}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -334,8 +344,8 @@ export default function RadioPlayer() {
                   ? "bg-gold text-ink hover:bg-gold-bright shadow-lg"
                   : "bg-gold/15 text-gold-bright hover:bg-gold/25"
               }`}
-              aria-label={isRadioPlaying ? "Pause" : "Play"}
-            >
+               aria-label={isRadioPlaying ? t('pause') : t('play')}
+             >
               {isConnecting ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : isRadioPlaying ? (
@@ -349,8 +359,8 @@ export default function RadioPlayer() {
               <button
                 onClick={() => setIsMuted(!isMuted)}
                 className="text-ivory-dim hover:text-gold-bright transition-colors p-1 rounded-full hover:bg-white/5"
-                aria-label={isMuted ? "Unmute" : "Mute"}
-              >
+                 aria-label={isMuted ? t('unmute') : t('mute')}
+               >
                 {isMuted || volume === 0 ? (
                   <VolumeX className="w-3.5 h-3.5" />
                 ) : (
@@ -374,18 +384,18 @@ export default function RadioPlayer() {
 
             {currentRadio.isLive !== false && (
               <button
-                onClick={toggleRadioPanel}
-                className="p-2.5 sm:p-1.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
-                aria-label="Browse stations"
-              >
+                 onClick={toggleRadioPanel}
+                 className="p-2.5 sm:p-1.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+                 aria-label={t('browseStations')}
+               >
                 <List className="w-5 h-5 sm:w-4 sm:h-4" />
               </button>
             )}
             <button
-              onClick={handleClose}
-              className="p-2.5 sm:p-1.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
-              aria-label="Close radio"
-            >
+               onClick={handleClose}
+               className="p-2.5 sm:p-1.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+               aria-label={t('closeRadio')}
+             >
               <X className="w-5 h-5 sm:w-4 sm:h-4" />
             </button>
           </div>

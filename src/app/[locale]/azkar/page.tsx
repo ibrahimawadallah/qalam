@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from "react";
 import PageHead from "@/components/page-head";
 import Khatam from "@/components/khatam";
@@ -10,6 +11,8 @@ import type { Dua } from "@/lib/hisn-muslim-types";
 export const dynamic = "force-dynamic";
 
 export default function AzkarPage() {
+  const t = useTranslations('azkar');
+  const tCommon = useTranslations('common');
   const [chapters, setChapters] = useState<{ name: string; duas: Dua[] }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,13 +23,13 @@ export default function AzkarPage() {
     async function load() {
       try {
         const res = await fetch("/api/azkar");
-        if (!res.ok) throw new Error("Failed to load azkar");
+        if (!res.ok) throw new Error(t('loadingError'));
         const json = await res.json();
         if (cancelled) return;
         setChapters(json.chapters ?? []);
       } catch (e) {
         if (cancelled) return;
-        setError(e instanceof Error ? e.message : "Unknown error");
+        setError(e instanceof Error ? e.message : tCommon('unknownError'));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -40,9 +43,8 @@ export default function AzkarPage() {
 
   return (
     <div className="min-h-screen">
-      <PageHead eyebrow="Daily remembrance" title="Azkar">
-        The morning and evening formulas of dhikr, recited in their traditional order — with
-        audio for every supplication.
+      <PageHead eyebrow={t('eyebrow')} title={t('title')}>
+        {t('description')}
       </PageHead>
 
       <main className="mx-auto max-w-[820px] px-6 py-12 page-enter">

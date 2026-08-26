@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from 'next-intl';
 import { Play, Pause } from "lucide-react";
 import { useHisnAudio } from "@/components/hisn-audio-context";
 import type { Dua } from "@/lib/hisn-muslim-types";
 
 export default function DuaCard({ dua }: { dua: Dua }) {
+  const t = useTranslations('hisnDuaCard');
+
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { playingId, setPlayingId } = useHisnAudio();
@@ -52,7 +55,7 @@ export default function DuaCard({ dua }: { dua: Dua }) {
               <button
                 type="button"
                 onClick={togglePlay}
-                aria-label={isPlaying ? "Pause recitation" : "Play recitation"}
+                 aria-label={isPlaying ? t('pauseRecitation') : t('playRecitation')}
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all ${
                   isPlaying
                     ? "border border-emerald-deep bg-emerald-deep text-gold-bright"
@@ -88,16 +91,16 @@ export default function DuaCard({ dua }: { dua: Dua }) {
         {(dua.transliteration || dua.englishTranslation) && (
           <div className="grid gap-3 sm:grid-cols-2">
             {dua.transliteration && (
-              <div className="rounded-sm border-l-[3px] border-gold bg-muted/40 p-3">
-                <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-maroon">Transliteration</p>
+               <div className="rounded-sm border-l-[3px] border-gold bg-muted/40 p-3">
+                 <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-maroon">{t('transliteration')}</p>
                 <p className="font-serif text-[13px] italic leading-relaxed text-[#4a4433]" dir="ltr">
                   {dua.transliteration}
                 </p>
               </div>
             )}
             {dua.englishTranslation && (
-              <div className={`rounded-sm border-l-[3px] border-gold bg-muted/40 p-3 ${!dua.transliteration ? "sm:col-span-2" : ""}`}>
-                <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-maroon">Translation</p>
+               <div className={`rounded-sm border-l-[3px] border-gold bg-muted/40 p-3 ${!dua.transliteration ? "sm:col-span-2" : ""}`}>
+                 <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-maroon">{t('translation')}</p>
                 <p className="font-serif text-[13.5px] leading-relaxed text-ink" dir="ltr">
                   {dua.englishTranslation}
                 </p>

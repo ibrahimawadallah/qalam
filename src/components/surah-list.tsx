@@ -1,10 +1,13 @@
 'use client';
 
 import { Play, Pause, BookOpen } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useAudioStore } from '@/lib/audio-store';
 import type { Surah } from '@/lib/quran-types';
 
 export default function SurahList() {
+  const t = useTranslations('surahList');
+
   const { filteredSurahs, currentSurah, isPlaying, play, togglePlay, openReadingModal } =
     useAudioStore();
 
@@ -29,8 +32,8 @@ export default function SurahList() {
         <svg className="mb-3 h-10 w-10 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <p className="font-ui text-sm font-medium">No surahs found</p>
-        <p className="mt-1 font-ui text-xs">Try a different name or number</p>
+         <p className="font-ui text-sm font-medium">{t('noSurahsFound')}</p>
+         <p className="mt-1 font-ui text-xs">{t('tryDifferentSearch')}</p>
       </div>
     );
   }
@@ -70,9 +73,9 @@ export default function SurahList() {
 
             {/* Arabic + actions */}
             <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-              <span className="hidden whitespace-nowrap font-ui text-[10.5px] text-[#8a8168] sm:block">
-                {surah.ayahCount} ayat
-              </span>
+               <span className="hidden whitespace-nowrap font-ui text-[10.5px] text-[#8a8168] sm:block">
+                 {surah.ayahCount} {t('ayat')}
+               </span>
               <span className="arabic-name min-w-[52px] text-right text-xl leading-none text-emerald-deep sm:min-w-[72px]" dir="rtl">
                 {surah.arabicName}
               </span>
