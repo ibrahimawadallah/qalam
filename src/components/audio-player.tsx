@@ -15,7 +15,6 @@ import {
   RefreshCw,
   Bookmark,
   BookmarkCheck,
-  Image,
   Shuffle,
   Repeat,
   Download,
@@ -24,12 +23,9 @@ import {
   GripHorizontal,
 } from "lucide-react";
 import { useAudioStore } from "@/lib/audio-store";
-import type { SurahText } from "@/lib/quran-types";
 import Khatam from "@/components/khatam";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const surahTextCache = new Map<number, SurahText>();
 
 interface AyahTiming {
   timestamp: number;
@@ -93,13 +89,8 @@ export default function AudioPlayer() {
   const [isMuted, setIsMuted] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [ayahProgress, setAyahProgress] = useState(0);
-  const [showVideo, setShowVideo] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
-  const [overlaySurahText, setOverlaySurahText] = useState<SurahText | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [pendingPlay, setPendingPlay] = useState(false);
-
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   // ------------------------------------------------------------------
   // Helpers
@@ -474,40 +465,12 @@ export default function AudioPlayer() {
   }, [isPlayerVisible, currentSurah, currentReciter, togglePlay, hidePlayer, seekTo, nextSurah, prevSurah, isBookmarked, saveBookmark, clearBookmark, setPlaybackSpeed]);
 
   // ------------------------------------------------------------------
-  // Spiritual video overlay
-  // ------------------------------------------------------------------
-
-  useEffect(() => {
-    if (!showVideo || !currentSurah) return;
-    setVideoFailed(false);
-
-    const num = currentSurah.number;
-    const cached = surahTextCache.get(num);
-    if (cached) { setOverlaySurahText(cached); return; }
-
-    setOverlaySurahText(null);
-    const ctrl = new AbortController();
-    fetch(`/api/surah/${num}`, { signal: ctrl.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data: SurahText) => {
-        if (ctrl.signal.aborted || !data?.arabicAyahs?.length) return;
-        surahTextCache.set(num, data);
-        setOverlaySurahText(data);
-      })
-      .catch(() => {});
-
-    return () => ctrl.abort();
-  }, [showVideo, currentSurah]);
-
-  // ------------------------------------------------------------------
   // Render guard
   // ------------------------------------------------------------------
 
   if (!isPlayerVisible || !currentSurah) return null;
 
   const progressPct = displayDuration > 0 ? (displayTime / displayDuration) * 100 : 0;
-  const overlayArabic = overlaySurahText?.arabicAyahs?.find((a) => a.numberInSurah === currentAyahInSurah);
-  const overlayEnglish = overlaySurahText?.englishAyahs?.find((a) => a.numberInSurah === currentAyahInSurah);
 
   // ------------------------------------------------------------------
   // JSX
@@ -729,16 +692,6 @@ export default function AudioPlayer() {
                   </Select>
 
                   <button
-                    onClick={() => setShowVideo(!showVideo)}
-                    className={`p-2 rounded-full transition-colors active:scale-95 touch-manipulation ${
-                      showVideo ? "text-gold-bright bg-gold/15" : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
-                    }`}
-                    aria-label={showVideo ? t("hideVideo") : t("showVideo")}
-                  >
-                    <Image className="w-4 h-4" />
-                  </button>
-
-                  <button
                     onClick={() => {
                       if (!currentSurah || !currentReciter) return;
                       const key = `${currentSurah.number}-${currentReciter}`;
@@ -774,76 +727,6 @@ export default function AudioPlayer() {
             </div>
           )}
         </div>
-
-        {/* Spiritual video overlay */}
-        {showVideo && (
-          <div className="fixed inset-0 z-[60] bg-black">
-            {videoFailed ? (
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-950 via-slate-950 to-black" />
-            ) : (
-              <video
-                ref={videoRef}
-                src="/spiritual-video.mp4"
-                className="absolute inset-0 w-full h-full object-cover"
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                onError={() => setVideoFailed(true)}
-              />
-            )}
-
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/70 via-black/10 to-black/90" />
-
-            <button
-              onClick={() => setShowVideo(false)}
-              className="absolute top-4 right-4 z-20 p-2.5 text-white hover:text-primary rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/70 active:scale-95 touch-manipulation"
-              aria-label={t("closeVideo")}
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Live ayah content */}
-            <div className="absolute inset-x-0 bottom-0 z-10 pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-              <div className="mx-auto max-w-3xl px-4 sm:px-6 space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="shrink-0 text-xs font-bold text-primary bg-primary/15 border border-primary/30 px-2.5 py-1 rounded-full">
-                      {currentSurah.number}
-                    </span>
-                    <span dir="rtl" lang="ar" className="text-lg sm:text-xl font-bold text-white truncate">
-                      {currentSurah.arabicName}
-                    </span>
-                  </div>
-                  <span className="shrink-0 text-xs font-medium text-white/90 bg-white/10 border border-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                    Ayah {currentAyahInSurah} / {currentSurah.ayahCount}
-                  </span>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-black/60 backdrop-blur-md shadow-2xl px-5 py-4 sm:px-6 sm:py-5">
-                  {overlayArabic ? (
-                    <>
-                      <p dir="rtl" lang="ar" className="text-right text-xl sm:text-2xl leading-[2.2] text-amber-50">
-                        {overlayArabic.text}
-                      </p>
-                      {overlayEnglish?.text && (
-                        <p className="mt-3 pt-3 border-t border-white/10 text-sm sm:text-base leading-relaxed text-white/75">
-                          {overlayEnglish.text}
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <div className="flex items-center justify-center gap-2 py-4 text-sm text-white/60">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      {t("loadingAyah")}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </>
   );
