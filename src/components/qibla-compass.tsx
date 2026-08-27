@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from 'next-intl';
-import { Compass } from "lucide-react";
+import { Compass, Navigation } from "lucide-react";
 
 interface QiblaCompassProps {
   lat: number;
@@ -53,6 +53,7 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
   const distanceKm = useMemo(() => haversine(lat, lng, KAABA_LAT, KAABA_LNG), [lat, lng]);
   const headingRef = useRef<number>(0);
   const hasPermissionRef = useRef(false);
+  const handleOrientationRef = useRef<EventListener | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -67,27 +68,26 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
       if (e.alpha === null) return;
-      if (!hasPermissionRef.current) {
+      if (hasPermissionRef.current === false) {
         hasPermissionRef.current = true;
         setHasPermission(true);
       }
 
       let compassHeading: number;
 
-      // iOS provides webkitCompassHeading (clockwise from north)
       if ((e as any).webkitCompassHeading !== undefined) {
         compassHeading = (e as any).webkitCompassHeading;
       } else if (e.absolute) {
-        // Android absolute: alpha is CCW from north
         compassHeading = (360 - e.alpha) % 360;
       } else {
-        // Relative orientation — not usable as compass heading
         return;
       }
 
       headingRef.current = compassHeading;
       setHeading(compassHeading);
     };
+
+    handleOrientationRef.current = handleOrientation;
 
     const requestPermission = (
       DeviceOrientationEvent as unknown as {
@@ -99,10 +99,11 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
       requestPermission()
         .then((response: string) => {
           if (response === "granted") {
+            hasPermissionRef.current = true;
             setHasPermission(true);
             window.addEventListener(
               "deviceorientation",
-              handleOrientation as EventListener,
+              handleOrientation,
               true
             );
           } else {
@@ -111,10 +112,11 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
         })
         .catch(() => setHasPermission(false));
     } else if ("DeviceOrientationEvent" in window) {
+      hasPermissionRef.current = true;
       setHasPermission(true);
       window.addEventListener(
         "deviceorientation",
-        handleOrientation as EventListener,
+        handleOrientation,
         true
       );
     } else {
@@ -124,11 +126,13 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
 
   useEffect(() => {
     return () => {
-      window.removeEventListener(
-        "deviceorientation",
-        () => {},
-        true
-      );
+      if (handleOrientationRef.current) {
+        window.removeEventListener(
+          "deviceorientation",
+          handleOrientationRef.current,
+          true
+        );
+      }
     };
   }, []);
 
@@ -141,7 +145,7 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
   const isAligned = deviation !== null && deviation < 20;
 
   const markerRotation = useMemo(() => {
-    if (heading === null) return 0;
+    if (heading === null) return qiblaBearing;
     return ((qiblaBearing - heading + 360) % 360);
   }, [heading, qiblaBearing]);
 
@@ -159,96 +163,166 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
         ? t('facingQibla')
         : t.rich('offQibla', { n: Math.round(deviation) });
 
-  // No geolocation passed yet
+  const isMobile = typeof window !== "undefined" && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  const hasOrientationSensor = typeof window !== "undefined" && "DeviceOrientationEvent" in window;
+
   if (!lat || !lng) return null;
 
   return (
-    <div className="mt-6 mx-auto max-w-lg rounded-2xl border border-border bg-card p-4">
+    <div className="mt-6 mx-auto max-w-lg rounded-2xl border border-border bg-card p-5">
       <div className="flex items-center gap-2 mb-3">
         <Compass className={`w-4 h-4 ${arrowColor}`} />
         <span className="text-xs font-semibold text-foreground">
           {t('title')}
         </span>
       </div>
-      <p className="text-[11px] text-muted-foreground mb-2">
+      <p className="text-[11px] text-muted-foreground mb-3">
         {statusText} — Distance to Kaaba: ~{Math.round(distanceKm).toLocaleString()} km
       </p>
 
-      {/* Permission button (iOS needs user gesture) */}
-      {hasPermission === false && (
+      {!isMobile && hasOrientationSensor && !permissionRequested && (
         <button
           onClick={startListening}
-         className="mb-3 w-full rounded-sm border border-gold bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid"
-       >
-         {t('enableCompass')}
-       </button>
+          className="mb-3 w-full rounded-sm border border-gold bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid"
+        >
+          <span className="flex items-center justify-center gap-2">
+            <Navigation className="w-4 h-4" />
+            {t('enableCompass')}
+          </span>
+        </button>
       )}
 
-      {/* Compass dial */}
-      <div className="relative w-48 h-48 mx-auto mb-3">
-        <div className="absolute inset-0 rounded-full border-2 border-border" />
+      {hasPermission === false && !permissionRequested && (
+        <button
+          onClick={startListening}
+          className="mb-3 w-full rounded-sm border border-gold bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid"
+        >
+          <span className="flex items-center justify-center gap-2">
+            <Navigation className="w-4 h-4" />
+            {t('enableCompass')}
+          </span>
+        </button>
+      )}
 
-        {/* N label */}
-         <div className="absolute inset-x-0 bottom-2 flex justify-center">
-           <span className="text-[10px] text-muted-foreground font-semibold">{t('north')}</span>
-         </div>
+      {hasPermission === false && permissionRequested && (
+        <p className="mb-3 text-center text-xs text-destructive">
+          Compass access denied. Please enable device orientation in your browser settings.
+        </p>
+      )}
 
-        {/* Qibla arrow — rotates by relative bearing */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-full h-full relative">
+      {!hasOrientationSensor && (
+        <div className="mb-3 rounded-lg border border-dashed border-border bg-muted/30 p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">
+            Compass sensor not available on this device
+          </p>
+          <p className="text-[10px] text-muted-foreground/70">
+            Qibla direction: {qiblaBearing.toFixed(0)}° from North
+          </p>
+        </div>
+      )}
+
+      {(heading !== null || hasPermission === true) && (
+        <>
+          {/* Compass dial */}
+          <div className="relative w-56 h-56 mx-auto mb-3">
+            {/* Outer ring with degree markers */}
+            <div className="absolute inset-0 rounded-full border-[3px] border-border shadow-lg" />
+
+            {/* Degree markers */}
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
+              const angle = (deg - 90) * (Math.PI / 180);
+              const radius = 48;
+              const x = 50 + radius * Math.cos(angle);
+              const y = 50 + radius * Math.sin(angle);
+              return (
+                <div
+                  key={deg}
+                  className="absolute text-[9px] font-semibold text-muted-foreground"
+                  style={{
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  {deg === 0 ? 'N' : deg === 90 ? 'E' : deg === 180 ? 'S' : deg === 270 ? 'W' : ''}
+                </div>
+              );
+            })}
+
+            {/* N label */}
+            <div className="absolute inset-x-0 top-1.5 flex justify-center">
+              <span className="text-[10px] font-bold text-maroon">N</span>
+            </div>
+
+            {/* Qibla direction indicator (static arc) */}
             <div
-              className="absolute left-0 right-0 top-1 flex justify-center transition-transform duration-300"
-              style={{ transform: `rotate(${markerRotation}deg)` }}
+              className="absolute inset-0 flex items-center justify-center"
+              style={{
+                transform: `rotate(${qiblaBearing}deg)`,
+                transformOrigin: 'center',
+              }}
             >
-              <div className={`flex flex-col items-center ${arrowColor}`}>
-                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2l5 9h-3v7h-4v-7h-3l5-9z" />
-                </svg>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1">
+                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-maroon" />
               </div>
             </div>
+
+            {/* Qibla arrow — rotates by relative bearing */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className="transition-transform duration-300"
+                style={{ transform: `rotate(${markerRotation}deg)` }}
+              >
+                <div className={`flex flex-col items-center ${arrowColor}`}>
+                  <svg className="w-10 h-10 drop-shadow-lg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l5 9h-3v7h-4v-7h-3l5-9z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Center dot */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className={`w-4 h-4 rounded-full border-2 ${
+                  isAligned
+                    ? "bg-[#4a9ebb] border-[#4a9ebb] shadow-lg shadow-[#4a9ebb]/50"
+                    : "bg-card border-border"
+                }`}
+              />
+            </div>
+
+            {/* Top bearing readout */}
+            <div className="absolute top-10 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground font-semibold bg-card/80 px-1.5 py-0.5 rounded">
+              {isAligned ? (
+                <span className="text-[#4a9ebb] font-bold">{t('qiblaAligned')}</span>
+              ) : heading !== null ? (
+                <span>{markerRotation.toFixed(0)}°</span>
+              ) : (
+                <span>N</span>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Center dot */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div
-            className={`w-3 h-3 rounded-full ${
-              isAligned
-                ? "bg-[#4a9ebb] shadow-lg shadow-[#4a9ebb]/50"
-                : "bg-muted"
-            }`}
-          />
-        </div>
+          {/* Legend */}
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+              <span className="w-2 h-2 rounded-full bg-destructive" />
+              <span>
+                {t.rich('notAligned', { n: qiblaBearing.toFixed(0) })}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px] text-[#4a9ebb]">
+              <span className="w-2 h-2 rounded-full bg-[#4a9ebb]" />
+              <span>{t('aligned')}</span>
+            </div>
+          </div>
 
-        {/* Top bearing readout */}
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground font-semibold">
-           {isAligned ? (
-             <span className="text-[#4a9ebb]">{t('qiblaAligned')}</span>
-           ) : heading !== null ? (
-            <span>{markerRotation.toFixed(0)}°</span>
-          ) : (
-            <span>N</span>
-          )}
-        </div>
-      </div>
-
-      {/* Legend */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-          <span className="w-2 h-2 rounded-full bg-destructive" />
-           <span>
-             {t.rich('notAligned', { n: qiblaBearing.toFixed(0) })}
-           </span>
-        </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-[#4a9ebb]">
-          <span className="w-2 h-2 rounded-full bg-[#4a9ebb]" />
-           <span>{t('aligned')}</span>
-        </div>
-      </div>
-
-       <p className="mt-2 text-[10px] text-muted-foreground/60 leading-relaxed">
-         {t.rich('kaabaInfo', { lat: KAABA_LAT, lng: KAABA_LNG, n: qiblaBearing.toFixed(1) })}
-       </p>
+          <p className="text-[10px] text-muted-foreground/60 leading-relaxed">
+            {t.rich('kaabaInfo', { lat: KAABA_LAT, lng: KAABA_LNG, n: qiblaBearing.toFixed(1) })}
+          </p>
+        </>
+      )}
     </div>
   );
 }

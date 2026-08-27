@@ -300,7 +300,7 @@
   },
   "qiblaCompass": {
     "title": "اتجاه القبلة — Qibla Direction",
-    "rotateDevice": "أدrotate جهازك لمعرفة اتجاه القبلة",
+    "rotateDevice": "أدر جهازك لمعرفة اتجاه القبلة",
     "facingQibla": "أنت تواجه القبلة",
     "offQibla": "بعيد عن القبلة {n}°",
     "enableCompass": "تفعيل البوصلة",

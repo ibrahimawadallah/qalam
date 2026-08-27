@@ -82,6 +82,8 @@ export default function AudioPlayer() {
   const virtualTimeRef = useRef(0);
   const playingRef = useRef(false);
   const fetchControllerRef = useRef<AbortController | null>(null);
+  const fullAudioUrlRef = useRef<string>("");
+  const pendingPlayRef = useRef<number | null>(null);
 
   const {
     isPlayerVisible,
@@ -157,7 +159,7 @@ export default function AudioPlayer() {
   const [currentTranslation, setCurrentTranslation] = useState<string>('');
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Sequential ayah playback: fetch timing data + per-ayah URLs, play ayahs one by one.
+  // Fetch timing data and play full-surah audio via seeking.
   useEffect(() => {
     if (!currentSurah || !currentReciter) return;
 
@@ -171,26 +173,47 @@ export default function AudioPlayer() {
     virtualTimeRef.current = 0;
     timeRef.current = 0;
     lastAyahRef.current = 1;
+    pendingPlayRef.current = null;
     setDisplayTime(0);
     setAyahProgress(0);
     setAudioError(null);
     setIsBuffering(true);
 
-    const playAyahAtIndex = (index: number) => {
+    const seekToAyah = (index: number) => {
       const timings = ayahTimingsRef.current;
       const audio = audioRef.current;
       if (!audio || index >= timings.length) return;
 
       currentAyahIndexRef.current = index;
-      const ayah = timings[index];
-      audio.src = ayah.audioUrl;
+
+      // Calculate cumulative time for this ayah
+      let cumulativeTime = 0;
+      for (let i = 0; i < index; i++) {
+        cumulativeTime += timings[i].duration;
+      }
+
+      // Set full surah audio source (single URL for entire surah)
+      const fullUrl = `/api/audio-stream?reciter=${encodeURIComponent(currentReciter)}&surah=${currentSurah.number}`;
+      fullAudioUrlRef.current = fullUrl;
+
+      if (audio.src !== fullUrl) {
+        audio.src = fullUrl;
+      }
+
+      audio.currentTime = cumulativeTime;
       audio.load();
+
       if (isPlayingRef.current) {
-        audio.play().catch(() => {});
+        pendingPlayRef.current = index;
+        audio.play().catch(() => {
+          if (!controller.signal.aborted) {
+            pendingPlayRef.current = index;
+          }
+        });
       }
     };
 
-    // Fetch timing data (includes per-ayah audio URLs)
+    // Fetch timing data for ayah positions
     fetch(`/api/timing/${currentSurah.number}?reciter=${currentReciter}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -201,7 +224,7 @@ export default function AudioPlayer() {
         setDisplayDuration(totalDurationRef.current);
 
         // Start playing from ayah 0
-        playAyahAtIndex(0);
+        seekToAyah(0);
       })
       .catch(() => {
         if (!controller.signal.aborted) {
@@ -270,6 +293,20 @@ export default function AudioPlayer() {
 
     const onCanPlay = () => {
       setIsBuffering(false);
+      // If we have a pending seek/play, execute it now that audio is ready
+      if (pendingPlayRef.current !== null && audioRef.current && isPlayingRef.current) {
+        const pendingIdx = pendingPlayRef.current;
+        pendingPlayRef.current = null;
+        const timings = ayahTimingsRef.current;
+        if (pendingIdx < timings.length) {
+          let cumulativeTime = 0;
+          for (let i = 0; i < pendingIdx; i++) {
+            cumulativeTime += timings[i].duration;
+          }
+          audioRef.current.currentTime = cumulativeTime;
+          audioRef.current.play().catch(() => {});
+        }
+      }
     };
 
     const onWaiting = () => setIsBuffering(true);
@@ -279,26 +316,19 @@ export default function AudioPlayer() {
     };
 
     const onEnded = () => {
-      const timings = ayahTimingsRef.current;
-      const idx = currentAyahIndexRef.current;
+      pendingPlayRef.current = null;
+      setIsBuffering(false);
 
       if (repeatOne) {
-        audio.currentTime = 0;
-        audio.play().catch(() => {});
+        const audio = audioRef.current;
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        }
         return;
       }
 
-      // Play next ayah in sequence
-      if (idx + 1 < timings.length) {
-        currentAyahIndexRef.current = idx + 1;
-        const nextAyah = timings[idx + 1];
-        audio.src = nextAyah.audioUrl;
-        audio.load();
-        audio.play().catch(() => {});
-      } else {
-        // Surah ended
-        nextSurah();
-      }
+      nextSurah();
     };
 
     const onError = () => {
@@ -339,26 +369,20 @@ export default function AudioPlayer() {
       const audio = audioRef.current;
       const timings = ayahTimingsRef.current;
       if (audio && timings.length > 0) {
-        const idx = currentAyahIndexRef.current;
-        const ayahTime = audio.currentTime || 0;
+        const currentTime = audio.currentTime || 0;
 
-        // Virtual time = sum of completed ayah durations + current ayah's playback time
-        let virtualTime = 0;
-        for (let i = 0; i < idx; i++) {
-          virtualTime += timings[i].duration;
-        }
-        virtualTime += ayahTime;
-        virtualTimeRef.current = virtualTime;
+        // With full-surah audio, currentTime IS the true virtual time
+        virtualTimeRef.current = currentTime;
 
-        if (timeRef.current !== virtualTime) {
-          timeRef.current = virtualTime;
-          setDisplayTime(virtualTime);
+        if (timeRef.current !== currentTime) {
+          timeRef.current = currentTime;
+          setDisplayTime(currentTime);
 
-          // Determine which ayah is playing based on virtual time
+          // Determine which ayah is playing based on currentTime
           let cumulative = 0;
           let newAyahIndex = 0;
           for (let i = 0; i < timings.length; i++) {
-            if (virtualTime >= cumulative && virtualTime < cumulative + timings[i].duration) {
+            if (currentTime >= cumulative && currentTime < cumulative + timings[i].duration) {
               newAyahIndex = i;
               break;
             }
@@ -376,7 +400,8 @@ export default function AudioPlayer() {
             // Calculate progress within current ayah
             const ayahDuration = timings[newAyahIndex].duration;
             if (ayahDuration > 0) {
-              const progressInAyah = ayahTime / ayahDuration;
+              const ayahStart = cumulative - ayahDuration;
+              const progressInAyah = (currentTime - ayahStart) / ayahDuration;
               setAyahProgress(Math.max(0, Math.min(1, progressInAyah)));
             }
           }
@@ -444,15 +469,15 @@ export default function AudioPlayer() {
         currentAyahIndexRef.current = i;
         lastAyahRef.current = i + 1;
         setCurrentAyah(i + 1);
-        audio.src = timings[i].audioUrl;
-        audio.load();
-        audio.addEventListener("canplay", function onCanPlay() {
-          audio.removeEventListener("canplay", onCanPlay);
-          audio.currentTime = Math.max(0, offsetInAyah);
-          if (isPlayingRef.current) {
-            audio.play().catch(() => {});
-          }
-        });
+
+        // Use full surah audio URL and seek to position
+        if (fullAudioUrlRef.current && audio.src !== fullAudioUrlRef.current) {
+          audio.src = fullAudioUrlRef.current;
+        }
+        audio.currentTime = Math.max(0, targetTime);
+        if (isPlayingRef.current) {
+          audio.play().catch(() => {});
+        }
         return;
       }
       cumulative += timings[i].duration;
@@ -556,7 +581,7 @@ export default function AudioPlayer() {
   );
 
   const handleRetry = useCallback(() => {
-    if (!currentSurah) return;
+    if (!currentSurah || !currentReciter) return;
     setAudioError(null);
     setIsBuffering(true);
     timeRef.current = 0;
@@ -564,15 +589,18 @@ export default function AudioPlayer() {
     currentAyahIndexRef.current = 0;
     virtualTimeRef.current = 0;
     setCurrentAyah(1);
+    pendingPlayRef.current = null;
 
-    const timings = ayahTimingsRef.current;
+    const fullUrl = `/api/audio-stream?reciter=${encodeURIComponent(currentReciter)}&surah=${currentSurah.number}`;
+    fullAudioUrlRef.current = fullUrl;
+
     const audio = audioRef.current;
-    if (audio && timings.length > 0) {
-      audio.src = timings[0].audioUrl;
+    if (audio) {
+      audio.src = fullUrl;
       audio.load();
       audio.play().catch(() => {});
     }
-  }, [currentSurah, setAudioError, setIsBuffering, setCurrentAyah]);
+  }, [currentSurah, currentReciter, setAudioError, setIsBuffering, setCurrentAyah]);
 
   if (!isPlayerVisible || !currentSurah) return null;
 
@@ -664,14 +692,16 @@ export default function AudioPlayer() {
                   if (willPlay) {
                     const audio = audioRef.current;
                     if (audio) {
-                      // If no src yet (first play), start from ayah 0
-                      if (!audio.src || audio.src === location.href) {
+                      // If no full audio src yet, set it now
+                      if (!fullAudioUrlRef.current) {
                         const timings = ayahTimingsRef.current;
-                        if (timings.length > 0) {
-                          currentAyahIndexRef.current = 0;
-                          audio.src = timings[0].audioUrl;
-                          audio.load();
+                        if (timings.length > 0 && currentSurah && currentReciter) {
+                          fullAudioUrlRef.current = `/api/audio-stream?reciter=${encodeURIComponent(currentReciter)}&surah=${currentSurah.number}`;
                         }
+                      }
+                      if (fullAudioUrlRef.current && audio.src !== fullAudioUrlRef.current) {
+                        audio.src = fullAudioUrlRef.current;
+                        audio.load();
                       }
                       audio.play().catch(() => {});
                     }
