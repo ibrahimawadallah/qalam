@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Lora, Inter, Amiri } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations } from "next-intl/server";
+import { getMessages } from "next-intl/server";
 import { locales } from "@/i18n/request";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -44,6 +44,21 @@ const amiri = Amiri({
   display: "swap",
 });
 
+const SEO: Record<string, Metadata> = {
+  en: {
+    title: "Quran Kareem - Listen to Full Surah Audio & Translations",
+    description:
+      "A premium Quran streaming application by MedTechAI Arab Organization. Listen to the Holy Quran recited by world-renowned Qaris with beautiful gapless audio streaming, reading mode, and more.",
+    keywords: ["Quran", "Quran Kareem", "Islamic", "Quran Streaming", "Qari", "Recitation", "MedTechAI"],
+  },
+  ar: {
+    title: "قرآن كريم — استمع إلى ترتيل السور الكامل والترجمات",
+    description:
+      "تطبيق ترتيل القرآن الكريم من مؤسسة ميدتك عرب. استمع إلى القرآن الكريم يتلوه قراء عالميون بصوت متصل خالٍ من التوقف، مع وضع القراءة والمزيد.",
+    keywords: ["قرآن", "قرآن كريم", "إسلامي", "بث القرآن", "قارئ", "ترتيل", "ميدتك عرب"],
+  },
+};
+
 export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "ar" }];
 }
@@ -54,20 +69,10 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "seo" });
-
-  const siteName = t("siteName");
-  const title = t("homeTitle");
-  const description = t("homeDescription");
-  const keywords = t.raw("keywords") as unknown as string[];
-  const ogTitle = t("ogTitle");
-  const ogDescription = t("ogDescription");
-  const ogImageAlt = t("ogImageAlt");
+  const seo = SEO[locale] || SEO.en;
 
   return {
-    title,
-    description,
-    keywords: Array.isArray(keywords) ? keywords : keywords ? [String(keywords)] : [],
+    ...seo,
     metadataBase: new URL("https://quran.medtechai.net"),
     icons: {
       icon: [
@@ -78,11 +83,11 @@ export async function generateMetadata({
     },
     manifest: "/manifest.json",
     openGraph: {
-      title: ogTitle,
-      description: ogDescription,
+      title: seo.title,
+      description: seo.description,
       type: "website",
       url: "https://quran.medtechai.net",
-      siteName,
+      siteName: "Quran Kareem",
       locale: locale === "ar" ? "ar_SA" : "en_US",
       alternateLocale: locale === "ar" ? "en_US" : "ar_SA",
       images: [
@@ -90,7 +95,7 @@ export async function generateMetadata({
           url: "/logo.jpg",
           width: 512,
           height: 512,
-          alt: ogImageAlt,
+          alt: "Quran Kareem App",
         },
       ],
     },
@@ -104,9 +109,9 @@ export async function generateMetadata({
     appleWebApp: {
       capable: true,
       statusBarStyle: "default",
-      title: siteName,
+      title: "Quran Kareem",
     },
-    applicationName: siteName,
+    applicationName: "Quran Kareem",
   };
 }
 

@@ -586,6 +586,27 @@ export default function AudioPlayer() {
                 <SkipForward className="w-4 h-4" />
               </button>
 
+              {/* Shuffle / Repeat — shown on desktop, also in mobile expanded panel */}
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleShuffleMode(); }}
+                className={`hidden sm:flex p-2.5 rounded-full transition-colors active:scale-95 touch-manipulation ${
+                  shuffleMode ? "text-gold-bright bg-gold/15" : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
+                }`}
+                aria-label={t("shuffle")}
+              >
+                <Shuffle className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleRepeatOne(); }}
+                className={`hidden sm:flex p-2.5 rounded-full transition-colors active:scale-95 touch-manipulation ${
+                  repeatOne ? "text-gold-bright bg-gold/15" : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
+                }`}
+                aria-label={t("repeatOne")}
+              >
+                <Repeat className="w-4 h-4" />
+              </button>
+
               {/* Expand button — mobile only */}
               <button
                 onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}

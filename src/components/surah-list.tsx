@@ -46,7 +46,7 @@ export default function SurahList() {
           <div
             key={surah.number}
             onClick={() => handleSurahClick(surah)}
-            className={`grid cursor-pointer grid-cols-[36px_1fr_auto] items-center gap-4 border-b border-emerald-deep/10 px-1 py-3 transition-colors hover:bg-gold/10 ${
+            className={`grid grid-cols-[36px_1fr_auto] sm:grid-cols-[36px_1fr_auto] items-center gap-2 sm:gap-4 border-b border-emerald-deep/10 px-1 py-2.5 sm:py-3 transition-colors hover:bg-gold/10 cursor-pointer ${
               isCurrentSurah ? 'bg-gold/5' : ''
             }`}
           >
@@ -61,23 +61,27 @@ export default function SurahList() {
               {surah.number}
             </span>
 
-            {/* Name */}
+            {/* Name + Arabic */}
             <div className="min-w-0">
-              <p className="truncate font-display text-lg leading-snug text-ink">
+              <p className="truncate font-display text-base sm:text-lg leading-snug text-ink">
                 {surah.englishName}
               </p>
-              <p className="font-ui text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="font-ui text-[10px] sm:text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground">
                 {surah.revelationType === 'Meccan' ? 'Makkan' : 'Madani'}
+                <span className="hidden sm:inline"> · {surah.ayahCount} {t('ayat')}</span>
+              </p>
+              <p className="arabic-name text-sm sm:text-xl leading-none text-emerald-deep sm:hidden" dir="rtl">
+                {surah.arabicName}
               </p>
             </div>
 
-            {/* Arabic + actions */}
-            <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-               <span className="hidden whitespace-nowrap font-ui text-[10.5px] text-[#8a8168] sm:block">
-                 {surah.ayahCount} {t('ayat')}
-               </span>
-              <span className="arabic-name min-w-[52px] text-right text-xl leading-none text-emerald-deep sm:min-w-[72px]" dir="rtl">
+            {/* Actions — desktop */}
+            <div className="hidden sm:flex shrink-0 items-center gap-3">
+              <span className="arabic-name text-xl leading-none text-emerald-deep" dir="rtl">
                 {surah.arabicName}
+              </span>
+              <span className="whitespace-nowrap text-right font-ui text-[10.5px] text-[#8a8168]">
+                {surah.ayahCount} {t('ayat')}
               </span>
               <button
                 onClick={(e) => {
@@ -106,6 +110,36 @@ export default function SurahList() {
               </button>
               {isCurrentSurah && isPlaying && (
                 <span className="flex items-center gap-0.5" aria-hidden="true">
+                  {[0, 1, 2, 3].map((i) => (
+                    <span
+                      key={i}
+                      className="audio-bar w-0.5 rounded-full bg-gold"
+                      style={{ height: '3px', animationDelay: `${i * 0.12}s` }}
+                    />
+                  ))}
+                </span>
+              )}
+            </div>
+
+            {/* Actions — mobile (play only) */}
+            <div className="flex sm:hidden shrink-0 items-center">
+              <button
+                onClick={(e) => handlePlay(surah, e)}
+                aria-label={isCurrentSurah && isPlaying ? `Pause ${surah.englishName}` : `Play ${surah.englishName}`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 touch-manipulation ${
+                  isCurrentSurah && isPlaying
+                    ? 'bg-gold text-ink'
+                    : 'border border-emerald-deep/25 text-emerald-deep active:border-gold active:bg-emerald-deep active:text-gold-bright'
+                }`}
+              >
+                {isCurrentSurah && isPlaying ? (
+                  <Pause className="h-4 w-4" />
+                ) : (
+                  <Play className="ml-0.5 h-4 w-4" />
+                )}
+              </button>
+              {isCurrentSurah && isPlaying && (
+                <span className="flex items-center gap-0.5 ml-1.5" aria-hidden="true">
                   {[0, 1, 2, 3].map((i) => (
                     <span
                       key={i}
