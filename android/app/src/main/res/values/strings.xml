@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Quran Kareem</string>
-    <string name="title_activity_main">Quran Kareem</string>
-    <string name="package_name">com.qurankareem</string>
-    <string name="custom_url_scheme">com.qurankareem</string>
-</resources>

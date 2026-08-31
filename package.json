@@ -6,15 +6,11 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "postbuild": "node scripts/prune-opennext.js",
-    "build:android": "npm run build && node scripts/prune-opennext.js && node scripts/prepare-capacitor.js && npx cap sync android",
     "preview": "opennextjs-cloudflare build && node scripts/prune-opennext.js && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && node scripts/prune-opennext.js && opennextjs-cloudflare deploy",
     "lint": "eslint ."
   },
   "dependencies": {
-    "@capacitor/android": "^8.5.0",
-    "@capacitor/cli": "^8.5.0",
-    "@capacitor/core": "^8.5.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
