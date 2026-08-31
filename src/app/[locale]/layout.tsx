@@ -79,7 +79,7 @@ export async function generateMetadata({
         { url: "/logo.svg?v=2", type: "image/svg+xml" },
         { url: "/favicon.ico?v=2", sizes: "any" },
       ],
-      apple: "/logo.jpg",
+      apple: "/logo.svg",
     },
     manifest: "/manifest.json",
     openGraph: {
@@ -92,7 +92,7 @@ export async function generateMetadata({
       alternateLocale: locale === "ar" ? "en_US" : "ar_SA",
       images: [
         {
-          url: "/logo.jpg",
+          url: "/logo.svg",
           width: 512,
           height: 512,
           alt: "Quran Kareem App",
@@ -134,7 +134,7 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#0B3B2C" />
+        <meta name="theme-color" content="#1A2E4A" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Quran Kareem" />
@@ -142,7 +142,7 @@ export default async function RootLayout({
         <meta name="format-detection" content="telephone=no" />
         <link rel="icon" href="/logo.svg?v=2" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
-        <link rel="apple-touch-icon" href="/logo.jpg" />
+        <link rel="apple-touch-icon" href="/logo.svg" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body

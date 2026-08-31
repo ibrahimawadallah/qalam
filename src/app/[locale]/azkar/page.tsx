@@ -64,8 +64,8 @@ export default function AzkarPage() {
             <div className="space-y-10">
               {chapters.map((chapter) => (
                 <section key={chapter.name}>
-                  <h2 className="mb-5 flex items-center gap-3 text-2xl text-emerald-deep">
-                    <Khatam className="h-[18px] w-[18px] shrink-0 text-maroon" />
+                  <h2 className="mb-5 flex items-center gap-3 text-2xl text-navy">
+                    <Khatam className="h-[18px] w-[18px] shrink-0 text-crimson" />
                     {chapter.name}
                   </h2>
                   <div className="space-y-4">

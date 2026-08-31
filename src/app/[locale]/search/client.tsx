@@ -183,10 +183,10 @@ export default function QuranSearchClient() {
 
       <main className="mx-auto max-w-[920px] px-6 py-10 page-enter">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-sm border border-gold bg-paper p-4 shadow-[var(--shadow-deep)] sm:p-6">
+          <div className="rounded-sm border border-gold bg-parchment p-4 shadow-[var(--shadow-deep)] sm:p-6">
             <div className="flex gap-2 mb-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-maroon" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-crimson" />
                 <input
                   type="text"
                   value={query}
@@ -199,7 +199,7 @@ export default function QuranSearchClient() {
               <button
                 onClick={() => executeSearch(1, query)}
                 disabled={loading || query.trim().length < 2}
-                className="rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-emerald-mid disabled:opacity-50 flex items-center gap-2 transition-colors"
+                className="rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-navy-light disabled:opacity-50 flex items-center gap-2 transition-colors"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {loading ? t('searchingText') : t('searchButton')}
@@ -238,9 +238,9 @@ export default function QuranSearchClient() {
               {t('tip')}
             </p>
             {isArabic && (
-              <div className="mt-2 flex items-start gap-1.5 rounded-sm border border-maroon/20 bg-maroon/5 p-2">
-                <AlertCircle className="h-3.5 w-3.5 text-maroon mt-0.5 shrink-0" />
-                <p className="text-[11px] text-maroon/80">
+              <div className="mt-2 flex items-start gap-1.5 rounded-sm border border-crimson/20 bg-crimson/5 p-2">
+                <AlertCircle className="h-3.5 w-3.5 text-crimson mt-0.5 shrink-0" />
+                <p className="text-[11px] text-crimson/80">
                   {t.rich('arabicSearchWarning', {
                     count: results?.matches?.length ?? 10,
                   })}
@@ -277,7 +277,7 @@ export default function QuranSearchClient() {
                     className="warm-card-hover block rounded-sm p-4 sm:p-6 group"
                   >
                     <div className="mb-2 flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 font-ui text-xs text-emerald-deep group-hover:text-maroon transition-colors">
+                      <span className="flex items-center gap-1.5 font-ui text-xs text-navy group-hover:text-crimson transition-colors">
                         <BookOpen className="h-3 w-3" />
                         {match.surah.englishName} ({match.surah.number}:{match.surah.numberOfAyahs})
                       </span>
@@ -325,7 +325,7 @@ export default function QuranSearchClient() {
           )}
 
           {!searched && !loading && (
-            <div className="tile-corners mt-12 rounded-sm border border-gold/30 bg-paper p-8 text-center shadow-[var(--shadow-deep)]">
+            <div className="tile-corners mt-12 rounded-sm border border-gold/30 bg-parchment p-8 text-center shadow-[var(--shadow-deep)]">
               <Search className="mx-auto h-10 w-10 text-gold/50 mb-3" />
               <p className="font-ui text-sm text-muted-foreground">
                 {t('searchForWords')}
@@ -338,7 +338,7 @@ export default function QuranSearchClient() {
                       setQuery(term);
                       executeSearch(1, term);
                     }}
-                    className="rounded-full border border-emerald-deep/25 px-3 py-1 font-ui text-xs text-emerald-deep hover:bg-emerald-deep hover:text-ivory transition-colors"
+                    className="rounded-full border border-navy/25 px-3 py-1 font-ui text-xs text-navy hover:bg-navy hover:text-cream transition-colors"
                   >
                     {term}
                   </button>

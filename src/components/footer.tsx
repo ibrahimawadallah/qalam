@@ -3,32 +3,36 @@ import { Link } from '@/i18n/navigation';
 import Khatam from '@/components/khatam';
 
 const FOOT_HREFS = ['/quran', '/azkar', '/prayer-times', '/about'];
-
 const FOOT_LABEL_KEYS = ['quran', 'azkar', 'prayerTimes', 'about'];
 
 export default function Footer() {
   const t = useTranslations('footer');
 
   return (
-    <footer className="bg-night px-6 pb-8 pt-14 text-center text-ivory-dim">
-      <Khatam className="mb-4 inline-block h-5 w-5 text-gold" />
-      <p className="font-ui mx-auto mb-5 max-w-[560px] text-xs leading-relaxed text-[#8FA79A]">
-        {t('authority')}
-      </p>
-      <div className="font-ui mb-5 flex flex-wrap justify-center gap-6 text-xs">
-        {FOOT_HREFS.map((href, i) => (
-          <Link
-            key={href}
-            href={href}
-            className="text-ivory-dim transition-colors hover:text-gold-bright"
-          >
-            {t(FOOT_LABEL_KEYS[i])}
-          </Link>
-        ))}
+    <footer className="relative bg-night px-6 pb-10 pt-16 text-center text-cream/70 overflow-hidden">
+      <div className="absolute inset-0 islamic-pattern opacity-40" aria-hidden="true" />
+      <div className="relative z-10">
+        <div className="divider-star mx-auto mb-6 max-w-[120px] text-gold">
+          <Khatam className="h-4 w-4" />
+        </div>
+        <p className="font-ui mx-auto mb-6 max-w-[560px] text-xs leading-relaxed text-cream/60">
+          {t('authority')}
+        </p>
+        <div className="font-ui mb-6 flex flex-wrap justify-center gap-6 text-xs">
+          {FOOT_HREFS.map((href, i) => (
+            <Link
+              key={href}
+              href={href}
+              className="text-cream/70 transition-colors hover:text-gold-bright"
+            >
+              {t(FOOT_LABEL_KEYS[i])}
+            </Link>
+          ))}
+        </div>
+        <p className="font-ui text-[11px] text-cream/40">
+          {t('copyright', { year: String(new Date().getFullYear()) })}
+        </p>
       </div>
-      <p className="font-ui text-[11px] text-[#5F7A6C]">
-        {t('copyright', { year: String(new Date().getFullYear()) })}
-      </p>
     </footer>
   );
 }

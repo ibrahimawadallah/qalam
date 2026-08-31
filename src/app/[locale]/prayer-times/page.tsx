@@ -142,7 +142,7 @@ export default function PrayerTimesPage() {
 
       <main className="mx-auto max-w-[920px] px-6 py-12 page-enter">
         {/* Location selector */}
-        <div className="rounded-sm border border-gold bg-paper p-4 shadow-[var(--shadow-deep)] sm:p-5">
+        <div className="rounded-sm border border-gold bg-parchment p-4 shadow-[var(--shadow-deep)] sm:p-5">
           <CountryCitySelector
             country={selectedCountry}
             city={selectedCity}
@@ -156,13 +156,13 @@ export default function PrayerTimesPage() {
             <button
               onClick={() => loadByCity(selectedCountry, selectedCity)}
               disabled={loading || !selectedCountry.trim() || !selectedCity.trim()}
-              className="flex-1 rounded-sm bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid disabled:opacity-50"
+              className="flex-1 rounded-sm bg-navy px-4 py-3 font-ui text-sm font-semibold text-cream transition-colors hover:bg-navy-light disabled:opacity-50"
             >
               {loading ? tCommon('loading') : t('getTimes')}
             </button>
             <button
               onClick={locateMe}
-              className="rounded-sm border border-gold px-4 py-3 font-ui text-sm font-semibold text-emerald-deep transition-colors hover:bg-gold/10"
+              className="rounded-sm border border-gold px-4 py-3 font-ui text-sm font-semibold text-navy transition-colors hover:bg-gold/10"
             >
               {t('locateMe')}
             </button>
@@ -174,7 +174,7 @@ export default function PrayerTimesPage() {
         {timings && (
           <>
             <div className="mb-4 mt-8 flex flex-wrap items-center justify-between gap-2">
-              <p className="eyebrow text-emerald-mid">{t('todayTimes')}</p>
+              <p className="eyebrow text-navy-light">{t('todayTimes')}</p>
               <span className="font-ui text-xs text-muted-foreground">
                 {date} · {timezone}
               </span>
@@ -188,11 +188,11 @@ export default function PrayerTimesPage() {
                     key={prayer}
                     className={`tile-corners rounded-sm p-5 text-center transition-all ${
                       active
-                        ? "border border-emerald-deep bg-emerald-deep text-ivory"
+                        ? "border border-navy bg-navy text-cream"
                         : "warm-card"
                     }`}
                   >
-                    <Khatam className={`mx-auto mb-2.5 h-4 w-4 ${active ? "text-gold-bright" : "text-maroon"}`} />
+                    <Khatam className={`mx-auto mb-2.5 h-4 w-4 ${active ? "text-gold-bright" : "text-crimson"}`} />
                     <p className="font-display text-[17px] leading-snug">{t('prayer' + prayer)}</p>
                     <p className={`arabic-name mt-0.5 mb-2.5 text-sm ${active ? "text-gold-bright" : "text-muted-foreground"}`} dir="rtl">
                       {PRAYER_AR[prayer]}
@@ -209,12 +209,12 @@ export default function PrayerTimesPage() {
             </div>
 
             {nextPrayer && (
-              <div className="mt-4 rounded-sm border border-gold/40 bg-paper p-4 text-center">
+              <div className="mt-4 rounded-sm border border-gold/40 bg-parchment p-4 text-center">
                 <p className="font-ui text-xs text-muted-foreground">
                   {t.rich('nextPrayer', {
-                    prayer: () => <span className="font-display text-base text-emerald-deep">{nextPrayer}</span>,
+                    prayer: () => <span className="font-display text-base text-navy">{nextPrayer}</span>,
                   })}{' '}
-                  — {t.rich('inCountdown', { countdown: () => <span className="font-ui font-bold text-maroon">{countdown}</span> })}
+                  — {t.rich('inCountdown', { countdown: () => <span className="font-ui font-bold text-crimson">{countdown}</span> })}
                 </p>
               </div>
             )}
@@ -229,15 +229,15 @@ export default function PrayerTimesPage() {
 
             {hijri && (
               <div className="tile-corners warm-card flex flex-col justify-center rounded-sm p-5 sm:p-6">
-                <p className="eyebrow text-emerald-mid">{t('hijriDate')}</p>
-                <p className="arabic-name mt-2 text-3xl leading-snug text-emerald-deep" dir="rtl">
+                <p className="eyebrow text-navy-light">{t('hijriDate')}</p>
+                <p className="arabic-name mt-2 text-3xl leading-snug text-navy" dir="rtl">
                   {hijri.day} {hijri.month.ar} {hijri.year}
                 </p>
                 <p className="font-display mt-1.5 text-xl text-ink">
                   {hijri.weekday.en}, {hijri.date}
                 </p>
                 <div className="mt-3 flex items-center gap-2 text-muted-foreground">
-                  <Khatam className="h-3.5 w-3.5 text-maroon" />
+                  <Khatam className="h-3.5 w-3.5 text-crimson" />
                   <span className="font-ui text-xs">{hijri.month.en} · {hijri.year} AH</span>
                 </div>
               </div>

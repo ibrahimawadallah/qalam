@@ -120,7 +120,7 @@ export default function IslamicCalendarPage() {
           </button>
 
           <div className="text-center">
-            <h2 className="text-[26px] leading-tight text-emerald-deep">
+            <h2 className="text-[26px] leading-tight text-navy">
               {monthName} {displayYear}
             </h2>
             <div className="mt-1 flex justify-center gap-2.5">
@@ -178,12 +178,12 @@ export default function IslamicCalendarPage() {
                       className={`flex min-h-[60px] flex-col rounded-sm border p-1.5 sm:min-h-[80px] sm:p-2 ${
                         isFriday
                           ? "border-gold/50 bg-gold/10"
-                          : "border-emerald-deep/10 bg-paper"
+                          : "border-navy/10 bg-parchment"
                       }`}
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="font-display text-base font-semibold leading-none text-emerald-deep sm:text-lg">{hijriDay}</p>
+                          <p className="font-display text-base font-semibold leading-none text-navy sm:text-lg">{hijriDay}</p>
                           <p className="arabic-name mt-0.5 text-right text-[10px] text-muted-foreground sm:text-xs" dir="rtl">{day.date.hijri.month.ar}</p>
                         </div>
                         <div className="text-left">
@@ -200,21 +200,21 @@ export default function IslamicCalendarPage() {
         )}
 
         {!loading && !error && data.length > 0 && (
-          <div className="tile-corners mt-8 rounded-sm border border-gold/30 bg-paper p-6 shadow-[var(--shadow-deep)]">
-            <h3 className="mb-4 flex items-center gap-2.5 text-xl text-emerald-deep">
-              <Khatam className="h-4 w-4 text-maroon" />
+          <div className="tile-corners mt-8 rounded-sm border border-gold/30 bg-parchment p-6 shadow-[var(--shadow-deep)]">
+            <h3 className="mb-4 flex items-center gap-2.5 text-xl text-navy">
+              <Khatam className="h-4 w-4 text-crimson" />
               {t('todayDate')}
             </h3>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
-                <p className="eyebrow mb-1.5 text-maroon">{t('hijriLabel')}</p>
+                <p className="eyebrow mb-1.5 text-crimson">{t('hijriLabel')}</p>
                 <p className="font-display text-lg text-ink">
                   {data[0]?.date.hijri.day} {data[0]?.date.hijri.month.en} {data[0]?.date.hijri.year}
                 </p>
                 <p className="arabic-name mt-0.5 text-sm text-muted-foreground" dir="rtl">{data[0]?.date.hijri.month.ar}</p>
               </div>
               <div>
-                <p className="eyebrow mb-1.5 text-maroon">{t('gregorianLabel')}</p>
+                <p className="eyebrow mb-1.5 text-crimson">{t('gregorianLabel')}</p>
                 <p className="font-display text-lg text-ink">
                   {data[0]?.date.gregorian.day} {data[0]?.date.gregorian.month.en} {data[0]?.date.gregorian.year}
                 </p>

@@ -4,8 +4,8 @@
   "description": "A premium Quran streaming application with beautiful gapless audio streaming, reading mode, and more.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F6EFDF",
-  "theme_color": "#0B3B2C",
+  "background_color": "#FDF8EF",
+  "theme_color": "#1A2E4A",
   "orientation": "portrait-primary",
   "icons": [
     {

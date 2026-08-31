@@ -183,7 +183,7 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
       {!isMobile && hasOrientationSensor && !permissionRequested && (
         <button
           onClick={startListening}
-          className="mb-3 w-full rounded-sm border border-gold bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid"
+          className="mb-3 w-full rounded-sm border border-gold bg-navy px-4 py-3 font-ui text-sm font-semibold text-cream transition-colors hover:bg-navy-light"
         >
           <span className="flex items-center justify-center gap-2">
             <Navigation className="w-4 h-4" />
@@ -195,7 +195,7 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
       {hasPermission === false && !permissionRequested && (
         <button
           onClick={startListening}
-          className="mb-3 w-full rounded-sm border border-gold bg-emerald-deep px-4 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid"
+          className="mb-3 w-full rounded-sm border border-gold bg-navy px-4 py-3 font-ui text-sm font-semibold text-cream transition-colors hover:bg-navy-light"
         >
           <span className="flex items-center justify-center gap-2">
             <Navigation className="w-4 h-4" />
@@ -251,7 +251,7 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
 
             {/* N label */}
             <div className="absolute inset-x-0 top-1.5 flex justify-center">
-              <span className="text-[10px] font-bold text-maroon">N</span>
+              <span className="text-[10px] font-bold text-crimson">N</span>
             </div>
 
             {/* Qibla direction indicator (static arc) */}
@@ -263,7 +263,7 @@ export default function QiblaCompass({ lat, lng }: QiblaCompassProps) {
               }}
             >
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1">
-                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-maroon" />
+                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-crimson" />
               </div>
             </div>
 

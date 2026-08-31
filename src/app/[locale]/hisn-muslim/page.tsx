@@ -25,8 +25,8 @@ export default function HisnMuslimPage() {
           <div className="space-y-10">
             {hisnData.chapters.map((chapter) => (
               <section key={chapter.name}>
-                <h2 className="mb-5 flex items-center gap-3 text-2xl text-emerald-deep">
-                  <Khatam className="h-[18px] w-[18px] shrink-0 text-maroon" />
+                <h2 className="mb-5 flex items-center gap-3 text-2xl text-navy">
+                  <Khatam className="h-[18px] w-[18px] shrink-0 text-crimson" />
                   {chapter.name}
                   <span className="font-ui text-xs font-normal tracking-wide text-muted-foreground">
                     {chapter.duas.length}

@@ -36,7 +36,7 @@ export default function AboutPage() {
           </p>
           <p className="mt-5 font-serif text-base leading-loose text-[#2C2418]">
             {t.rich('missionParagraph2', {
-              org: (chunks) => <strong className="text-emerald-deep">{chunks}</strong>,
+              org: (chunks) => <strong className="text-navy">{chunks}</strong>,
             })}
           </p>
         </div>
@@ -44,17 +44,17 @@ export default function AboutPage() {
         <div className="mx-auto grid max-w-[920px] grid-cols-1 gap-[18px] px-6 py-10 sm:grid-cols-3">
           {values.map((value) => (
             <div key={value.title} className="tile-corners warm-card rounded-sm p-7">
-              <Khatam className="mb-3.5 h-5 w-5 text-maroon" />
-              <h4 className="mb-2 text-lg text-emerald-deep">{value.title}</h4>
+              <Khatam className="mb-3.5 h-5 w-5 text-crimson" />
+              <h4 className="mb-2 text-lg text-navy">{value.title}</h4>
               <p className="font-ui text-xs leading-relaxed text-muted-foreground">{value.desc}</p>
             </div>
           ))}
         </div>
 
-        <div className="bg-emerald-deep px-6 py-16 text-center text-ivory">
+        <div className="bg-navy px-6 py-16 text-center text-cream">
           <Khatam className="mb-4 inline-block h-5 w-5 text-gold" />
           <h3 className="mb-2.5 text-[26px]">{t('questionsOrFeedback')}</h3>
-          <p className="mb-6 font-ui text-[13px] text-ivory-dim">
+          <p className="mb-6 font-ui text-[13px] text-cream/70">
             {t('reachOut')}
           </p>
           <a

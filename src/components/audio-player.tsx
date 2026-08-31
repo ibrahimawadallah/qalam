@@ -536,13 +536,13 @@ export default function AudioPlayer() {
                 <Khatam className="w-6 h-6 sm:w-7 sm:h-7 text-gold" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-display text-base sm:text-lg text-ivory truncate leading-tight" dir="rtl">
+                <p className="font-display text-base sm:text-lg text-cream truncate leading-tight" dir="rtl">
                   {currentSurah.arabicName}
                 </p>
                 <p className="font-ui text-[11px] sm:text-xs text-gold-bright/80 truncate mt-0.5">
                   {currentSurah.englishName} · {currentSurah.ayahCount} Ayat
                   {currentAyahInSurah > 0 && (
-                    <span className="ml-1 text-ivory-dim">· {currentAyahInSurah}</span>
+                    <span className="ml-1 text-cream/70">· {currentAyahInSurah}</span>
                   )}
                 </p>
               </div>
@@ -572,7 +572,7 @@ export default function AudioPlayer() {
               {/* Skip prev/next — hidden on small mobile, shown on sm+ */}
               <button
                 onClick={(e) => { e.stopPropagation(); prevSurah(); }}
-                className="hidden sm:flex p-2.5 text-ivory-dim hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+                className="hidden sm:flex p-2.5 text-cream/70 hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                 aria-label={t("previousSurah")}
               >
                 <SkipBack className="w-4 h-4" />
@@ -580,7 +580,7 @@ export default function AudioPlayer() {
 
               <button
                 onClick={(e) => { e.stopPropagation(); nextSurah(); }}
-                className="hidden sm:flex p-2.5 text-ivory-dim hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+                className="hidden sm:flex p-2.5 text-cream/70 hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                 aria-label={t("nextSurah")}
               >
                 <SkipForward className="w-4 h-4" />
@@ -590,7 +590,7 @@ export default function AudioPlayer() {
               <button
                 onClick={(e) => { e.stopPropagation(); toggleShuffleMode(); }}
                 className={`hidden sm:flex p-2.5 rounded-full transition-colors active:scale-95 touch-manipulation ${
-                  shuffleMode ? "text-gold-bright bg-gold/15" : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
+                  shuffleMode ? "text-gold-bright bg-gold/15" : "text-cream/70 hover:text-gold-bright hover:bg-white/5"
                 }`}
                 aria-label={t("shuffle")}
               >
@@ -600,7 +600,7 @@ export default function AudioPlayer() {
               <button
                 onClick={(e) => { e.stopPropagation(); toggleRepeatOne(); }}
                 className={`hidden sm:flex p-2.5 rounded-full transition-colors active:scale-95 touch-manipulation ${
-                  repeatOne ? "text-gold-bright bg-gold/15" : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
+                  repeatOne ? "text-gold-bright bg-gold/15" : "text-cream/70 hover:text-gold-bright hover:bg-white/5"
                 }`}
                 aria-label={t("repeatOne")}
               >
@@ -610,7 +610,7 @@ export default function AudioPlayer() {
               {/* Expand button — mobile only */}
               <button
                 onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-                className="flex sm:hidden p-2 text-ivory-dim hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+                className="flex sm:hidden p-2 text-cream/70 hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                 aria-label={expanded ? t("closePlayer") : t("showMore")}
               >
                 {expanded ? (
@@ -629,7 +629,7 @@ export default function AudioPlayer() {
               <div className="flex items-center justify-center gap-4 sm:hidden">
                 <button
                   onClick={prevSurah}
-                  className="p-3 text-ivory-dim hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+                  className="p-3 text-cream/70 hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                   aria-label={t("previousSurah")}
                 >
                   <SkipBack className="w-5 h-5" />
@@ -637,7 +637,7 @@ export default function AudioPlayer() {
                 <button
                   onClick={toggleShuffleMode}
                   className={`p-3 rounded-full transition-colors active:scale-95 touch-manipulation ${
-                    shuffleMode ? "text-gold-bright bg-gold/15" : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
+                    shuffleMode ? "text-gold-bright bg-gold/15" : "text-cream/70 hover:text-gold-bright hover:bg-white/5"
                   }`}
                   aria-label={t("shuffle")}
                 >
@@ -646,7 +646,7 @@ export default function AudioPlayer() {
                 <button
                   onClick={toggleRepeatOne}
                   className={`p-3 rounded-full transition-colors active:scale-95 touch-manipulation ${
-                    repeatOne ? "text-gold-bright bg-gold/15" : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
+                    repeatOne ? "text-gold-bright bg-gold/15" : "text-cream/70 hover:text-gold-bright hover:bg-white/5"
                   }`}
                   aria-label={t("repeatOne")}
                 >
@@ -654,7 +654,7 @@ export default function AudioPlayer() {
                 </button>
                 <button
                   onClick={nextSurah}
-                  className="p-3 text-ivory-dim hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+                  className="p-3 text-cream/70 hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                   aria-label={t("nextSurah")}
                 >
                   <SkipForward className="w-5 h-5" />
@@ -662,7 +662,7 @@ export default function AudioPlayer() {
               </div>
 
               {/* Row 2: Time display (mobile) */}
-              <div className="flex items-center justify-between font-ui text-xs text-ivory-dim sm:hidden">
+              <div className="flex items-center justify-between font-ui text-xs text-cream/70 sm:hidden">
                 <span className="tabular-nums w-12 text-left">{formatTime(displayTime)}</span>
                 <span className="text-gold-bright/60 text-[10px]">Ayah {currentAyahInSurah} / {currentSurah.ayahCount}</span>
                 <span className="tabular-nums w-12 text-right">{formatTime(displayDuration)}</span>
@@ -674,7 +674,7 @@ export default function AudioPlayer() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsMuted(!isMuted)}
-                    className="p-2 text-ivory-dim hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+                    className="p-2 text-cream/70 hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                     aria-label={isMuted ? t("unmute") : t("mute")}
                   >
                     {isMuted || volume === 0 ? (
@@ -699,7 +699,7 @@ export default function AudioPlayer() {
                     value={playbackSpeed.toString()}
                     onValueChange={(v) => setPlaybackSpeed(parseFloat(v))}
                   >
-                    <SelectTrigger className="h-8 w-14 font-ui text-xs bg-white/5 border-gold/30 text-ivory-dim">
+                    <SelectTrigger className="h-8 w-14 font-ui text-xs bg-white/5 border-gold/30 text-cream/70">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -725,7 +725,7 @@ export default function AudioPlayer() {
                       }
                     }}
                     className={`p-2 rounded-full transition-colors active:scale-95 touch-manipulation ${
-                      isBookmarked ? "text-gold hover:text-gold-bright bg-gold/10" : "text-ivory-dim hover:text-gold-bright hover:bg-white/5"
+                      isBookmarked ? "text-gold hover:text-gold-bright bg-gold/10" : "text-cream/70 hover:text-gold-bright hover:bg-white/5"
                     }`}
                     aria-label={isBookmarked ? t("removeBookmark") : t("bookmark")}
                   >
@@ -738,7 +738,7 @@ export default function AudioPlayer() {
 
                   <button
                     onClick={hidePlayer}
-                    className="p-2 text-ivory-dim hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+                    className="p-2 text-cream/70 hover:text-gold-bright rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                     aria-label={t("closePlayer")}
                   >
                     <X className="w-4 h-4" />

@@ -264,7 +264,7 @@ export default function RadioPlayer() {
       />
 
       <div
-        className="player-bar fixed bottom-0 left-0 right-0 z-50 border-t border-gold/40 text-ivory pb-[env(safe-area-inset-bottom)]"
+        className="player-bar fixed bottom-0 left-0 right-0 z-50 border-t border-gold/40 text-cream pb-[env(safe-area-inset-bottom)]"
       >
         <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 max-w-screen-xl mx-auto">
           <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -291,17 +291,17 @@ export default function RadioPlayer() {
                 >
                   {getCategoryLabel(currentRadio.category)}
                 </Badge>
-                <span className="font-display text-sm sm:text-base text-ivory truncate" dir="rtl">
+                <span className="font-display text-sm sm:text-base text-cream truncate" dir="rtl">
                   {currentRadio.arabicName}
                 </span>
-                <span className="font-ui text-[11px] text-ivory-dim hidden sm:inline truncate">
+                <span className="font-ui text-[11px] text-cream/70 hidden sm:inline truncate">
                   — {currentRadio.name}
                 </span>
               </div>
               {currentRadio.reciterArabicName && (
-                <p className="arabic-name text-[11px] text-ivory-dim mt-0.5">{currentRadio.reciterArabicName}</p>
+                <p className="arabic-name text-[11px] text-cream/70 mt-0.5">{currentRadio.reciterArabicName}</p>
               )}
-              <div className="flex items-center gap-2 font-ui text-[11px] text-ivory-dim mt-0.5">
+              <div className="flex items-center gap-2 font-ui text-[11px] text-cream/70 mt-0.5">
                 <span>{currentRadio.location}</span>
                 {currentRadio.location && <span>•</span>}
                 {currentRadio.isLive !== false && (
@@ -323,14 +323,14 @@ export default function RadioPlayer() {
               <>
                 <button
                   onClick={() => cycleRadioStation(-1)}
-                  className="hidden sm:flex p-1 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95"
+                  className="hidden sm:flex p-1 text-cream/70 hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95"
                   aria-label={t('previousStation')}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => cycleRadioStation(1)}
-                  className="hidden sm:flex p-1 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95"
+                  className="hidden sm:flex p-1 text-cream/70 hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95"
                   aria-label={t('nextStation')}
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -358,7 +358,7 @@ export default function RadioPlayer() {
             <div className="hidden sm:flex items-center gap-1">
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className="text-ivory-dim hover:text-gold-bright transition-colors p-1 rounded-full hover:bg-white/5"
+                className="text-cream/70 hover:text-gold-bright transition-colors p-1 rounded-full hover:bg-white/5"
                  aria-label={isMuted ? t('unmute') : t('mute')}
                >
                 {isMuted || volume === 0 ? (
@@ -385,7 +385,7 @@ export default function RadioPlayer() {
             {currentRadio.isLive !== false && (
               <button
                  onClick={toggleRadioPanel}
-                 className="p-2.5 sm:p-1.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+                 className="p-2.5 sm:p-1.5 text-cream/70 hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                  aria-label={t('browseStations')}
                >
                 <List className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -393,7 +393,7 @@ export default function RadioPlayer() {
             )}
             <button
                onClick={handleClose}
-               className="p-2.5 sm:p-1.5 text-ivory-dim hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
+               className="p-2.5 sm:p-1.5 text-cream/70 hover:text-gold-bright transition-colors rounded-full hover:bg-white/5 active:scale-95 touch-manipulation"
                aria-label={t('closeRadio')}
              >
               <X className="w-5 h-5 sm:w-4 sm:h-4" />

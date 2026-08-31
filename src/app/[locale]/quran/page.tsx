@@ -62,7 +62,7 @@ export default function QuranPage() {
           </div>
           <button
             onClick={toggleReciterPanel}
-            className="font-ui flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-sm border border-gold bg-paper px-3 sm:px-4 py-2 sm:py-3 text-xs font-semibold text-emerald-deep shadow-[var(--shadow-deep)] transition-colors hover:bg-gold/10"
+            className="font-ui flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-sm border border-gold bg-parchment px-3 sm:px-4 py-2 sm:py-3 text-xs font-semibold text-navy shadow-[var(--shadow-deep)] transition-colors hover:bg-gold/10"
             aria-label="Choose reciter"
           >
             <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -77,7 +77,7 @@ export default function QuranPage() {
       {/* Continue Listening carousel */}
       {recentSurahData.length > 0 && (
         <div className="mx-auto mt-6 sm:mt-8 max-w-[920px] px-5 sm:px-6">
-          <p className="eyebrow mb-2 sm:mb-3 text-maroon">
+          <p className="eyebrow mb-2 sm:mb-3 text-crimson">
             <Khatam className="mr-1 inline-block h-2.5 w-2.5 sm:h-[11px] sm:w-[11px]" />
             {t('continueListening')}
           </p>
@@ -105,7 +105,7 @@ export default function QuranPage() {
                       className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full border font-display text-[10px] sm:text-xs ${
                         isActive && isPlaying
                           ? 'border-gold bg-gold text-ink'
-                          : 'border-maroon text-maroon'
+                          : 'border-crimson text-crimson'
                       }`}
                     >
                       {surah.number}
@@ -115,13 +115,13 @@ export default function QuranPage() {
                     </p>
                     <span
                       className={`flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-full ${
-                        isActive ? 'bg-gold text-ink' : 'bg-emerald-deep/5 text-emerald-deep'
+                        isActive ? 'bg-gold text-ink' : 'bg-navy/5 text-navy'
                       }`}
                     >
                       {isActive && isPlaying ? <Pause className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> : <Play className="ml-px h-2.5 w-2.5 sm:h-3 sm:w-3" />}
                     </span>
                   </div>
-                  <p className="arabic-name truncate text-sm sm:text-base leading-snug text-emerald-deep" dir="rtl">
+                  <p className="arabic-name truncate text-sm sm:text-base leading-snug text-navy" dir="rtl">
                     {surah.arabicName}
                   </p>
                   <p className="mt-0.5 sm:mt-1 font-ui text-[9px] sm:text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -137,7 +137,7 @@ export default function QuranPage() {
       {/* Full index */}
       <main className="mx-auto w-full max-w-[920px] px-5 pb-24 pt-6 sm:px-6 sm:pb-28 sm:pt-8">
         <div className="mb-2 flex items-center justify-between">
-          <p className="eyebrow text-emerald-mid text-[10px] sm:text-xs">{t('allSurahs')}</p>
+          <p className="eyebrow text-navy-light text-[10px] sm:text-xs">{t('allSurahs')}</p>
           <span className="font-ui text-[10px] sm:text-[11px] text-muted-foreground">{t('totalSurahs')}</span>
         </div>
         <div className="no-scrollbar mb-3 sm:mb-4 flex gap-1.5 sm:gap-2 overflow-x-auto pb-1">
@@ -152,7 +152,7 @@ export default function QuranPage() {
               className={`shrink-0 rounded-full border px-3 sm:px-4 py-1 sm:py-1.5 font-ui text-[11px] sm:text-xs font-semibold transition-colors ${
                 revelationFilter === chip.key
                   ? 'border-gold bg-gold text-ink'
-                  : 'border-gold/40 bg-paper text-emerald-deep hover:bg-gold/10'
+                  : 'border-gold/40 bg-parchment text-navy hover:bg-gold/10'
               }`}
             >
               {chip.label}

@@ -13,8 +13,8 @@ export default function FilterBar() {
   } = useAudioStore();
 
   return (
-    <div className="relative flex items-center gap-2 sm:gap-3 border border-gold bg-paper px-3 sm:px-[18px] py-2 sm:py-3.5 shadow-[var(--shadow-deep)] transition-colors focus-within:bg-white">
-      <Search className="h-4 w-4 shrink-0 text-maroon" />
+    <div className="relative flex items-center gap-2 sm:gap-3 border border-gold bg-parchment px-3 sm:px-[18px] py-2 sm:py-3.5 shadow-[var(--shadow-deep)] transition-colors focus-within:bg-white">
+      <Search className="h-4 w-4 shrink-0 text-crimson" />
       <input
         type="text"
          placeholder={t('placeholder')}
@@ -27,7 +27,7 @@ export default function FilterBar() {
         <button
           onClick={() => setSearchQuery('')}
           aria-label="Clear search"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-maroon"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-crimson"
         >
           <X className="h-4 w-4" />
         </button>

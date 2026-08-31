@@ -45,12 +45,13 @@ const TILES_HREF = [
 
 function SectionHead({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
-    <div className="mx-auto mb-8 max-w-[640px] text-center sm:mb-11">
-      <p className="eyebrow flex items-center justify-center gap-2.5 text-maroon">
+    <div className="mx-auto mb-10 max-w-[640px] text-center sm:mb-12">
+      <p className="eyebrow flex items-center justify-center gap-2.5 text-crimson">
         <Khatam className="h-3 w-3" />
         {eyebrow}
       </p>
-      <h2 className="mt-2 sm:mt-3 text-[clamp(24px,3.2vw,38px)]">{title}</h2>
+      <h2 className="mt-2.5 sm:mt-3 font-display text-[clamp(24px,3.2vw,38px)] text-ink">{title}</h2>
+      <div className="divider-ornate mt-4 mx-auto max-w-[120px]" />
     </div>
   );
 }
@@ -84,12 +85,12 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen">
       {/* ---------------- HERO ---------------- */}
-      <section className="hero-bg relative overflow-hidden px-6 pb-[60px] pt-[min(11vw,90px)] text-center text-ivory">
+      <section className="hero-bg relative overflow-hidden px-6 pb-[60px] pt-[min(11vw,90px)] text-center text-cream">
         <div
           className="pointer-events-none absolute left-0 right-0 top-[-30%] mx-auto h-[min(80vw,900px)] w-[min(80vw,900px)]"
           aria-hidden="true"
         >
-          <Khatam className="star-spin h-full w-full text-gold opacity-[0.16]" />
+          <Khatam className="star-spin h-full w-full text-gold opacity-[0.18]" />
         </div>
         <div className="relative z-10 mx-auto max-w-[760px]">
           <p className="hero-basmala basmala-glow mb-6" dir="rtl">
@@ -107,23 +108,23 @@ export default function LandingPage() {
                 <p className="hero-ar mb-3" dir="rtl">
                   {ayahs[activeAyah].arabic}
                 </p>
-                <p className="font-display mx-auto max-w-[480px] text-[clamp(15px,1.9vw,19px)] italic leading-relaxed text-ivory-dim">
+                <p className="font-display mx-auto max-w-[480px] text-[clamp(15px,1.9vw,19px)] italic leading-relaxed text-cream/75">
                   &ldquo;{ayahs[activeAyah].english}&rdquo;
                 </p>
               </motion.div>
             </AnimatePresence>
           </div>
-          <p className="eyebrow mt-3.5 tracking-[0.1em] text-gold">{ayahs[activeAyah].surah}</p>
+          <p className="eyebrow mt-3.5 tracking-[0.1em] text-gold-bright">{ayahs[activeAyah].surah}</p>
           <div className="mt-6 sm:mt-9 flex flex-wrap justify-center gap-3 sm:gap-4">
             <Link
               href="/quran"
-              className="font-ui inline-flex items-center gap-2 rounded-sm bg-gold px-5 sm:px-[30px] py-2.5 sm:py-3.5 text-[12px] sm:text-[13px] font-semibold tracking-wide text-ink transition-all hover:-translate-y-0.5 hover:bg-gold-bright hover:shadow-[0_10px_30px_rgba(199,161,92,.35)]"
+              className="font-ui inline-flex items-center gap-2 rounded-sm bg-gold px-5 sm:px-[30px] py-2.5 sm:py-3.5 text-[12px] sm:text-[13px] font-semibold tracking-wide text-ink transition-all hover:-translate-y-0.5 hover:bg-gold-bright hover:shadow-[0_10px_30px_rgba(201,168,76,.4)]"
             >
               {t('listenToQuran')}
             </Link>
             <Link
               href="/search"
-              className="font-ui inline-flex items-center gap-2 rounded-sm border border-ivory/35 px-5 sm:px-[30px] py-2.5 sm:py-3.5 text-[12px] sm:text-[13px] font-semibold tracking-wide text-ivory transition-all hover:-translate-y-0.5 hover:border-gold-bright hover:text-gold-bright"
+              className="font-ui inline-flex items-center gap-2 rounded-sm border border-cream/35 px-5 sm:px-[30px] py-2.5 sm:py-3.5 text-[12px] sm:text-[13px] font-semibold tracking-wide text-cream transition-all hover:-translate-y-0.5 hover:border-gold-bright hover:text-gold-bright"
             >
               {t('searchSurahs')}
             </Link>
@@ -132,35 +133,35 @@ export default function LandingPage() {
       </section>
 
       {/* ---------------- QUICK ACCESS ---------------- */}
-      <section id="quick-access" className="px-5 py-12 sm:py-20">
+      <section id="quick-access" className="px-5 py-12 sm:py-20 bg-cream islamic-pattern-subtle">
         <SectionHead eyebrow={t('beginHere')} title={t('nineWays')} />
         <div className="mx-auto grid max-w-[1180px] grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
           {TILES_HREF.map((href, i) => (
             <Link
               key={href}
               href={href}
-              className="tile-corners group block w-full border border-gold/25 bg-emerald-deep p-5 pb-4 text-left text-ivory transition-all duration-300 hover:-translate-y-1.5 hover:border-gold hover:shadow-[var(--shadow-deep)] sm:p-7 sm:pb-6"
+              className="tile-corners group block w-full border border-gold/30 bg-navy p-5 pb-4 text-left text-cream transition-all duration-300 hover:-translate-y-1.5 hover:border-gold hover:shadow-[var(--shadow-deep)] sm:p-7 sm:pb-6"
             >
-              <Khatam className="mb-3 h-5 w-5 sm:h-6 sm:w-6 text-gold transition-transform duration-300 group-hover:rotate-45" />
-              <h3 className="mb-1 text-base sm:text-lg leading-snug">{tiles[i].title}</h3>
-              <p className="font-ui text-xs leading-relaxed text-ivory-dim">{tiles[i].desc}</p>
+              <Khatam className="mb-3 h-5 w-5 sm:h-6 sm:w-6 text-gold-bright transition-transform duration-300 group-hover:rotate-45" />
+              <h3 className="mb-1 text-base sm:text-lg leading-snug font-display">{tiles[i].title}</h3>
+              <p className="font-ui text-xs leading-relaxed text-cream/70">{tiles[i].desc}</p>
             </Link>
           ))}
         </div>
       </section>
 
       {/* ---------------- INDEX PREVIEW ---------------- */}
-      <section id="index" className="bg-[#F1E9D4] px-5 py-12 sm:py-20">
+      <section id="index" className="bg-parchment px-5 py-12 sm:py-20">
         <SectionHead eyebrow={t('surahCountEyebrow')} title={t('indexTitle')} />
         <div className="mx-auto max-w-[920px]">
-          <div className="border-t border-emerald-deep/15">
+          <div className="border-t border-navy/15">
             {previewSurahs.map((surah) => (
               <Link
                 key={surah.number}
                 href={`/quran?surah=${surah.number}`}
-                className="group grid grid-cols-[28px_1fr_auto] sm:grid-cols-[36px_1fr_auto_auto] items-center gap-2 sm:gap-4 border-b border-emerald-deep/10 py-2 sm:py-3.5 pr-1 transition-colors hover:bg-gold/10"
+                className="group grid grid-cols-[28px_1fr_auto] sm:grid-cols-[36px_1fr_auto_auto] items-center gap-2 sm:gap-4 border-b border-navy/10 py-2 sm:py-3.5 pr-1 transition-colors hover:bg-gold/10"
               >
-                <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full border border-maroon font-display text-xs sm:text-sm text-maroon">
+                <span className="surah-number-badge flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full font-display text-xs sm:text-sm">
                   {surah.number}
                 </span>
                 <span className="min-w-0">
@@ -171,13 +172,13 @@ export default function LandingPage() {
                     </span>
                   </span>
                 </span>
-                <span className="arabic-name text-base sm:text-xl leading-none text-emerald-deep sm:hidden" dir="rtl">
+                <span className="arabic-name text-base sm:text-xl leading-none text-navy sm:hidden" dir="rtl">
                   {surah.arabicName}
                 </span>
-                <span className="hidden whitespace-nowrap text-right font-ui text-[10.5px] text-[#8a8168] sm:block">
+                <span className="hidden whitespace-nowrap text-right font-ui text-[10.5px] text-muted-foreground sm:block">
                   {surah.ayahCount} {tCommon('ayat')}
                 </span>
-                <span className="arabic-name text-base sm:text-xl leading-none text-emerald-deep hidden sm:block" dir="rtl">
+                <span className="arabic-name text-base sm:text-xl leading-none text-navy hidden sm:block" dir="rtl">
                   {surah.arabicName}
                 </span>
               </Link>
@@ -186,7 +187,7 @@ export default function LandingPage() {
           <div className="mt-9 flex justify-center">
             <Link
               href="/quran"
-              className="font-ui inline-flex items-center gap-2.5 rounded-sm bg-emerald-deep px-[30px] py-3.5 text-[13px] font-semibold tracking-wide text-ivory transition-all hover:-translate-y-0.5 hover:bg-emerald-mid hover:shadow-[0_10px_30px_rgba(11,59,44,.35)]"
+              className="font-ui inline-flex items-center gap-2.5 rounded-sm bg-navy px-[30px] py-3.5 text-[13px] font-semibold tracking-wide text-cream transition-all hover:-translate-y-0.5 hover:bg-navy-light hover:shadow-[0_10px_30px_rgba(26,46,74,.35)]"
             >
               {t('viewAllSurahs')}
             </Link>

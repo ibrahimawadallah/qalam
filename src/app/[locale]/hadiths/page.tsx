@@ -90,7 +90,7 @@ export default function HadithsPage() {
               setCollection(e.target.value);
               setPage(1);
             }}
-            className="flex-1 rounded-sm border border-gold/40 bg-paper px-3 py-3 font-ui text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-gold"
+            className="flex-1 rounded-sm border border-gold/40 bg-parchment px-3 py-3 font-ui text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-gold"
           >
             {COLLECTIONS.map((c) => (
               <option key={c.id} value={c.id} className="bg-background text-foreground">
@@ -101,7 +101,7 @@ export default function HadithsPage() {
           <button
             onClick={loadHadiths}
             disabled={loading}
-            className="flex items-center justify-center gap-2 rounded-sm bg-emerald-deep px-5 py-3 font-ui text-sm font-semibold text-ivory transition-colors hover:bg-emerald-mid disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-sm bg-navy px-5 py-3 font-ui text-sm font-semibold text-cream transition-colors hover:bg-navy-light disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             {loading ? tCommon('loading') : t('refresh')}
@@ -110,8 +110,8 @@ export default function HadithsPage() {
 
         {error && <p className="mb-4 font-ui text-xs text-destructive">{error}</p>}
 
-        <div className="mb-4 flex items-center justify-between border-b border-emerald-deep/15 pb-3">
-          <p className="eyebrow text-maroon">{currentCollection.name}</p>
+        <div className="mb-4 flex items-center justify-between border-b border-navy/15 pb-3">
+          <p className="eyebrow text-crimson">{currentCollection.name}</p>
           {data && (
             <p className="font-ui text-xs text-muted-foreground">
               {t.rich('pageOfTotal', {
@@ -126,7 +126,7 @@ export default function HadithsPage() {
         <div className="space-y-4">
           {data?.hadiths.map((hadith) => (
             <article key={hadith.number} className="warm-card rounded-sm p-5 sm:p-7">
-              <span className="font-display text-sm text-maroon">#{hadith.number}</span>
+              <span className="font-display text-sm text-crimson">#{hadith.number}</span>
               <p
                 className="arabic-name mt-2 mb-4 text-[clamp(18px,2.2vw,22px)] leading-loose text-ink"
                 dir="rtl"

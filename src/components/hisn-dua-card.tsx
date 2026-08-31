@@ -58,8 +58,8 @@ export default function DuaCard({ dua }: { dua: Dua }) {
                  aria-label={isPlaying ? t('pauseRecitation') : t('playRecitation')}
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all ${
                   isPlaying
-                    ? "border border-emerald-deep bg-emerald-deep text-gold-bright"
-                    : "border border-emerald-deep/25 bg-transparent text-emerald-deep hover:bg-emerald-deep hover:text-gold-bright"
+                    ? "border border-navy bg-navy text-gold-bright"
+                    : "border border-navy/25 bg-transparent text-navy hover:bg-navy hover:text-gold-bright"
                 }`}
               >
                 {isPlaying ? (
@@ -75,7 +75,7 @@ export default function DuaCard({ dua }: { dua: Dua }) {
             </span>
           )}
           {dua.repeat > 1 && (
-            <span className="shrink-0 whitespace-nowrap rounded-full border border-maroon px-2.5 py-1 font-ui text-[10.5px] uppercase tracking-wider text-maroon">
+            <span className="shrink-0 whitespace-nowrap rounded-full border border-crimson px-2.5 py-1 font-ui text-[10.5px] uppercase tracking-wider text-crimson">
               ×{dua.repeat}
             </span>
           )}
@@ -92,7 +92,7 @@ export default function DuaCard({ dua }: { dua: Dua }) {
           <div className="grid gap-3 sm:grid-cols-2">
             {dua.transliteration && (
                <div className="rounded-sm border-l-[3px] border-gold bg-muted/40 p-3">
-                 <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-maroon">{t('transliteration')}</p>
+                 <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-crimson">{t('transliteration')}</p>
                 <p className="font-serif text-[13px] italic leading-relaxed text-[#4a4433]" dir="ltr">
                   {dua.transliteration}
                 </p>
@@ -100,7 +100,7 @@ export default function DuaCard({ dua }: { dua: Dua }) {
             )}
             {dua.englishTranslation && (
                <div className={`rounded-sm border-l-[3px] border-gold bg-muted/40 p-3 ${!dua.transliteration ? "sm:col-span-2" : ""}`}>
-                 <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-maroon">{t('translation')}</p>
+                 <p className="eyebrow mb-1.5 text-[9.5px] tracking-[0.1em] text-crimson">{t('translation')}</p>
                 <p className="font-serif text-[13.5px] leading-relaxed text-ink" dir="ltr">
                   {dua.englishTranslation}
                 </p>

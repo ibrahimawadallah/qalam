@@ -9,7 +9,7 @@ interface PageHeadProps {
 
 export default function PageHead({ eyebrow, title, children }: PageHeadProps) {
   return (
-    <div className="page-enter relative overflow-hidden bg-emerald-deep px-5 pb-8 pt-9 text-center text-ivory sm:px-6 sm:pb-10 sm:pt-11">
+    <div className="page-enter relative overflow-hidden bg-navy px-5 pb-8 pt-9 text-center text-cream sm:px-6 sm:pb-10 sm:pt-11">
       <Khatam className="pointer-events-none absolute -right-10 -top-10 h-[180px] w-[180px] text-gold opacity-10 sm:h-[220px] sm:w-[220px]" />
       <p className="eyebrow relative flex items-center justify-center gap-2 text-gold-bright">
         <Khatam className="h-[11px] w-[11px]" />
@@ -17,7 +17,7 @@ export default function PageHead({ eyebrow, title, children }: PageHeadProps) {
       </p>
       <h1 className="relative mb-2 mt-2.5 text-[clamp(28px,4vw,42px)] leading-tight">{title}</h1>
       {children && (
-        <p className="relative mx-auto max-w-[520px] text-sm leading-relaxed text-ivory-dim">
+        <p className="relative mx-auto max-w-[520px] text-sm leading-relaxed text-cream/70">
           {children}
         </p>
       )}
