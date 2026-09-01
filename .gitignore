@@ -4,27 +4,48 @@ node_modules
 *.tsbuildinfo
 dist
 .wrangler
+.vercel/
 
 # Generated / junk
 next-env.d.ts
 firebase-debug.log
 vllm.log
 *.log
+build.txt
+diag.txt
+lint.txt
+t1.txt
+srctree.txt
+dev-server*.log
 
 # Accidental third-party dirs
 NRedisStack-master/
 
-# Vercel
-.vercel/
+# Backup dirs
+node_modules.backup/
+.claude/
 
-# Database
-prisma/
-
+# Agent/CI temp dirs
+agent-ctx/
+.pi/
+.playwright-mcp/
+.zscripts/
+mini-service/
+examples/
 db/
+download/
+upload/
+panda-export/
+.tmp/
+
+# Local dev scripts
+run-dev.js
+start-dev.ps1
+
+# Images
 *.jpg
 *.png
 *.jpeg
 
-# Local backups / agent state
-node_modules.backup/
-.claude/
+# Database
+prisma/
