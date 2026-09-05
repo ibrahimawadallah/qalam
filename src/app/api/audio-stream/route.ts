@@ -4,13 +4,32 @@ import { getSurahAudioUrl, getFallbackAudioUrl, getFallbackAudioUrlAlt } from "@
 // Streams surah audio through the Cloudflare Worker so the browser loads it
 // same-origin. This avoids direct cross-origin fetches to mp3quran.net (which
 // can fail due to regional/CORS/network blocks for some users).
-// Primary source: mp3quran.net. Fallbacks: cdn.islamic.network (audio-surah/128,
-// then audio/128) — these cover the majority of reciters.
+//
+// Two modes:
+//  - Full surah (no `ayah` param): a single continuous MP3.
+//    Primary source: mp3quran.net. Fallbacks: cdn.islamic.network
+//    (audio-surah/128, then audio/128).
+//  - Per-ayah segments (`ayah` param = global ayah number): the exact
+//    segment the timing API measured, so highlighting stays in sync with the
+//    recitation. Candidates are cdn.islamic.network/quran/audio/{bitrate}.
+//
 // Supports HTTP Range requests so the <audio> element can seek (returns 206).
 
 export const runtime = "nodejs";
 
-function buildCandidateUrls(reciterId: string, surahNumber: number): string[] {
+function buildCandidateUrls(reciterId: string, surahNumber: number, ayah?: number, bitrate?: string): string[] {
+  if (ayah != null) {
+    const prefer = bitrate || "";
+    const order = prefer
+      ? [prefer, ...["192", "128", "64"].filter((b) => b !== prefer)]
+      : ["192", "128", "64"];
+    const urls: string[] = [];
+    for (const br of order) {
+      urls.push(`https://cdn.islamic.network/quran/audio/${br}/${reciterId}/${ayah}.mp3`);
+    }
+    return urls;
+  }
+
   const primary = getSurahAudioUrl(reciterId, surahNumber); // mp3quran
   const fallback = getFallbackAudioUrl(reciterId, surahNumber); // islamic.network /audio-surah/
   const fallbackAlt = getFallbackAudioUrlAlt(reciterId, surahNumber); // islamic.network /audio/
@@ -42,6 +61,8 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const reciterId = url.searchParams.get("reciter");
   const surahParam = url.searchParams.get("surah");
+  const ayahParam = url.searchParams.get("ayah");
+  const bitrateParam = url.searchParams.get("bitrate") || undefined;
   const range = request.headers.get("range") ?? null;
 
   if (!reciterId || !surahParam) {
@@ -59,7 +80,15 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const candidates = buildCandidateUrls(reciterId, surahNumber);
+  const ayahNumber = ayahParam != null ? Number(ayahParam) : null;
+  if (ayahNumber !== null && (!Number.isInteger(ayahNumber) || ayahNumber < 1 || ayahNumber > 6236)) {
+    return new Response(JSON.stringify({ error: "Invalid ayah number" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const candidates = buildCandidateUrls(reciterId, surahNumber, ayahNumber ?? undefined, bitrateParam);
 
   let lastError: unknown = null;
   for (const candidate of candidates) {
@@ -93,7 +122,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  console.error("audio-stream: all sources failed", { reciterId, surahNumber, lastError });
+  console.error("audio-stream: all sources failed", { reciterId, surahNumber, ayahNumber, lastError });
   return new Response(
     JSON.stringify({ error: "Unable to load audio from any source" }),
     { status: 502, headers: { "Content-Type": "application/json" } }

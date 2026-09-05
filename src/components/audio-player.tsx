@@ -17,7 +17,6 @@ import {
   BookmarkCheck,
   Shuffle,
   Repeat,
-  Download,
   ChevronUp,
   ChevronDown,
   GripHorizontal,
@@ -28,10 +27,11 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AyahTiming {
-  timestamp: number;
-  ayahKey: string;
-  audioUrl: string;
-  duration: number;
+  ayahKey?: string;
+  number?: number;
+  numberInSurah: number;
+  duration: number; // seconds
+  audioUrl: string | null; // per-ayah stream URL, or null => use full-surah file
 }
 
 function formatTime(seconds: number): string {
@@ -43,15 +43,21 @@ function formatTime(seconds: number): string {
 
 export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const preloadRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
   const touchStartX = useRef(0);
   const isSeekingRef = useRef(false);
 
-  const ayahTimingsRef = useRef<AyahTiming[]>([]);
+  // Timing model — expressed in *virtual seconds* that always match playback.
+  const timingsRef = useRef<AyahTiming[]>([]);
+  const cumStartRef = useRef<number[]>([]);
   const totalDurationRef = useRef(0);
+  const modeRef = useRef<"segments" | "full">("segments");
   const fullUrlRef = useRef("");
+  const activeIdxRef = useRef(0);
+  const pendingStartOffsetRef = useRef<number | null>(null);
+  const pendingPlayRef = useRef(false);
+  const rescaledRef = useRef(false);
   const lastAyahRef = useRef(0);
 
   const {
@@ -102,16 +108,121 @@ export default function AudioPlayer() {
     []
   );
 
-  const findAyahForTime = useCallback((ct: number): number => {
-    const timings = ayahTimingsRef.current;
-    if (!timings.length) return 0;
-    let cumulative = 0;
-    for (let i = 0; i < timings.length; i++) {
-      if (ct < cumulative + timings[i].duration) return i;
-      cumulative += timings[i].duration;
+  /** Map a virtual time (seconds) onto a surah index and in-segment offset. */
+  const indexForVirtualTime = useCallback((vt: number): number => {
+    const starts = cumStartRef.current;
+    if (!starts.length) return 0;
+    let lo = 0;
+    let hi = starts.length - 1;
+    if (vt >= starts[hi]) return hi;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (starts[mid] <= vt) lo = mid;
+      else hi = mid - 1;
     }
-    return timings.length - 1;
+    return lo;
   }, []);
+
+  const currentVirtualTime = useCallback((): number => {
+    const audio = audioRef.current;
+    if (!audio) return 0;
+    if (modeRef.current === "segments") {
+      const idx = Math.min(activeIdxRef.current, cumStartRef.current.length - 1);
+      return cumStartRef.current[idx] + (audio.currentTime || 0);
+    }
+    return audio.currentTime || 0;
+  }, []);
+
+  /** Recompute cumulative start times from timingsRef durations. */
+  const rebuildCumulative = useCallback(() => {
+    let sum = 0;
+    const starts: number[] = [];
+    for (const tm of timingsRef.current) {
+      starts.push(sum);
+      sum += tm.duration;
+    }
+    cumStartRef.current = starts;
+    totalDurationRef.current = sum;
+  }, []);
+
+  // ------------------------------------------------------------------
+  // Load a timed entry (segment or position inside the full file)
+  // ------------------------------------------------------------------
+
+  const loadTimedEntry = useCallback((idx: number, offsetSec: number) => {
+    const audio = audioRef.current;
+    const timings = timingsRef.current;
+    if (!audio || !timings.length) return;
+
+    const safeIdx = Math.max(0, Math.min(idx, timings.length - 1));
+    const entry = timings[safeIdx];
+    activeIdxRef.current = safeIdx;
+
+    if (!entry.audioUrl || modeRef.current !== "segments") {
+      // Fallback: seek inside the full-surah file.
+      looseSeekInto(fullUrlRef.current, offsetSec + (cumStartRef.current[safeIdx] || 0));
+      return;
+    }
+
+    const src = entry.audioUrl;
+    const shouldPlay = useAudioStore.getState().isPlaying;
+    pendingStartOffsetRef.current = offsetSec;
+    pendingPlayRef.current = shouldPlay;
+
+    if (audio.getAttribute("src") !== src) {
+      audio.src = src;
+      audio.load();
+    } else {
+      // Already playing the right file — just seek.
+      const apply = () => {
+        try {
+          audio.currentTime = offsetSec;
+        } catch {}
+        if (pendingPlayRef.current && audio.paused) {
+          pendingPlayRef.current = false;
+          audio.play().catch(() => {});
+        }
+      };
+      apply();
+    }
+  }, []);
+
+  /** For full-surah mode: set the element to the full file and seek to `timeSec`. */
+  const looseSeekInto = useCallback((src: string, timeSec: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const shouldPlay = useAudioStore.getState().isPlaying;
+
+    if (audio.getAttribute("src") !== src) {
+      audio.src = src;
+      pendingStartOffsetRef.current = timeSec;
+      pendingPlayRef.current = shouldPlay;
+      audio.load();
+    } else {
+      pendingStartOffsetRef.current = null;
+      pendingPlayRef.current = shouldPlay;
+      try {
+        audio.currentTime = timeSec;
+      } catch {}
+      if (pendingPlayRef.current && audio.paused) {
+        pendingPlayRef.current = false;
+        audio.play().catch(() => {});
+      }
+    }
+  }, []);
+
+  /** Preload the segment right after `idx` into the browser cache. */
+  const preloadNext = useCallback((idx: number) => {
+    const timings = timingsRef.current;
+    if (modeRef.current !== "segments" || !timings[idx + 1]?.audioUrl) return;
+    const next = timings[idx + 1];
+    const audio = audioRef.current;
+    if (!audio) return;
+    // A lightweight warm-up fetch so the next segment is ready when 'ended' fires.
+    fetch(next.audioUrl as string, { method: "HEAD", cache: "force-cache" }).catch(() => {});
+  }, []);
+
 
   // ------------------------------------------------------------------
   // Load surah + timing data
@@ -121,25 +232,30 @@ export default function AudioPlayer() {
     if (!currentSurah || !currentReciter) return;
 
     const controller = new AbortController();
-    const url = fullAudioUrl(currentSurah.number, currentReciter);
-    fullUrlRef.current = url;
 
     // Reset state
-    ayahTimingsRef.current = [];
+    timingsRef.current = [];
+    cumStartRef.current = [];
     totalDurationRef.current = 0;
+    activeIdxRef.current = 0;
     lastAyahRef.current = 0;
+    pendingStartOffsetRef.current = null;
+    pendingPlayRef.current = false;
+    rescaledRef.current = false;
     setDisplayTime(0);
     setDisplayDuration(0);
     setAyahProgress(0);
     setAudioError(null);
     setIsBuffering(true);
-    setPendingPlay(false);
 
     const audio = audioRef.current;
     if (audio) {
-      audio.src = url;
+      audio.pause();
+      audio.removeAttribute("src");
       audio.load();
     }
+
+    fullUrlRef.current = fullAudioUrl(currentSurah.number, currentReciter);
 
     fetch(`/api/timing/${currentSurah.number}?reciter=${currentReciter}`, {
       signal: controller.signal,
@@ -147,14 +263,22 @@ export default function AudioPlayer() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (controller.signal.aborted || !data?.timings?.length) return;
-        ayahTimingsRef.current = data.timings;
-        totalDurationRef.current = data.timings.reduce(
-          (s: number, t: AyahTiming) => s + t.duration,
-          0
-        );
+
+        timingsRef.current = data.timings as AyahTiming[];
+        modeRef.current = data.source === "segments" ? "segments" : "full";
+        rebuildCumulative();
         setDisplayDuration(totalDurationRef.current);
-        if (isPlaying) {
-          setPendingPlay(true);
+
+        // Auto-start (and resume from a saved bookmark) if the user already
+        // hit play while the timing data was loading.
+        if (useAudioStore.getState().isPlaying) {
+          const key = `${currentSurah.number}-${currentReciter}`;
+          const bookmarkTime = loadBookmark(key);
+          const startAt = bookmarkTime != null ? bookmarkTime : 0;
+          const idx = indexForVirtualTime(startAt);
+          const offset = Math.max(0, startAt - cumStartRef.current[idx]);
+          pendingPlayRef.current = true;
+          loadTimedEntry(idx, offset);
         }
       })
       .catch(() => {
@@ -165,7 +289,8 @@ export default function AudioPlayer() {
       });
 
     return () => controller.abort();
-  }, [currentSurah, currentReciter, fullAudioUrl, isPlaying, setAudioError, setIsBuffering, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSurah, currentReciter]);
 
   // ------------------------------------------------------------------
   // Play / pause sync
@@ -173,16 +298,17 @@ export default function AudioPlayer() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !fullUrlRef.current) return;
+    if (!audio) return;
 
     if (isPlaying) {
-      audio.play().then(() => setPendingPlay(false)).catch(() => {
-        if (fullUrlRef.current && audio.src !== fullUrlRef.current) {
-          audio.src = fullUrlRef.current;
-          audio.load();
-          setPendingPlay(true);
-        }
-      });
+      const hasSrc = !!audio.getAttribute("src");
+      if (hasSrc) {
+        audio.play().then(() => setPendingPlay(false)).catch(() => {
+          pendingPlayRef.current = true;
+        });
+      } else {
+        pendingPlayRef.current = true;
+      }
     } else {
       audio.pause();
     }
@@ -199,33 +325,55 @@ export default function AudioPlayer() {
     const handlers: Record<string, EventListener> = {
       canplay: () => {
         setIsBuffering(false);
-        if (pendingPlay && isPlaying) {
-          setPendingPlay(false);
-          audio.play().catch(() => {});
+        const off = pendingStartOffsetRef.current;
+        if (off != null) {
+          pendingStartOffsetRef.current = null;
+          try {
+            audio.currentTime = off;
+          } catch {}
+        }
+        if (pendingPlayRef.current) {
+          pendingPlayRef.current = false;
+          audio.play().catch(() => setPendingPlay(true));
         }
       },
-      waiting: () => setIsBuffering(true),
+      waiting: () => {
+        // Only show the spinner for real initial/seek stalls, not the tiny
+        // buffering that happens between per-ayah segments.
+        if (!audio.readyState || audio.readyState === 0) {
+          setIsBuffering(true);
+        }
+      },
       playing: () => {
         setIsBuffering(false);
+        setPendingPlay(false);
+        pendingPlayRef.current = false;
         setAudioError(null);
       },
       ended: () => {
-        if (repeatOne) {
-          audio.currentTime = 0;
-          audio.play().catch(() => {});
-          return;
+        if (modeRef.current === "segments") {
+          if (repeatOne) {
+            loadTimedEntry(activeIdxRef.current, 0);
+          } else if (activeIdxRef.current < timingsRef.current.length - 1) {
+            const nextIdx = activeIdxRef.current + 1;
+            loadTimedEntry(nextIdx, 0);
+            lastAyahRef.current = timingsRef.current[nextIdx].numberInSurah;
+            setCurrentAyah(lastAyahRef.current);
+          } else {
+            nextSurah();
+          }
+        } else {
+          // Full-file playback reached the end of the surah.
+          if (repeatOne) {
+            looseSeekInto(fullUrlRef.current, 0);
+          } else {
+            nextSurah();
+          }
         }
-        nextSurah();
       },
       error: () => {
         setIsBuffering(false);
         setAudioError(t("loadError"));
-      },
-      loadedmetadata: () => {
-        if (audio.duration && isFinite(audio.duration)) {
-          setDisplayDuration(audio.duration);
-          totalDurationRef.current = audio.duration;
-        }
       },
     };
 
@@ -238,43 +386,62 @@ export default function AudioPlayer() {
         audio.removeEventListener(event, handler);
       });
     };
-  }, [nextSurah, setIsBuffering, setAudioError, repeatOne, pendingPlay, isPlaying, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nextSurah, loadTimedEntry, looseSeekInto, repeatOne, t]);
 
   // ------------------------------------------------------------------
-  // RAF — ayah tracking + progress
+  // RAF — ayah tracking + progress (virtual time based)
   // ------------------------------------------------------------------
 
   useEffect(() => {
     const tick = () => {
       const audio = audioRef.current;
-      const timings = ayahTimingsRef.current;
+      const timings = timingsRef.current;
       if (!audio || !timings.length || audio.paused) {
         rafRef.current = requestAnimationFrame(tick);
         return;
       }
 
-      const ct = audio.currentTime || 0;
-      const idx = findAyahForTime(ct);
-      const ayahNum = idx + 1;
-
-      if (ayahNum !== lastAyahRef.current) {
-        lastAyahRef.current = ayahNum;
-        setCurrentAyah(ayahNum);
+      // Rescale full-file timings to the real duration once known.
+      if (
+        modeRef.current === "full" &&
+        !rescaledRef.current &&
+        isFinite(audio.duration) &&
+        audio.duration > 0 &&
+        totalDurationRef.current > 0
+      ) {
+        const k = audio.duration / totalDurationRef.current;
+        if (Math.abs(k - 1) > 0.02) {
+          for (const tm of timings) tm.duration *= k;
+          rebuildCumulative();
+          totalDurationRef.current = audio.duration;
+          setDisplayDuration(audio.duration);
+        }
+        rescaledRef.current = true;
       }
 
-      setDisplayTime(ct);
-
-      // Ayah progress
-      let cum = 0;
-      for (let i = 0; i < idx; i++) cum += timings[i].duration;
-      const dur = timings[idx]?.duration || 1;
-      setAyahProgress(Math.max(0, Math.min(1, (ct - cum) / dur)));
+      const vt = currentVirtualTime();
+      const idx = indexForVirtualTime(vt);
+      const entry = timings[idx];
+      if (entry) {
+        const ayahNum = entry.numberInSurah;
+        if (ayahNum !== lastAyahRef.current) {
+          lastAyahRef.current = ayahNum;
+          setCurrentAyah(ayahNum);
+          if (modeRef.current === "segments") preloadNext(idx);
+        }
+        setDisplayTime(vt);
+        const segDur = entry.duration || 1;
+        setAyahProgress(
+          Math.max(0, Math.min(1, (vt - cumStartRef.current[idx]) / segDur))
+        );
+      }
 
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [findAyahForTime, setCurrentAyah]);
+  }, [currentVirtualTime, indexForVirtualTime, preloadNext, rebuildCumulative, setCurrentAyah]);
 
   // ------------------------------------------------------------------
   // Volume / speed
@@ -291,20 +458,6 @@ export default function AudioPlayer() {
   }, [playbackSpeed]);
 
   // ------------------------------------------------------------------
-  // Preload next surah
-  // ------------------------------------------------------------------
-
-  useEffect(() => {
-    if (!isPlaying || !currentSurah || !currentReciter) return;
-    const preload = preloadRef.current;
-    if (!preload) return;
-
-    const nextNum = currentSurah.number >= 114 ? 1 : currentSurah.number + 1;
-    preload.src = fullAudioUrl(nextNum, currentReciter);
-    preload.load();
-  }, [isPlaying, currentSurah, currentReciter, fullAudioUrl]);
-
-  // ------------------------------------------------------------------
   // Bookmarks
   // ------------------------------------------------------------------
 
@@ -318,27 +471,33 @@ export default function AudioPlayer() {
   }, [currentSurah, currentReciter, loadBookmark]);
 
   // ------------------------------------------------------------------
-  // Seek
+  // Seek — virtual time, works anywhere in the surah
   // ------------------------------------------------------------------
 
-  const seekTo = useCallback(
-    (time: number) => {
+  const seekToVirtual = useCallback(
+    (timeSec: number) => {
       const audio = audioRef.current;
       if (!audio || !totalDurationRef.current) return;
 
       isSeekingRef.current = true;
-      audio.currentTime = Math.max(0, Math.min(time, totalDurationRef.current));
-      setDisplayTime(audio.currentTime);
+      const clamped = Math.max(0, Math.min(timeSec, totalDurationRef.current));
+      setDisplayTime(clamped);
 
-      const idx = findAyahForTime(audio.currentTime);
-      lastAyahRef.current = idx + 1;
-      setCurrentAyah(idx + 1);
+      const idx = indexForVirtualTime(clamped);
+      const offset = Math.max(0, clamped - cumStartRef.current[idx]);
+      lastAyahRef.current = timingsRef.current[idx].numberInSurah;
+      setCurrentAyah(lastAyahRef.current);
+      setAyahProgress(
+        Math.max(0, Math.min(1, offset / (timingsRef.current[idx].duration || 1)))
+      );
 
-      if (isPlaying) audio.play().catch(() => {});
+      loadTimedEntry(idx, offset);
 
-      setTimeout(() => { isSeekingRef.current = false; }, 250);
+      setTimeout(() => {
+        isSeekingRef.current = false;
+      }, 250);
     },
-    [isPlaying, findAyahForTime, setCurrentAyah]
+    [indexForVirtualTime, loadTimedEntry, setCurrentAyah]
   );
 
   const handleProgressInteraction = useCallback(
@@ -347,9 +506,9 @@ export default function AudioPlayer() {
       if (!bar || !totalDurationRef.current) return;
       const rect = bar.getBoundingClientRect();
       const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-      seekTo(ratio * totalDurationRef.current);
+      seekToVirtual(ratio * totalDurationRef.current);
     },
-    [seekTo]
+    [seekToVirtual]
   );
 
   const handleProgressClick = useCallback(
@@ -375,20 +534,12 @@ export default function AudioPlayer() {
     setAudioError(null);
     setIsBuffering(true);
     lastAyahRef.current = 0;
-    setCurrentAyah(1);
+    setCurrentAyah(timingsRef.current[0]?.numberInSurah || 1);
     setDisplayTime(0);
     setAyahProgress(0);
-    setPendingPlay(true);
-
-    const url = fullAudioUrl(currentSurah.number, currentReciter);
-    fullUrlRef.current = url;
-
-    const audio = audioRef.current;
-    if (audio) {
-      audio.src = url;
-      audio.load();
-    }
-  }, [currentSurah, currentReciter, fullAudioUrl, setAudioError, setIsBuffering, setCurrentAyah]);
+    pendingPlayRef.current = true;
+    loadTimedEntry(0, 0);
+  }, [currentSurah, currentReciter, loadTimedEntry, setAudioError, setIsBuffering, setCurrentAyah]);
 
   // ------------------------------------------------------------------
   // Touch swipe
@@ -421,11 +572,11 @@ export default function AudioPlayer() {
           break;
         case "ArrowLeft":
           e.preventDefault();
-          seekTo(Math.max(0, (audioRef.current?.currentTime || 0) - 10));
+          seekToVirtual(Math.max(0, currentVirtualTime() - 10));
           break;
         case "ArrowRight":
           e.preventDefault();
-          seekTo(Math.min(totalDurationRef.current, (audioRef.current?.currentTime || 0) + 10));
+          seekToVirtual(currentVirtualTime() + 10);
           break;
         case "Escape":
           e.preventDefault();
@@ -447,7 +598,7 @@ export default function AudioPlayer() {
               clearBookmark(key);
               setIsBookmarked(false);
             } else {
-              saveBookmark(key, audioRef.current?.currentTime || 0);
+              saveBookmark(key, currentVirtualTime());
               setIsBookmarked(true);
             }
           }
@@ -462,7 +613,8 @@ export default function AudioPlayer() {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isPlayerVisible, currentSurah, currentReciter, togglePlay, hidePlayer, seekTo, nextSurah, prevSurah, isBookmarked, saveBookmark, clearBookmark, setPlaybackSpeed]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlayerVisible, currentSurah, currentReciter, togglePlay, hidePlayer, seekToVirtual, currentVirtualTime, nextSurah, prevSurah, isBookmarked, saveBookmark, clearBookmark, setPlaybackSpeed]);
 
   // ------------------------------------------------------------------
   // Render guard
@@ -479,7 +631,6 @@ export default function AudioPlayer() {
   return (
     <>
       <audio ref={audioRef} preload="auto" />
-      <audio ref={preloadRef} preload="none" className="hidden" />
 
       <div
         className="fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)]"
@@ -720,7 +871,7 @@ export default function AudioPlayer() {
                         clearBookmark(key);
                         setIsBookmarked(false);
                       } else {
-                        saveBookmark(key, audioRef.current?.currentTime || 0);
+                        saveBookmark(key, currentVirtualTime());
                         setIsBookmarked(true);
                       }
                     }}
