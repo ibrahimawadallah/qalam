@@ -264,7 +264,10 @@
     "tafsirAlMuyassarTitle": "التفسير الميسر · عربي",
     "loadingTafsir": "جارٍ تحميل التفسير…",
     "alNas": "الناس",
-    "alFatiha": "الفاتحة"
+    "alFatiha": "الفاتحة",
+    "retry": "إعادة المحاولة",
+    "pause": "إيقاف مؤقت",
+    "loadError": "تعذّر تحميل نص السورة"
   },
   "countrySelector": {
     "placeholderCountry": "اختر أو اكتب الدولة (مثال: ألمانيا)",

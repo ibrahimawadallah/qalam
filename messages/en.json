@@ -264,7 +264,10 @@
     "tafsirAlMuyassarTitle": "التفسير الميسر · Arabic",
     "loadingTafsir": "Loading tafsir…",
     "alNas": "Al-Nas",
-    "alFatiha": "Al-Fatiha"
+    "alFatiha": "Al-Fatiha",
+    "retry": "Retry",
+    "pause": "Pause",
+    "loadError": "Failed to load surah text"
   },
   "countrySelector": {
     "placeholderCountry": "Select or type country (e.g. Germany)",

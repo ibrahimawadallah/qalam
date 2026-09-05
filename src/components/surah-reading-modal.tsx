@@ -137,24 +137,37 @@ export default function SurahReadingModal() {
     setLoading(true);
     setError(null);
 
+    // Bound the wait: unmount signal + a 30s timeout combined.
+    const timeoutSignal = AbortSignal.timeout(30000);
+    const combinedSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
+
     try {
-      const res = await fetch(`/api/surah/${surahNumber}`, { signal });
+      const res = await fetch(`/api/surah/${surahNumber}`, { signal: combinedSignal });
       if (!res.ok) {
-        throw new Error("Failed to fetch surah text");
+        let detail = '';
+        try {
+          detail = (await res.json())?.error ?? '';
+        } catch { /* ignore */ }
+        throw new Error(detail || t('loadError'));
       }
       const data: SurahText = await res.json();
       if (signal?.aborted) return;
       cacheRef.current.set(surahNumber, data);
       setSurahText(data);
     } catch (err) {
+      // Unmount → stay silent. Timeout → translated message (the raw
+      // TimeoutError text is English-only and unhelpful).
       if (signal?.aborted) return;
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const isAbort =
+        err instanceof DOMException &&
+        (err.name === 'TimeoutError' || err.name === 'AbortError');
+      setError(isAbort ? t('loadError') : err instanceof Error ? err.message : t('loadError'));
     } finally {
       if (!signal?.aborted) {
         setLoading(false);
       }
     }
-  }, [surahNumber]);
+  }, [surahNumber, t]);
 
   useEffect(() => {
     if (!showSurahModal || !surahNumber) return;
@@ -825,7 +838,7 @@ export default function SurahReadingModal() {
             }}
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors font-ui text-xs touch-manipulation"
           >
-            <span className="truncate max-w-[40vw]">                   {surahNumber >= 114 ? t('alFatifa') : getSurahInfo(surahNumber + 1)?.englishName}</span>
+            <span className="truncate max-w-[40vw]">                   {surahNumber >= 114 ? t('alFatiha') : getSurahInfo(surahNumber + 1)?.englishName}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

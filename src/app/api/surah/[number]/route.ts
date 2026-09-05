@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server';
 import { SurahText, TranslationLanguage } from '@/lib/quran-types';
 
+// Quran text never changes — cache the response for a day so repeated opens
+// don't hammer the upstream API (which rate-limits aggressively).
+export const revalidate = 86400;
+
+// Upstream requests: cached + bounded so one slow endpoint can't hang the route.
+const UPSTREAM_TIMEOUT_MS = 20000;
+const upstreamInit: RequestInit = {
+  cache: 'force-cache',
+  signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+};
+
 // Languages to fetch (configurable)
 const TRANSLATION_LANGUAGES: TranslationLanguage[] = [
   'english',
@@ -46,7 +57,7 @@ export async function GET(
     }
 
     // Fetch Arabic (Uthmani) text
-    const arabicRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/quran-uthmani`);
+    const arabicRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/quran-uthmani`, upstreamInit);
     
     if (!arabicRes.ok) {
       return NextResponse.json(
@@ -75,7 +86,7 @@ export async function GET(
     // Fetch all translations in parallel
     const translationPromises = TRANSLATION_LANGUAGES.map(async (lang) => {
       try {
-        const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/${LANGUAGE_ENDPOINTS[lang]}`);
+        const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/${LANGUAGE_ENDPOINTS[lang]}`, upstreamInit);
         
         if (!res.ok) {
           console.warn(`Failed to fetch ${lang} translation: ${res.status}`);
@@ -109,7 +120,7 @@ export async function GET(
     // Fetch transliteration (en.transliteration edition)
     let translitAyahs: SurahText['translitAyahs'] = [];
     try {
-      const translitRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/en.transliteration`);
+      const translitRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/en.transliteration`, upstreamInit);
       if (translitRes.ok) {
         const translitData = await translitRes.json();
         if (translitData.code === 200) {
